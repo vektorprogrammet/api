@@ -49,7 +49,8 @@ HOSTING_URL=*urlen du kjører apiet fra, f.eks. localhost*
 
 Deretter må du sette opp databasetilkoblingene.
 
-Nå legger du inn databasetilkoblingsinnstillingene som miljøvariabler, anbefaler å bruke en `.env` fil. Du må legge inn alle disse innstillingene:
+Nå legger du inn databasetilkoblingsinnstillingene som miljøvariabler, anbefaler å bruke en `.env` fil.
+Du må legge inn alle disse innstillingene:
 
 ```.env
 DATABASE_HOST=*f.eks. localhost*
@@ -91,7 +92,8 @@ Siden databasen fortsatt er i utvilking og vi ikke har skaffet et CA-sertifikat 
 DATABASE_SSL_OPTION=dev
 ```
 
-Eventuelt **kan** du kopiere CA-serifikatet til databasen fra digital ocean og sette dette i en miljøvariabel, men dette er unødvendig under utvilking. Om du uansett vil prøve må du sette:
+Eventuelt **kan** du kopiere CA-serifikatet til databasen fra digital ocean og sette dette i en miljøvariabel, men dette er unødvendig under utvilking.
+Om du uansett vil prøve må du sette:
 
 ```.env
 DATABASE_SSL_OPTION=prod-provide_ca_cert
