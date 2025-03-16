@@ -13,8 +13,8 @@ export const genders = mainSchema.enum("gender", [
 
 export const applicationsTable = mainSchema.table("applications", {
 	id: serial("id").primaryKey(),
-	firstname: text("name").notNull(),
-	lastname: text("name").notNull(),
+	firstName: text("firstname").notNull(),
+	lastName: text("lastname").notNull(),
 	gender: genders("gender").notNull(),
 	email: text("email").notNull(),
 	fieldOfStudyId: integer("fieldOfStudyId")
