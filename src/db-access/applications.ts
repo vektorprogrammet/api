@@ -1,23 +1,23 @@
-import { database } from "@db/setup/queryPostgres";
-import { applicationsTable, teamApplicationsTable } from "@db/tables/applications";
+import { database } from "@/db/setup/query-postgres";
+import { applicationsTable, teamApplicationsTable } from "@/db/tables/applications";
 import {
-	type ORMResult,
+	type OrmResult,
 	handleDatabaseFullfillment,
 	handleDatabaseRejection,
 	ormError,
-} from "@src/error/ormError";
-import type { QueryParameters } from "@src/request-handling/common";
-import type { NewTeamApplication } from "@src/request-handling/applications";
+} from "@/src/error/orm-error";
+import type { QueryParameters } from "@/src/request-handling/common";
+import type { NewTeamApplication } from "@/src/request-handling/applications";
 import type {
 	ApplicationKey,
 	TeamApplication,
 	TeamKey,
-} from "@src/response-handling/applications";
+} from "@/src/response-handling/applications";
 import { eq, inArray } from "drizzle-orm";
 
 export const selectTeamApplications = async (
 	parameters: QueryParameters,
-): Promise<ORMResult<TeamApplication[]>> => {
+): Promise<OrmResult<TeamApplication[]>> => {
 	return await database
 		.transaction(async (tx) => {
 			const teamApplications = await tx
@@ -50,7 +50,7 @@ export const selectTeamApplications = async (
 export const selectTeamApplicationsByTeamId = async (
 	teamId: TeamKey[],
 	parameters: QueryParameters,
-): Promise<ORMResult<TeamApplication[]>> => {
+): Promise<OrmResult<TeamApplication[]>> => {
 	return database
 		.transaction(async (tx) => {
 			const selectResult = await tx
@@ -81,7 +81,7 @@ export const selectTeamApplicationsByTeamId = async (
 
 export const selectTeamApplicationsById = async (
 	applicationIds: ApplicationKey[],
-): Promise<ORMResult<TeamApplication[]>> => {
+): Promise<OrmResult<TeamApplication[]>> => {
 	return database
 		.transaction(async (tx) => {
 			const selectResult = await tx
@@ -110,7 +110,7 @@ export const selectTeamApplicationsById = async (
 
 export async function insertTeamApplication(
 	teamApplication: NewTeamApplication[],
-): Promise<ORMResult<TeamApplication[]>> {
+): Promise<OrmResult<TeamApplication[]>> {
 	return database
 		.transaction(async (tx) => {
 			const newTeamApplication = await tx
