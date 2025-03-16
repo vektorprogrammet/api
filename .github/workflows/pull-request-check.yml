@@ -1,0 +1,83 @@
+name: Pull request to main
+permissions: {}
+env:
+  DATABASE_PASSWORD: pass123
+  DATABASE_USER: postgres
+  DATABASE_HOST: localhost
+  DATABASE_PORT: 5432
+  DATABASE_SSL_OPTION: false
+  DATABASE_NAME: vektor-database
+  PORT: 8080
+  HOSTING_URL: localhost
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  biome-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+      - name: Run Biome
+        run: biome ci .
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+      - name: Install pnpm
+        run: pnpm install
+      - name: Docker compose
+        run: docker compose up -d
+      - name: Generate migration files
+        run: pnpm db:generate
+      - name: Migrate database
+        run: pnpm db:migrate
+      - name: Build
+        run: pnpm build
+      - name: Store build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Start
+        run: pnpm start &
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+      - name: Install pnpm
+        run: pnpm install
+      - name: Docker compose
+        run: docker compose up -d
+      - name: Generate migration files
+        run: pnpm db:generate
+      - name: Migrate database
+        run: pnpm db:migrate
+      - name: Build
+        run: pnpm build
+      - name: Test
+        run: pnpm test
+
+

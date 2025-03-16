@@ -1,27 +1,32 @@
 import "zod-openapi/extend";
-import { teamUsersTable } from "@db/tables/users";
-import { hostOptions } from "@src/enviroment";
+import { datePeriodParser } from "@/lib/time-parsers";
+import { hostOptions } from "@/src/enviroment";
 import {
-	datePeriodParser,
 	limitParser,
 	offsetParser,
 	serialIdParser,
 	sortParser,
-} from "@src/request-handling/common";
-import { expenseRequestParser } from "@src/request-handling/expenses";
-import { teamApplicationParser } from "@src/request-handling/applications";
+} from "@/src/request-handling/common";
+import { teamApplicationParser } from "@/src/request-handling/applications";
+
+
+import { expenseRequestParser } from "@/src/request-handling/expenses";
+import { sponsorRequestParser } from "@/src/request-handling/sponsors";
 import {
 	assistantUserRequestParser,
 	teamUserRequestParser,
 	userRequestParser,
-} from "@src/request-handling/users";
-import { expensesSelectSchema } from "@src/response-handling/expenses";
-import { teamApplicationSelectSchema } from "@src/response-handling/applications";
+
+} from "@/src/request-handling/users";
+import { teamApplicationSelectSchema } from "@/src/response-handling/applications";
+import { expensesSelectSchema } from "@/src/response-handling/expenses";
+import { sponsorsSelectSchema } from "@/src/response-handling/sponsors";
+
 import {
 	assistantUserSelectSchema,
 	teamUserSelectSchema,
 	userSelectSchema,
-} from "@src/response-handling/users";
+} from "@/src/response-handling/users";
 import openapiFromJsdoc from "swagger-jsdoc";
 import { createDocument } from "zod-openapi";
 
@@ -35,7 +40,7 @@ const openapiDocument = createDocument({
 	},
 	servers: [
 		{
-			url: `{protocol}${hostOptions.hosting_url}{port}`,
+			url: `{protocol}${hostOptions.hostingUrl}{port}`,
 			description: "Your local API",
 			variables: {
 				port: {
@@ -70,6 +75,8 @@ const openapiDocument = createDocument({
 		schemas: {
 			expenseRequest: expenseRequestParser,
 			expense: expensesSelectSchema,
+			sponsorRequest: sponsorRequestParser,
+			sponsor: sponsorsSelectSchema,
 			user: userSelectSchema,
 			teamUser: teamUserSelectSchema,
 			assistantUser: assistantUserSelectSchema,

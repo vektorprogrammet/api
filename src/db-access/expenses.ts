@@ -1,19 +1,18 @@
-import { database } from "@db/setup/queryPostgres";
-import { expensesTable } from "@db/tables/expenses";
+import { database } from "@/db/setup/query-postgres";
+import { expensesTable } from "@/db/tables/expenses";
+import type { DatePeriod } from "@/lib/time-parsers";
 import {
-	type ORMResult,
+	type OrmResult,
 	handleDatabaseFullfillment,
 	handleDatabaseRejection,
 	ormError,
-} from "@src/error/ormError";
-import type { QueryParameters, datePeriod } from "@src/request-handling/common";
-import type { NewExpense } from "@src/request-handling/expenses";
-import type { Expense, ExpenseKey } from "@src/response-handling/expenses";
+} from "@/src/error/orm-error";
+import type { QueryParameters } from "@/src/request-handling/common";
+import type { NewExpense } from "@/src/request-handling/expenses";
+import type { Expense, ExpenseKey } from "@/src/response-handling/expenses";
 import {
 	and,
-	asc,
 	between,
-	desc,
 	inArray,
 	isNotNull,
 	isNull,
@@ -23,8 +22,8 @@ import {
 
 export async function insertExpenses(
 	expenses: NewExpense[],
-): Promise<ORMResult<Expense[]>> {
-	return database
+): Promise<OrmResult<Expense[]>> {
+	return await database
 		.transaction(async (tx) => {
 			const insertResult = await tx
 				.insert(expensesTable)
@@ -37,29 +36,29 @@ export async function insertExpenses(
 
 export async function paybackExpenses(
 	expenseIds: ExpenseKey[],
-): Promise<ORMResult<Expense[]>> {
-	return database
+): Promise<OrmResult<Expense[]>> {
+	return await database
 		.transaction(async (tx) => {
 			const handledExpenses = await tx
 				.select()
 				.from(expensesTable)
 				.where(
 					and(
-						isNotNull(expensesTable.handlingDate),
+						isNotNull(expensesTable.handlingTime),
 						inArray(expensesTable.id, expenseIds),
 					),
 				);
-			if (handledExpenses.length !== 0) {
-				throw ormError("Couldn't pay back expense, already handled.");
+			if (handledExpenses.length > 0) {
+				throw ormError("Already handled");
 			}
 
 			const updateResult = await database
 				.update(expensesTable)
-				.set({ handlingDate: new Date(), isAccepted: true })
+				.set({ handlingTime: new Date(), isAccepted: true })
 				.where(inArray(expensesTable.id, expenseIds))
 				.returning();
 			if (updateResult.length !== expenseIds.length) {
-				throw ormError("Couldn't update, some id's didn't exist.");
+				throw ormError("Couln't find all entries");
 			}
 			return updateResult;
 		})
@@ -68,29 +67,29 @@ export async function paybackExpenses(
 
 export async function rejectExpense(
 	expenseIds: ExpenseKey[],
-): Promise<ORMResult<Expense[]>> {
-	return database
+): Promise<OrmResult<Expense[]>> {
+	return await database
 		.transaction(async (tx) => {
 			const handledExpenses = await tx
 				.select()
 				.from(expensesTable)
 				.where(
 					and(
-						isNotNull(expensesTable.handlingDate),
+						isNotNull(expensesTable.handlingTime),
 						inArray(expensesTable.id, expenseIds),
 					),
 				);
-			if (handledExpenses.length !== 0) {
-				throw ormError("Couldn't reject expense, already handled.");
+			if (handledExpenses.length > 0) {
+				throw ormError("Already handled");
 			}
 
 			const updateResult = await database
 				.update(expensesTable)
-				.set({ handlingDate: new Date(), isAccepted: false })
+				.set({ handlingTime: new Date(), isAccepted: false })
 				.where(inArray(expensesTable.id, expenseIds))
 				.returning();
 			if (updateResult.length !== expenseIds.length) {
-				throw ormError("Couldn't update, some id's didn't exist.");
+				throw ormError("Couln't find all entries");
 			}
 			return updateResult;
 		})
@@ -99,15 +98,15 @@ export async function rejectExpense(
 
 export async function selectExpensesById(
 	expenseIds: ExpenseKey[],
-): Promise<ORMResult<Expense[]>> {
-	return database
+): Promise<OrmResult<Expense[]>> {
+	return await database
 		.transaction(async (tx) => {
 			const selectResult = await tx
 				.select()
 				.from(expensesTable)
 				.where(inArray(expensesTable.id, expenseIds));
 			if (selectResult.length !== expenseIds.length) {
-				throw ormError("Couldn't select expenses, id's didn't exist.");
+				throw ormError("Couln't find all entries");
 			}
 			return selectResult;
 		})
@@ -116,43 +115,31 @@ export async function selectExpensesById(
 
 export async function selectExpenses(
 	parameters: QueryParameters,
-): Promise<ORMResult<Expense[]>> {
-	return database
+): Promise<OrmResult<Expense[]>> {
+	return await database
 		.transaction(async (tx) => {
-			let selectResult: Promise<Expense[]>;
-			if (parameters.sort === "asc") {
-				selectResult = tx
-					.select()
-					.from(expensesTable)
-					.limit(parameters.limit)
-					.offset(parameters.offset)
-					.orderBy(asc(expensesTable.submitDate));
-			} else {
-				selectResult = tx
-					.select()
-					.from(expensesTable)
-					.limit(parameters.limit)
-					.offset(parameters.offset)
-					.orderBy(desc(expensesTable.submitDate));
-			}
-			return selectResult;
+			return await tx
+				.select()
+				.from(expensesTable)
+				.limit(parameters.limit)
+				.offset(parameters.offset);
 		})
 		.then(handleDatabaseFullfillment, handleDatabaseRejection);
 }
 
 export async function getSumUnprocessed(
-	timePeriod: datePeriod,
-): Promise<ORMResult<string>> {
-	return database
+	timePeriod: DatePeriod,
+): Promise<OrmResult<string>> {
+	return await database
 		.transaction(async (tx) => {
 			const unprocessedExpences = await tx
 				.select({ value: sum(expensesTable.moneyAmount) })
 				.from(expensesTable)
 				.where(
 					and(
-						isNull(expensesTable.handlingDate),
+						isNull(expensesTable.handlingTime),
 						between(
-							expensesTable.submitDate,
+							expensesTable.submitTime,
 							timePeriod.startDate,
 							timePeriod.endDate,
 						),
@@ -160,7 +147,7 @@ export async function getSumUnprocessed(
 				);
 
 			if (unprocessedExpences.length !== 1) {
-				throw ormError("Invalid money numbers from database.");
+				throw ormError("Wrong database response format");
 			}
 
 			const sumOfValues = unprocessedExpences[0];
@@ -176,9 +163,9 @@ export async function getSumUnprocessed(
 }
 
 export async function getSumAccepted(
-	timePeriod: datePeriod,
-): Promise<ORMResult<string>> {
-	return database
+	timePeriod: DatePeriod,
+): Promise<OrmResult<string>> {
+	return await database
 		.transaction(async (tx) => {
 			const acceptedExpences = await tx
 				.select({ value: sum(expensesTable.moneyAmount) })
@@ -186,9 +173,9 @@ export async function getSumAccepted(
 				.where(
 					and(
 						expensesTable.isAccepted,
-						isNotNull(expensesTable.handlingDate),
+						isNotNull(expensesTable.handlingTime),
 						between(
-							expensesTable.submitDate,
+							expensesTable.submitTime,
 							timePeriod.startDate,
 							timePeriod.endDate,
 						),
@@ -196,7 +183,7 @@ export async function getSumAccepted(
 				);
 
 			if (acceptedExpences.length !== 1) {
-				throw ormError("Invalid money numbers from database.");
+				throw ormError("Wrong database response format");
 			}
 
 			const sumOfValues = acceptedExpences[0];
@@ -212,9 +199,9 @@ export async function getSumAccepted(
 }
 
 export async function getSumRejected(
-	timePeriod: datePeriod,
-): Promise<ORMResult<string>> {
-	return database
+	timePeriod: DatePeriod,
+): Promise<OrmResult<string>> {
+	return await database
 		.transaction(async (tx) => {
 			const rejectedExpences = await tx
 				.select({ value: sum(expensesTable.moneyAmount) })
@@ -222,9 +209,9 @@ export async function getSumRejected(
 				.where(
 					and(
 						not(expensesTable.isAccepted),
-						isNotNull(expensesTable.handlingDate),
+						isNotNull(expensesTable.handlingTime),
 						between(
-							expensesTable.submitDate,
+							expensesTable.submitTime,
 							timePeriod.startDate,
 							timePeriod.endDate,
 						),
@@ -232,7 +219,7 @@ export async function getSumRejected(
 				);
 
 			if (rejectedExpences.length !== 1) {
-				throw ormError("Invalid money numbers from database.");
+				throw ormError("Wrong database response format");
 			}
 
 			const sumOfValues = rejectedExpences[0];
@@ -248,18 +235,18 @@ export async function getSumRejected(
 }
 
 export async function getAveragePaybackTime(
-	timePeriod: datePeriod,
-): Promise<ORMResult<number>> {
-	return database
+	timePeriod: DatePeriod,
+): Promise<OrmResult<number>> {
+	return await database
 		.transaction(async (tx) => {
 			const result = await tx
 				.select()
 				.from(expensesTable)
 				.where(
 					and(
-						isNotNull(expensesTable.handlingDate),
+						isNotNull(expensesTable.handlingTime),
 						between(
-							expensesTable.submitDate,
+							expensesTable.submitTime,
 							timePeriod.startDate,
 							timePeriod.endDate,
 						),
@@ -271,12 +258,12 @@ export async function getAveragePaybackTime(
 			}
 
 			const totalMilliseconds = result.reduce((accumulator, currentValue) => {
-				// handlingDate have already checked not to be null
-				const handlingDate = currentValue.handlingDate as Date;
+				// handlingTime have already checked not to be null
+				const handlingDate = currentValue.handlingTime as Date;
 
 				return (
 					accumulator +
-					(handlingDate.getTime() - currentValue.submitDate.getTime())
+					(handlingDate.getTime() - currentValue.submitTime.getTime())
 				);
 			}, 0);
 
