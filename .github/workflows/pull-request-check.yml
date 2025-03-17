@@ -26,6 +26,7 @@ jobs:
       - name: Run Biome
         run: biome ci .
   build:
+    needs: [biome-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -54,6 +55,7 @@ jobs:
       - name: Start
         run: pnpm start &
   test:
+    needs: [biome-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,9 +77,9 @@ jobs:
         run: pnpm db:generate
       - name: Migrate database
         run: pnpm db:migrate
+      - name: Seed database
+        run: pnpm db:seed
       - name: Build
         run: pnpm build
       - name: Test
         run: pnpm test
-
-

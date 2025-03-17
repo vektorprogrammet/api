@@ -17,6 +17,7 @@
 		"db:generate": "drizzle-kit generate --config=db/config/drizzle.config.ts",
 		"db:migrate": "drizzle-kit migrate --config=db/config/drizzle.config.ts",
 		"db:studio": "drizzle-kit studio --config=db/config/drizzle.config.ts",
+		"db:seed": "tsx ./db/seeding/seeding.ts",
 		"docs:generate": "tsx ./src/openapi/generateDocument.ts"
 	},
 	"license": "ISC",
@@ -24,6 +25,7 @@
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.33.0",
+		"drizzle-seed": "^0.3.1",
 		"drizzle-zod": "^0.5.1",
 		"express": "^4.21.1",
 		"pg": "^8.13.0",
@@ -51,5 +53,5 @@
 		"typescript": "^5.6.3",
 		"yaml": "^2.6.0"
 	},
-	"packageManager": "pnpm@10.6.3+sha512.bb45e34d50a9a76e858a95837301bfb6bd6d35aea2c5d52094fa497a467c43f5c440103ce2511e9e0a2f89c3d6071baac3358fc68ac6fb75e2ceb3d2736065e6"
+	"packageManager": "pnpm@10.6.4+sha512.da3d715bfd22a9a105e6e8088cfc7826699332ded60c423b14ec613a185f1602206702ff0fe4c438cb15c979081ce4cb02568e364b15174503a63c7a8e2a5f6c"
 }
