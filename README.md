@@ -24,6 +24,8 @@ Kildekoden er på engelsk.
 
 ## Mappestruktur
 
+Kildekoden er på engelsk
+For at testene skal fungere, bruk node version >=22
 - `/`
   - `db/` database modul
   - `lib/` generell delt kode
