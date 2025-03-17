@@ -1,9 +1,9 @@
 import {
 	getDatabaseErrorPrivateMessage,
 	postgresErrorParser,
-} from "@db/errors/postgresError";
-import { seedingTables } from "@db/seeding/seedingTables";
-import { database } from "@db/setup/queryPostgres";
+} from "@/db/errors/postgres-error";
+import { seedingTables } from "@/db/seeding/seeding-tables";
+import { database } from "@/db/setup/query-postgres";
 import { reset, seed } from "drizzle-seed";
 
 const doRevertSeeding =
@@ -18,13 +18,13 @@ if (hasUnknownOption) {
 
 if (doRevertSeeding) {
 	await reset(database, seedingTables);
-	console.log("Database seeding has been reverted");
+	console.info("Database seeding has been reverted");
 	process.exit(0);
 }
 
 try {
 	await seed(database, seedingTables);
-	console.log("Database has been seeded");
+	console.info("Database has been seeded");
 } catch (error) {
 	const postgresErrorResult = postgresErrorParser.safeParse(error);
 	if (postgresErrorResult.success) {
