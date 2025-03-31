@@ -7,9 +7,9 @@ title: Database prototype
 erDiagram
     USER {
         int id PK
+        int fieldOfStudyId FK
         string firstName
         string lastName 
-        int fieldOfStudyId FK
     }
     EXPENSE {
         int id PK
@@ -82,10 +82,12 @@ erDiagram
     }
     SEMESTER{
         int id PK
-        int lastSemester FK
-        date startDate
-        date endDate
+        int lastSemesterId FK
         int departmentId FK
+        date semesterStartDate
+        date semesterEndDate
+        date recruitmentStartDate
+        date recruitmentEndDate
         string name
     }
     SCHOOL{
@@ -94,7 +96,7 @@ erDiagram
         string name
         string contactPersonName
         string contactPersonPhoneNumber
-        string contactPersonEMail
+        string contactPersonEmail
         boolean isInternational
     }
     SCHOOL_SEMESTER_USER{
@@ -112,7 +114,6 @@ erDiagram
     USER ||--|| PRIORITY_DAY : wants
     TEAM }o--o{ ASSISTENT_APPLICATION : interest
     VEKTOR_DEPARTMENT ||--O{ TEAM : belongsTo
-    SEMESTER ||--o| SEMESTER : lastSemester
     SEMESTER }|--|| VEKTOR_DEPARTMENT : department
     SCHOOL }|--|| VEKTOR_DEPARTMENT : department
     SEMESTER }o--|| ASSISTENT_APPLICATION : admissionPeriod
