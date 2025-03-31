@@ -5,7 +5,7 @@ import {
 } from "@/src/db-access/applications";
 import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
 import { clientError } from "@/src/error/http-errors";
-import { listQueryParser, serialIdParser } from "@/src/request-handling/common";
+import { serialIdParser, toListQueryParser, toSerialIdParser } from "@/src/request-handling/common";
 import { Router, json } from "express";
 
 export const teamApplicationRouter = Router();
@@ -32,7 +32,7 @@ teamApplicationRouter.use(json());
  */
 
 teamApplicationRouter.get("/", async (req, res, next) => {
-	const queryParametersResult = listQueryParser.safeParse(req.query);
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
 	if (!queryParametersResult.success) {
 		return next(
 			clientError(400, "Invalid request format", queryParametersResult.error),
@@ -71,11 +71,11 @@ teamApplicationRouter.get("/", async (req, res, next) => {
  *        $ref: "#/components/schemas/teamApplication"
  */
 teamApplicationRouter.get("/:teamID/", async (req, res, next) => {
-	const teamIdResult = serialIdParser.safeParse(req.params.teamID);
+	const teamIdResult = toSerialIdParser.safeParse(req.params.teamID);
 	if (!teamIdResult.success) {
 		return next(clientError(400, "Invalid request format", teamIdResult.error));
 	}
-	const queryParametersResult = listQueryParser.safeParse(req.query);
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
 	if (!queryParametersResult.success) {
 		return next(
 			clientError(400, "Invalid request format", queryParametersResult.error),
