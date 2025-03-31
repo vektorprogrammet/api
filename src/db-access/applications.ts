@@ -7,7 +7,7 @@ import {
 	ormError,
 } from "@/src/error/orm-error";
 import type { QueryParameters } from "@/src/request-handling/common";
-import type { NewTeamApplication } from "@/src/request-handling/applications";
+import { teamApplicationToInsertParser, type NewApplication, type NewTeamApplication } from "@/src/request-handling/applications";
 import type {
 	ApplicationKey,
 	TeamApplication,
@@ -109,23 +109,34 @@ export const selectTeamApplicationsById = async (
 };
 
 export async function insertTeamApplication(
-	teamApplication: NewTeamApplication[],
+	teamApplication: NewTeamApplication & NewApplication
 ): Promise<OrmResult<TeamApplication[]>> {
 	return database
 		.transaction(async (tx) => {
-			const newTeamApplication = await tx
-				.insert(teamApplicationsTable)
-				.values(teamApplication)
+			const newApplication = await tx
+				.insert(applicationsTable)
+				.values({
+					firstName: teamApplication.firstName,
+					lastName: teamApplication.lastName,
+					gender: teamApplication.gender,
+					email: teamApplication.email,
+					fieldOfStudyId: teamApplication.fieldOfStudyId,
+					yearOfStudy: teamApplication.yearOfStudy,
+					phonenumber: teamApplication.phonenumber,})
 				.returning();
-			const newTeamApplicationId = newTeamApplication.map((application) => application.id);
-						const newTeamApplicationResult = await selectTeamApplicationsById(newTeamApplicationId);
-						if (!newTeamApplicationResult.success) {
-							throw ormError(
-								"Error when inserting team users",
-								newTeamApplicationResult.error,
-							);
-						}
-			return newTeamApplicationResult.data;
+			const newApplicationId = newApplication[0].id;
+			
+			const newTeamApplicationResult = await tx
+			.insert(teamApplicationsTable)
+			.values({
+				id:newApplicationId,
+				teamId: teamApplication.teamId,
+				motivationText: teamApplication.motivationText,
+				biography: teamApplication.biography
+			}).returning();
+
+		
+			return newTeamApplicationResult.data
 		})
 		.then(handleDatabaseFullfillment, handleDatabaseRejection);
 }
