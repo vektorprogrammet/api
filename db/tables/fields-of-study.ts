@@ -2,7 +2,7 @@ import { departmentsTable } from "@/db/tables/departments";
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
 import { integer, serial, text } from "drizzle-orm/pg-core";
-import { teamApplicationsTable } from "./applications";
+import { applicationsTable, teamApplicationsTable } from "./applications";
 
 export const fieldsOfStudyTable = mainSchema.table("fieldsOfStudy", {
 	id: serial("id").primaryKey(),
@@ -20,6 +20,6 @@ export const fieldsOfStudyRelations = relations(
 			fields: [fieldsOfStudyTable.departmentId],
 			references: [departmentsTable.id],
 		}),
-		teamApplication: many(teamApplicationsTable),
+		applications: many(applicationsTable),
 	}),
 );
