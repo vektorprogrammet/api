@@ -1,5 +1,6 @@
 import { teamApplicationsTable } from "@/db/tables/team-applications";
 import { MAX_TEXT_LENGTH } from "@/lib/global-variables";
+import { phoneNumberParser } from "@/lib/lib";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -27,10 +28,9 @@ export const teamApplicationParser = z.object({
 		.string()
 		.max(MAX_TEXT_LENGTH)
 		.describe("The biography of the user applying for a team"),
-	phonenumber: z
-		.string()
-		.regex(/^\d{8}$/, "Phone number must be 8 digits")
-		.describe("The phonenumber of the user applying for a team"),
+	phonenumber: phoneNumberParser.describe(
+		"The phonenumber of the user applying for a team",
+	),
 });
 
 export const teamApplicationToInsertParser = teamApplicationParser

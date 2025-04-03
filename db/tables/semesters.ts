@@ -10,9 +10,11 @@ export const semestersTable = mainSchema.table(
 		lastSemesterId: integer("lastSemesterId"),
 		semesterStartDate: date("semesterStartDate").notNull(),
 		semesterEndDate: date("semesterEndDate").notNull(),
-        recruitmentStartDate: date("recruitmentStartDate").notNull(),
-        recruitmentEndDate: date("recruitmentEndDate").notNull(),
-		departmentId: integer("departmentId").notNull().references(() => departmentsTable.id),
+		recruitmentStartDate: date("recruitmentStartDate").notNull(),
+		recruitmentEndDate: date("recruitmentEndDate").notNull(),
+		departmentId: integer("departmentId")
+			.notNull()
+			.references(() => departmentsTable.id),
 		name: text("name").notNull(),
 	},
 	(table) => {
@@ -30,8 +32,8 @@ export const semestersRelations = relations(semestersTable, ({ one }) => ({
 		fields: [semestersTable.departmentId],
 		references: [departmentsTable.id],
 	}),
-    semester: one(semestersTable, {
-        fields: [semestersTable.lastSemesterId],
-        references: [semestersTable.id],
-    }),
+	semester: one(semestersTable, {
+		fields: [semestersTable.lastSemesterId],
+		references: [semestersTable.id],
+	}),
 }));
