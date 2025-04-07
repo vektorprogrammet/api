@@ -3,11 +3,7 @@ import {
 	applicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
-import {
-	type OrmResult,
-	handleDatabaseFullfillment,
-	handleDatabaseRejection,
-} from "@/src/error/orm-error";
+import type { OrmResult } from "@/src/error/orm-error";
 import type {
 	NewApplication,
 	NewTeamApplication,
@@ -48,8 +44,8 @@ export const selectTeamApplications = async (
 			.limit(parameters.limit)
 			.offset(parameters.offset);
 
-			return teamApplications;
-		})
+		return teamApplications;
+	});
 };
 
 export const selectTeamApplicationsByTeamId = async (
@@ -82,7 +78,7 @@ export const selectTeamApplicationsByTeamId = async (
 			.offset(parameters.offset);
 
 		return selectResult;
-	})
+	});
 };
 
 export const selectTeamApplicationsById = async (
@@ -112,7 +108,7 @@ export const selectTeamApplicationsById = async (
 			);
 
 		return selectResult;
-	}) 
+	});
 };
 
 export async function insertTeamApplication(
@@ -147,6 +143,5 @@ export async function insertTeamApplication(
 			...newApplication[0],
 			...newTeamApplicationResult[0],
 		};
-	}) 
-
+	});
 }

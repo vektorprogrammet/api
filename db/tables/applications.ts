@@ -5,7 +5,11 @@ import { date, integer, serial, text } from "drizzle-orm/pg-core";
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
 
-export const gendersEnum = mainSchema.enum("gender", ["female", "male", "other"]);
+export const gendersEnum = mainSchema.enum("gender", [
+	"female",
+	"male",
+	"other",
+]);
 
 export const applicationsTable = mainSchema.table("applications", {
 	id: serial("id").primaryKey(),
@@ -32,7 +36,7 @@ export const applicationsRelations = relations(
 			fields: [applicationsTable.id],
 			references: [assistantApplicationsTable.id],
 		}),
-		teamApplication: many(teamApplicationsTable)
+		teamApplication: many(teamApplicationsTable),
 	}),
 );
 

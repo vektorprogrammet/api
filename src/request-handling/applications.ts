@@ -65,13 +65,11 @@ export const applicationToInsertParser = applicationParser
 	.pipe(createInsertSchema(applicationsTable).strict().readonly());
 
 export const teamApplicationToInsertParser = teamApplicationParser
-	.extend(
-		{
-			email: teamApplicationParser.shape.email.trim().toLowerCase(),
-			motivationText: teamApplicationParser.shape.motivationText.trim(),
-			biography: teamApplicationParser.shape.biography.trim(),
-		},
-	)
+	.extend({
+		email: teamApplicationParser.shape.email.trim().toLowerCase(),
+		motivationText: teamApplicationParser.shape.motivationText.trim(),
+		biography: teamApplicationParser.shape.biography.trim(),
+	})
 	.pipe(
 		createInsertSchema(teamApplicationsTable)
 			.merge(createInsertSchema(applicationsTable))
