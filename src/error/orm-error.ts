@@ -2,6 +2,7 @@ import {
 	type ParsedPostgresError,
 	getDatabaseErrorPrivateMessage,
 	getDatabaseErrorPublicMessage,
+	isPostgresErrorClientFault,
 	postgresErrorParser,
 } from "@/db/errors/postgres-error";
 import type { Result } from "@/lib/types";
@@ -42,6 +43,9 @@ class OrmError extends Error {
 			return getDatabaseErrorPrivateMessage(this.cause);
 		}
 		return this.customMessage?.private;
+	}
+	isClientFault(): boolean {
+		return !this.hasDatabaseCause() || isPostgresErrorClientFault(this.cause);
 	}
 	private hasCustomMessage(): this is { public: string; private: string } {
 		return this.customMessage !== undefined;
