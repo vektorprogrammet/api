@@ -7,15 +7,13 @@ import {
 } from "@/src/middleware/error-middleware";
 import { logger } from "@/src/middleware/logging-middleware";
 import express from "express";
-
+import { teamApplicationRouter } from "@/src/routers/applications";
 import { expensesRouter } from "@/src/routers/expenses";
 import { customCors, customHelmetSecurity } from "@/src/security";
-
-import { teamApplicationRouter } from "@/src/routers/team-applications";
-
 import { hostOptions } from "@/src/enviroment";
 import { openapiSpecification } from "@/src/openapi/config";
 import { sponsorsRouter } from "@/src/routers/sponsors";
+import { teamsRouter } from "@/src/routers/teams";
 import { usersRouter } from "@/src/routers/users";
 import openapiExpressHandler from "swagger-ui-express";
 
@@ -43,6 +41,7 @@ api.use("/sponsors", sponsorsRouter);
 api.use("/users", usersRouter);
 
 api.use("/teamapplications", teamApplicationRouter);
+api.use("/teams", teamsRouter);
 
 // Error handling
 api.use(ormErrorHandler, zodErrorHandler, httpErrorHandler, errorHandler);

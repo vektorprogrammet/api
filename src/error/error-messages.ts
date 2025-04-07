@@ -29,6 +29,7 @@ const ORM_ERROR_MESSAGES = [
 	"Couln't find all entries",
 	"Wrong database response format",
 	"Failed to insert all entries",
+	"Error when inserting team users",
 ] as const;
 const HTTP_CLIENT_ERROR_MESSAGES = [
 	"Invalid request format",
