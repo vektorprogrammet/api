@@ -5,13 +5,13 @@ import { date, integer, serial, text } from "drizzle-orm/pg-core";
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
 
-export const genders = mainSchema.enum("gender", ["Female", "Male", "Other"]);
+export const gendersEnum = mainSchema.enum("gender", ["female", "male", "other"]);
 
 export const applicationsTable = mainSchema.table("applications", {
 	id: serial("id").primaryKey(),
 	firstName: text("firstname").notNull(),
 	lastName: text("lastname").notNull(),
-	gender: genders("gender").notNull(),
+	gender: gendersEnum("gender").notNull(),
 	email: text("email").notNull(),
 	fieldOfStudyId: integer("fieldOfStudyId")
 		.notNull()
@@ -23,11 +23,16 @@ export const applicationsTable = mainSchema.table("applications", {
 
 export const applicationsRelations = relations(
 	applicationsTable,
-	({ one }) => ({
+	({ one, many }) => ({
 		fieldOfStudy: one(fieldsOfStudyTable, {
 			fields: [applicationsTable.fieldOfStudyId],
 			references: [fieldsOfStudyTable.id],
 		}),
+		assistantApplication: one(assistantApplicationsTable, {
+			fields: [applicationsTable.id],
+			references: [assistantApplicationsTable.id],
+		}),
+		teamApplication: many(teamApplicationsTable)
 	}),
 );
 
