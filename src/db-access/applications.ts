@@ -4,10 +4,9 @@ import {
 	type OrmResult,
 	handleDatabaseFullfillment,
 	handleDatabaseRejection,
-	ormError,
 } from "@/src/error/orm-error";
 import type { QueryParameters } from "@/src/request-handling/common";
-import { teamApplicationToInsertParser, type NewApplication, type NewTeamApplication } from "@/src/request-handling/applications";
+import {  type NewApplication, type NewTeamApplication } from "@/src/request-handling/applications";
 import type {
 	ApplicationKey,
 	TeamApplication,
@@ -110,7 +109,7 @@ export const selectTeamApplicationsById = async (
 
 export async function insertTeamApplication(
 	teamApplication: NewTeamApplication & NewApplication
-): Promise<OrmResult<TeamApplication[]>> {
+): Promise<OrmResult<TeamApplication>> {
 	return database
 		.transaction(async (tx) => {
 			const newApplication = await tx
@@ -135,8 +134,11 @@ export async function insertTeamApplication(
 				biography: teamApplication.biography
 			}).returning();
 
-		
-			return newTeamApplicationResult.data
+			
+			return {
+				...newApplication[0],
+				...newTeamApplicationResult[0]
+			}
 		})
 		.then(handleDatabaseFullfillment, handleDatabaseRejection);
 }

@@ -5,8 +5,9 @@ import {
 } from "@/src/db-access/applications";
 import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
 import { clientError } from "@/src/error/http-errors";
-import { serialIdParser, toListQueryParser, toSerialIdParser } from "@/src/request-handling/common";
+import { toListQueryParser, toSerialIdParser } from "@/src/request-handling/common";
 import { Router, json } from "express";
+
 
 export const teamApplicationRouter = Router();
 
@@ -122,6 +123,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 	const teamApplicationBodyResult = teamApplicationToInsertParser.safeParse(
 		req.body,
 	);
+
 	if (!teamApplicationBodyResult.success) {
 		const error = clientError(
 			400,
@@ -130,9 +132,9 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 		);
 		return next(error);
 	}
-	const databaseResult = await insertTeamApplication([
+	const databaseResult = await insertTeamApplication(
 		teamApplicationBodyResult.data,
-	]);
+	); 
 	if (!databaseResult.success) {
 		const error = clientError(
 			400,

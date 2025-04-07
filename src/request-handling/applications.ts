@@ -9,6 +9,7 @@ export const applicationParser = z.object({
 	firstName: z.string().min(1).describe("First name of user applying for a team"),
 	lastName: z.string().min(1).describe("Last name of user applying for a team"),
 	email: z.string().email().describe("Email of user applying for a team"),
+	gender: z.enum(["Female","Male","Other"]).describe("The gender of the user applying for a team"),
 	fieldOfStudyId: serialIdParser.describe(
 		"Studyfield of user applying for a team",
 	),
@@ -47,16 +48,16 @@ export const applicationToInsertParser = applicationParser
 	.pipe(createInsertSchema(applicationsTable).strict().readonly());
 
 export const teamApplicationToInsertParser = teamApplicationParser
-	.extend({
+	.merge(z.object({
 		email: teamApplicationParser.shape.email.trim().toLowerCase(),
 		motivationText: teamApplicationParser.shape.motivationText.trim(),
 		biography: teamApplicationParser.shape.biography.trim(),
-	})
-	.pipe(createInsertSchema(teamApplicationsTable).strict().readonly());
+	}))
+	.pipe(createInsertSchema(teamApplicationsTable).merge(createInsertSchema(applicationsTable)).strict().readonly());
 
 export const assistantApplicationToInsertParser = assistantApplicationParser
 	.extend({})
-	.pipe(createInsertSchema(assistantApplicationsTable).strict().readonly());
+	.pipe(createInsertSchema(assistantApplicationsTable).merge(createInsertSchema(applicationsTable)).strict().readonly());
 
 export type NewApplication = z.infer<typeof applicationToInsertParser>;
 export type NewTeamApplication = z.infer<typeof teamApplicationToInsertParser>;
