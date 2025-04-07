@@ -1,4 +1,4 @@
-import { selectTeamApplicationsByTeamId } from "@/src/db-access/team-applications";
+import { selectTeamApplicationsByTeamId } from "@/src/db-access/applications";
 import { selectTeamsById } from "@/src/db-access/teams";
 import { clientError } from "@/src/error/http-errors";
 import {
