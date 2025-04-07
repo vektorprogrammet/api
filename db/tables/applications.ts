@@ -1,15 +1,11 @@
-import {mainSchema} from "@/db/tables/schema";
+import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
 import { date, integer, serial, text } from "drizzle-orm/pg-core";
 
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
 
-export const genders = mainSchema.enum("gender", [
-	"Female",
-	"Male",
-	"Other",
-]);
+export const genders = mainSchema.enum("gender", ["Female", "Male", "Other"]);
 
 export const applicationsTable = mainSchema.table("applications", {
 	id: serial("id").primaryKey(),
@@ -27,7 +23,7 @@ export const applicationsTable = mainSchema.table("applications", {
 
 export const applicationsRelations = relations(
 	applicationsTable,
-	({ one }) => ({	
+	({ one }) => ({
 		fieldOfStudy: one(fieldsOfStudyTable, {
 			fields: [applicationsTable.fieldOfStudyId],
 			references: [fieldsOfStudyTable.id],
@@ -37,41 +33,44 @@ export const applicationsRelations = relations(
 
 export const teamApplicationsTable = mainSchema.table("teamApplications", {
 	id: integer("id")
-	.primaryKey()
-	.references(() => applicationsTable.id),
+		.primaryKey()
+		.references(() => applicationsTable.id),
 	teamId: integer("teamId")
-	.notNull()
-	.references(() => teamsTable.id),
+		.notNull()
+		.references(() => teamsTable.id),
 	motivationText: text("motivationText").notNull(),
 	biography: text("biography").notNull(),
-})
+});
 
 export const teamApplicationsRelations = relations(
-	teamApplicationsTable, ({ one }) => ({
-		superApplication: one( applicationsTable,{
+	teamApplicationsTable,
+	({ one }) => ({
+		superApplication: one(applicationsTable, {
 			fields: [teamApplicationsTable.id],
-			references: [applicationsTable.id]
+			references: [applicationsTable.id],
 		}),
 		team: one(teamsTable, {
 			fields: [teamApplicationsTable.teamId],
 			references: [teamsTable.id],
 		}),
-	})
-)
+	}),
+);
 
-export const assistantApplicationsTable = mainSchema.table("assistantApplications", {
-	id: integer("id")
-	.primaryKey()
-	.references(() => applicationsTable.id) 
-})
+export const assistantApplicationsTable = mainSchema.table(
+	"assistantApplications",
+	{
+		id: integer("id")
+			.primaryKey()
+			.references(() => applicationsTable.id),
+	},
+);
 
 export const assistantApplicationsRelations = relations(
-	assistantApplicationsTable, ({ one }) => ({
-		superApplication: one( applicationsTable,{
+	assistantApplicationsTable,
+	({ one }) => ({
+		superApplication: one(applicationsTable, {
 			fields: [assistantApplicationsTable.id],
-			references: [applicationsTable.id]
-		})
-	})
-)
-
-
+			references: [applicationsTable.id],
+		}),
+	}),
+);

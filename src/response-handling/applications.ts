@@ -1,7 +1,10 @@
 import { createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
 
-import { applicationsTable, teamApplicationsTable } from "@/db/tables/applications";
+import {
+	applicationsTable,
+	teamApplicationsTable,
+} from "@/db/tables/applications";
 
 export const applicationSelectSchema = createSelectSchema(applicationsTable)
 	.strict()
@@ -10,7 +13,9 @@ export const applicationSelectSchema = createSelectSchema(applicationsTable)
 export type Application = z.infer<typeof applicationSelectSchema>;
 export type ApplicationKey = Application["id"];
 
-export const teamApplicationSelectSchema = createSelectSchema(teamApplicationsTable)
+export const teamApplicationSelectSchema = createSelectSchema(
+	teamApplicationsTable,
+)
 	.merge(createSelectSchema(applicationsTable))
 	.strict()
 	.readonly();

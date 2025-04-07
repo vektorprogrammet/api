@@ -3,11 +3,13 @@ import {
 	selectTeamApplications,
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
-import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
 import { clientError } from "@/src/error/http-errors";
-import { toListQueryParser, toSerialIdParser } from "@/src/request-handling/common";
+import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
+import {
+	toListQueryParser,
+	toSerialIdParser,
+} from "@/src/request-handling/common";
 import { Router, json } from "express";
-
 
 export const teamApplicationRouter = Router();
 
@@ -134,7 +136,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 	}
 	const databaseResult = await insertTeamApplication(
 		teamApplicationBodyResult.data,
-	); 
+	);
 	if (!databaseResult.success) {
 		const error = clientError(
 			400,

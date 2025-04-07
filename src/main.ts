@@ -6,10 +6,9 @@ import {
 import { logger } from "@/src/middleware/logging-middleware";
 import express from "express";
 
+import { teamApplicationRouter } from "@/src/routers/applications";
 import { expensesRouter } from "@/src/routers/expenses";
 import { customCors, customHelmetSecurity } from "@/src/security";
-import { teamApplicationRouter } from "@/src/routers/applications";
-
 
 import { openapiSpecification } from "@/src/openapi/config";
 import { sponsorsRouter } from "@/src/routers/sponsors";
