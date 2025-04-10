@@ -7,3 +7,7 @@ export function zodEnumFromObjKeys<K extends string>(
 	const [firstKey, ...otherKeys] = Object.keys(obj) as K[];
 	return z.enum([firstKey, ...otherKeys]);
 }
+const phoneNumberRegex = /^\d{8}$/;
+export const phoneNumberParser = z
+	.string()
+	.regex(phoneNumberRegex, "Phone number must be 8 digits");
