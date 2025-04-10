@@ -2,10 +2,13 @@ import {
 	insertTeamApplication,
 	selectTeamApplications,
 	selectTeamApplicationsByTeamId,
-} from "@/src/db-access/team-applications";
+} from "@/src/db-access/applications";
 import { clientError } from "@/src/error/http-errors";
-import { listQueryParser, serialIdParser } from "@/src/request-handling/common";
-import { teamApplicationToInsertParser } from "@/src/request-handling/team-applications";
+import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
+import {
+	toListQueryParser,
+	toSerialIdParser,
+} from "@/src/request-handling/common";
 import { Router, json } from "express";
 
 export const teamApplicationRouter = Router();
@@ -32,7 +35,7 @@ teamApplicationRouter.use(json());
  */
 
 teamApplicationRouter.get("/", async (req, res, next) => {
-	const queryParametersResult = listQueryParser.safeParse(req.query);
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
 	if (!queryParametersResult.success) {
 		return next(
 			clientError(400, "Invalid request format", queryParametersResult.error),
@@ -71,11 +74,11 @@ teamApplicationRouter.get("/", async (req, res, next) => {
  *        $ref: "#/components/schemas/teamApplication"
  */
 teamApplicationRouter.get("/:teamID/", async (req, res, next) => {
-	const teamIdResult = serialIdParser.safeParse(req.params.teamID);
+	const teamIdResult = toSerialIdParser.safeParse(req.params.teamID);
 	if (!teamIdResult.success) {
 		return next(clientError(400, "Invalid request format", teamIdResult.error));
 	}
-	const queryParametersResult = listQueryParser.safeParse(req.query);
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
 	if (!queryParametersResult.success) {
 		return next(
 			clientError(400, "Invalid request format", queryParametersResult.error),
@@ -122,6 +125,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 	const teamApplicationBodyResult = teamApplicationToInsertParser.safeParse(
 		req.body,
 	);
+
 	if (!teamApplicationBodyResult.success) {
 		const error = clientError(
 			400,
@@ -130,9 +134,9 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 		);
 		return next(error);
 	}
-	const databaseResult = await insertTeamApplication([
+	const databaseResult = await insertTeamApplication(
 		teamApplicationBodyResult.data,
-	]);
+	);
 	if (!databaseResult.success) {
 		const error = clientError(
 			400,
