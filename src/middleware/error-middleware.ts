@@ -2,6 +2,21 @@ import { clientError, isHttpError, serverError } from "@/src/error/http-errors";
 import { isOrmError } from "@/src/error/orm-error";
 import type { ErrorRequestHandler } from "express";
 import { isZodErrorLike } from "zod-validation-error";
+import { isJsonParsingError } from "../error/json-errors";
+
+export const jsonParsingErrorHandler: ErrorRequestHandler = (
+	err,
+	_req,
+	res,
+	next,
+) => {
+	if (isJsonParsingError(err)) {
+		return res
+			.status(400)
+			.json({ error: true, message: `Invalid json: ${err.message}` });
+	}
+	next(err);
+};
 
 export const httpErrorHandler: ErrorRequestHandler = (err, _req, res, next) => {
 	if (isHttpError(err)) {

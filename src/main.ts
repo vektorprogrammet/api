@@ -3,6 +3,7 @@ import { hostOptions } from "@/src/enviroment";
 import {
 	errorHandler,
 	httpErrorHandler,
+	jsonParsingErrorHandler,
 	ormErrorHandler,
 	zodErrorHandler,
 } from "@/src/middleware/error-middleware";
@@ -44,7 +45,13 @@ api.use("/teamapplications", teamApplicationRouter);
 api.use("/teams", teamsRouter);
 
 // Error handling
-api.use(ormErrorHandler, zodErrorHandler, httpErrorHandler, errorHandler);
+api.use(
+	jsonParsingErrorHandler,
+	ormErrorHandler,
+	zodErrorHandler,
+	httpErrorHandler,
+	errorHandler,
+);
 
 api.listen(hostOptions.port, () => {
 	console.info(
