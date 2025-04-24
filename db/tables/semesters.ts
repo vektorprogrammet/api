@@ -37,4 +37,5 @@ export const semestersRelations = relations(semestersTable, ({ one }) => ({
 		fields: [semestersTable.id],
 		references: [semestersTable.lastSemesterId],
 	}),
+	
 }));
