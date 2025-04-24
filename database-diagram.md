@@ -7,9 +7,9 @@ title: Database prototype
 erDiagram
     USER {
         int id PK
+        int fieldOfStudyId FK
         string firstName
         string lastName 
-        int fieldOfStudyId FK
     }
     EXPENSE {
         int id PK
@@ -58,7 +58,7 @@ erDiagram
         int id PK
         int userId FK
         int interviewId FK
-        int admissionPeriodId FK
+        int semesterId FK
         string yearOfStudy
         int substitute
         int doublePosition
@@ -71,7 +71,6 @@ erDiagram
         string specialNeeds
         string language
         string preferredSchool
-
     }
     PRIORITY_DAY{
         int id PK
@@ -80,6 +79,35 @@ erDiagram
         int wednesday
         int thursday
         int friday
+    }
+    SEMESTER{
+        int id PK
+        int lastSemesterId FK
+        int departmentId FK
+        date semesterStartDate
+        date semesterEndDate
+        date recruitmentStartDate
+        date recruitmentEndDate
+        string name
+    }
+    SCHOOL{
+        int id PK
+        int departmentId FK
+        string name
+        string contactPersonName
+        string contactPersonPhoneNumber
+        string contactPersonEmail
+        boolean isInternational
+    }
+    SCHOOL_SEMESTER_ASSISTANT{
+        int school FK
+        int semester FK
+        int user FK
+    }
+    TEAM_SEMESTER_USER{
+        int team FK
+        int semester FK
+        int user FK
     }
     USER ||--o{ EXPENSE : "pays"
     USER ||--o{ FIELD_OF_STUDY : studys
@@ -91,4 +119,13 @@ erDiagram
     USER ||--|| PRIORITY_DAY : wants
     TEAM }o--o{ ASSISTENT_APPLICATION : interest
     VEKTOR_DEPARTMENT ||--O{ TEAM : belongsTo
+    SEMESTER }|--|| VEKTOR_DEPARTMENT : department
+    SCHOOL }|--|| VEKTOR_DEPARTMENT : department
+    SEMESTER }o--|| ASSISTENT_APPLICATION : admissionPeriod
+    SCHOOL_SEMESTER_ASSISTANT ||--o{ SCHOOL : schoolSemesterAssistant
+    SCHOOL_SEMESTER_ASSISTANT ||--o{ SEMESTER : schoolSemesterAssistant
+    SCHOOL_SEMESTER_ASSISTANT ||--o{ USER : shcoolSemesterAssistant
+    TEAM_SEMESTER_USER ||--o{ TEAM : teamSemesterUser
+    TEAM_SEMESTER_USER ||--o{ SEMESTER : teamSemesterUser    
+    TEAM_SEMESTER_USER ||--o{ USER : teamSemesterUser
 ```
