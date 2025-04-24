@@ -38,17 +38,20 @@ export const teamUsersTable = mainSchema.table("teamUsers", {
 		.references(() => teamsTable.id),
 	username: text("username").notNull().unique(),
 });
-export const teamUsersRelations = relations(teamUsersTable, ({ one, many }) => ({
-	superUser: one(usersTable, {
-		fields: [teamUsersTable.id],
-		references: [usersTable.id],
+export const teamUsersRelations = relations(
+	teamUsersTable,
+	({ one, many }) => ({
+		superUser: one(usersTable, {
+			fields: [teamUsersTable.id],
+			references: [usersTable.id],
+		}),
+		team: one(teamsTable, {
+			fields: [teamUsersTable.teamId],
+			references: [teamsTable.id],
+		}),
+		teamSemesters: many(teamSemesterUsersTable),
 	}),
-	team: one(teamsTable, {
-		fields: [teamUsersTable.teamId],
-		references: [teamsTable.id],
-	}),
-	teamSemesters: many(teamSemesterUsersTable),
-}));
+);
 
 export const assistantUsersTable = mainSchema.table("assistantUsers", {
 	id: integer("id")
