@@ -26,19 +26,22 @@ export const semestersTable = mainSchema.table("semesters", {
 	name: text("name").notNull(),
 });
 
-export const semestersRelations = relations(semestersTable, ({ one, many }) => ({
-	department: one(departmentsTable, {
-		fields: [semestersTable.departmentId],
-		references: [departmentsTable.id],
+export const semestersRelations = relations(
+	semestersTable,
+	({ one, many }) => ({
+		department: one(departmentsTable, {
+			fields: [semestersTable.departmentId],
+			references: [departmentsTable.id],
+		}),
+		lastSemester: one(semestersTable, {
+			fields: [semestersTable.lastSemesterId],
+			references: [semestersTable.id],
+		}),
+		nextSemester: one(semestersTable, {
+			fields: [semestersTable.id],
+			references: [semestersTable.lastSemesterId],
+		}),
+		schoolAssistants: many(schoolSemesterAssistantsTable),
+		teamUsers: many(teamSemesterUsersTable),
 	}),
-	lastSemester: one(semestersTable, {
-		fields: [semestersTable.lastSemesterId],
-		references: [semestersTable.id],
-	}),
-	nextSemester: one(semestersTable, {
-		fields: [semestersTable.id],
-		references: [semestersTable.lastSemesterId],
-	}),
-	schoolAssistants: many(schoolSemesterAssistantsTable),
-	teamUsers: many(teamSemesterUsersTable),
-}));
+);
