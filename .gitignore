@@ -3,6 +3,6 @@ node_modules
 db/migrations
 .vscode
 build
-openapi-document.yaml
+openapi-document.*
 #From docker compose database
 db-data

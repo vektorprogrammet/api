@@ -8,7 +8,6 @@ import {
 	zodErrorHandler,
 } from "@/src/middleware/error-middleware";
 import { logger } from "@/src/middleware/logging-middleware";
-import { openapiSpecification } from "@/src/openapi/config";
 import { teamApplicationRouter } from "@/src/routers/applications";
 import { expensesRouter } from "@/src/routers/expenses";
 import { sponsorsRouter } from "@/src/routers/sponsors";
@@ -16,7 +15,6 @@ import { teamsRouter } from "@/src/routers/teams";
 import { usersRouter } from "@/src/routers/users";
 import { customCors, customHelmetSecurity } from "@/src/security";
 import express from "express";
-import openapiExpressHandler from "swagger-ui-express";
 
 export const api = express();
 
@@ -25,11 +23,8 @@ api.use(customHelmetSecurity, customCors());
 api.disable("x-powered-by");
 
 // OpenAPI
-api.get(
-	"/docs/openapi",
-	openapiExpressHandler.serve,
-	openapiExpressHandler.setup(openapiSpecification),
-);
+api.use("/api-docs.yaml", express.static("./openapi/openapi-document.yaml"));
+api.use("/api-docs.json", express.static("./openapi/openapi-document.json"));
 
 // Logger
 api.use(logger);
