@@ -1,4 +1,5 @@
 import {
+	clientFaultPostgresErrorClassParser,
 	generatePostgresErrorCodeInfo,
 	postgresErrorCodeParser,
 	postgresSeverityParser,
@@ -53,6 +54,12 @@ export const postgresErrorParser = z
 
 export type ParsedPostgresError = z.infer<typeof postgresErrorParser>;
 
+export function isPostgresErrorClientFault(
+	databaseError: ParsedPostgresError,
+): boolean {
+	const codeInfo = generatePostgresErrorCodeInfo(databaseError.code);
+	return clientFaultPostgresErrorClassParser.safeParse(codeInfo.class).success;
+}
 export function getDatabaseErrorPublicMessage(
 	databaseError: ParsedPostgresError,
 ): string {

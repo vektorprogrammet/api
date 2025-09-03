@@ -29,6 +29,7 @@ const ORM_ERROR_MESSAGES = [
 	"Couln't find all entries",
 	"Wrong database response format",
 	"Failed to insert all entries",
+	"Error when inserting team users",
 ] as const;
 const HTTP_CLIENT_ERROR_MESSAGES = [
 	"Invalid request format",
@@ -67,6 +68,7 @@ const HTTP_CLIENT_ERROR_MESSAGES = [
 	"Database schema mismatch",
 	"Failed to execute the database command",
 	"Error parsing database response",
+	"Database error",
 ] as const;
 const HTTP_SERVER_ERROR_MESSAGES = [
 	"Internal server error occurred",

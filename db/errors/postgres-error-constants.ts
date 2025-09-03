@@ -1,4 +1,5 @@
-export const PUBLIC_POSTGRES_ERROR_CLASSES = ["22", "23"] as const;
+export const PUBLIC_POSTGRES_ERROR_CLASSES = ["02", "22", "23"] as const;
+export const CLIENT_FAULT_POSTGRES_ERROR_CLASSES = ["02", "22", "23"] as const;
 
 // from https://www.postgresql.org/docs/9.3/protocol-error-fields.html
 export const POSTGRES_ERROR_SEVERITIES = ["ERROR", "FATAL", "PANIC"] as const;

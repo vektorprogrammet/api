@@ -1,49 +1,54 @@
 import "dotenv/config";
-import express from "express";
-
 import { hostOptions } from "@/src/enviroment";
 import {
-	defaultErrorHandler,
 	errorHandler,
+	httpErrorHandler,
+	jsonParsingErrorHandler,
+	ormErrorHandler,
+	zodErrorHandler,
 } from "@/src/middleware/error-middleware";
 import { logger } from "@/src/middleware/logging-middleware";
-
-import { expenseRouter, expensesRouter } from "@/src/routers/expenses";
-import { customCors, customHelmetSecurity } from "@/src/security";
-
-import { teamApplicationRouter } from "@/src/routers/team-applications";
-
-import { openapiSpecification } from "@/src/openapi/config";
+import { teamApplicationRouter } from "@/src/routers/applications";
+import { expensesRouter } from "@/src/routers/expenses";
 import { sponsorsRouter } from "@/src/routers/sponsors";
+import { teamsRouter } from "@/src/routers/teams";
 import { usersRouter } from "@/src/routers/users";
-import openapiExpressHandler from "swagger-ui-express";
+import { customCors, customHelmetSecurity } from "@/src/security";
+import express from "express";
 
-const app = express();
+export const api = express();
 
 // Security
-app.use(customHelmetSecurity);
-app.disable("x-powered-by");
-app.use(customCors());
+api.use(customHelmetSecurity, customCors());
+api.disable("x-powered-by");
 
 // OpenAPI
-app.use("/docs/api", openapiExpressHandler.serve);
-app.get("/docs/api", openapiExpressHandler.setup(openapiSpecification));
+api.use("/api-docs.yaml", express.static("./openapi/openapi-document.yaml"));
+api.use("/api-docs.json", express.static("./openapi/openapi-document.json"));
 
-app.use("/", logger);
+// Logger
+api.use(logger);
 
-app.use("/expense", expenseRouter);
-app.use("/expenses", expensesRouter);
+// Routes
+api.use("/expenses", expensesRouter);
 
-app.use("/sponsors", sponsorsRouter);
+api.use("/sponsors", sponsorsRouter);
 
-app.use("/users", usersRouter);
+api.use("/users", usersRouter);
 
-app.use("/teamapplications", teamApplicationRouter);
+api.use("/teamapplications", teamApplicationRouter);
+api.use("/teams", teamsRouter);
 
-app.use("", errorHandler);
-app.use("", defaultErrorHandler);
+// Error handling
+api.use(
+	jsonParsingErrorHandler,
+	ormErrorHandler,
+	zodErrorHandler,
+	httpErrorHandler,
+	errorHandler,
+);
 
-app.listen(hostOptions.port, () => {
+api.listen(hostOptions.port, () => {
 	console.info(
 		`Listening on ${hostOptions.hostingUrl}. May need to specify port ${hostOptions.port}.`,
 	);

@@ -1,4 +1,5 @@
 import {
+	CLIENT_FAULT_POSTGRES_ERROR_CLASSES,
 	POSTGRES_ERROR_CLASS_TO_TITLE_MAP,
 	POSTGRES_ERROR_CODE_TO_MESSAGE_MAP,
 	POSTGRES_ERROR_SEVERITIES,
@@ -12,6 +13,9 @@ export const postgresErrorCodeParser = zodEnumFromObjKeys(
 	POSTGRES_ERROR_CODE_TO_MESSAGE_MAP,
 );
 
+export const clientFaultPostgresErrorClassParser = zodEnumFromObjKeys(
+	POSTGRES_ERROR_CLASS_TO_TITLE_MAP,
+).extract(CLIENT_FAULT_POSTGRES_ERROR_CLASSES);
 export const publicPostgresErrorClassParser = zodEnumFromObjKeys(
 	POSTGRES_ERROR_CLASS_TO_TITLE_MAP,
 ).extract(PUBLIC_POSTGRES_ERROR_CLASSES);
