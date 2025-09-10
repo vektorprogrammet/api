@@ -9,7 +9,6 @@ import { Router, json } from "express";
 export const teamsRouter = Router();
 teamsRouter.use(json());
 
-
 /**
  * @openapi
  * /teams/{teamId}/:
