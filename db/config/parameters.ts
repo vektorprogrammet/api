@@ -50,8 +50,7 @@ const parametersResult = z
 				z.literal("false").transform(() => {
 					return false;
 				}),
-			])
-			.default("prod"),
+			]).prefault("prod"),
 	})
 	.transform((schema) => {
 		return {
