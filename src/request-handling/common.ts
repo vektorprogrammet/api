@@ -18,7 +18,7 @@ export const limitParser = z
 		description: "For limits of amount of items to return. Must be a positive integer."
 	})
 export const toLimitParser = z
-	.union([z.number(), z.string().transform(Number), z.undefined()])
+	.union([z.number(), z.string().pipe(z.coerce.number()), z.undefined()])
 	.pipe(limitParser);
 
 export const offsetParser = z
@@ -31,25 +31,25 @@ export const offsetParser = z
 		description: "Offset for pagination."
 	})
 export const toOffsetParser = z
-	.union([z.number(), z.string().transform(Number), z.undefined()])
+	.union([z.number(), z.string().pipe(z.coerce.number()), z.undefined()])
 	.pipe(offsetParser);
 
-export const listQueryParser = z.object({
+export const listQueryParser = z.strictObject({
 	sort: sortParser,
 	limit: limitParser,
 	offset: offsetParser,
-}).strict();
+});
 
 export const toListQueryParser = z
-	.object({
+	.strictObject({
 		sort: sortParser,
 		limit: toLimitParser,
 		offset: toOffsetParser,
-	}).strict();
+	});
 
 export type QueryParameters = z.infer<typeof listQueryParser>;
 
 export const serialIdParser = z.int().positive();
 export const toSerialIdParser = z
-	.union([z.number(), z.string().transform(Number)])
+	.union([z.number(), z.string().pipe(z.coerce.number())])
 	.pipe(serialIdParser);

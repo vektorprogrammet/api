@@ -9,29 +9,26 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const userRequestParser = z
-	.object({
+	.strictObject({
 		firstName: z.string().nonempty(),
 		lastName: z.string().nonempty(),
 		fieldOfStudyId: serialIdParser,
 		bankAccountNumber: z.string().length(11),
 		personalEmail: z.email({ pattern: z.regexes.html5Email }),
 		phoneNumber: z.string().min(8),
-	})
-	.strict();
+	});
 
 export const teamUserRequestParser = z
-	.object({
+	.strictObject({
 		id: serialIdParser,
 		teamId: serialIdParser,
 		username: z.string().nonempty(),
-	})
-	.strict();
+	});
 
 export const assistantUserRequestParser = z
-	.object({
+	.strictObject({
 		id: serialIdParser,
-	})
-	.strict();
+	});
 
 export const userRequestToInsertParser = userRequestParser
 	.extend({
@@ -41,17 +38,17 @@ export const userRequestToInsertParser = userRequestParser
 			norwegianBankAccountNumberParser,
 		),
 	})
-	.pipe(createInsertSchema(usersTable).strict().readonly());
+	.pipe(createInsertSchema(usersTable).readonly());
 
 export const teamUserRequestToInsertParser = teamUserRequestParser
 	.extend({
 		username: teamUserRequestParser.shape.username.trim(),
 	})
-	.pipe(createInsertSchema(teamUsersTable).strict().readonly());
+	.pipe(createInsertSchema(teamUsersTable).readonly());
 
 export const assistantUserRequestToInsertParser = assistantUserRequestParser
 	.extend({})
-	.pipe(createInsertSchema(assistantUsersTable).strict().readonly());
+	.pipe(createInsertSchema(assistantUsersTable).readonly());
 
 export type NewUser = z.infer<typeof userRequestToInsertParser>;
 export type NewTeamUser = z.infer<typeof teamUserRequestToInsertParser>;

@@ -11,7 +11,7 @@ export const portParser = z
 	.int("ports must have integer values");
 
 export const toPortParser = z
-	.union([z.number().int(), z.string()])
+	.union([z.number(), z.string()])
 	.pipe(z.coerce.number())
 	.pipe(portParser);
 

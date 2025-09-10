@@ -7,7 +7,6 @@ import {
 } from "@/db/tables/applications";
 
 export const applicationSelectSchema = createSelectSchema(applicationsTable)
-	.strict()
 	.readonly();
 
 export type Application = z.infer<typeof applicationSelectSchema>;
@@ -17,7 +16,6 @@ export const teamApplicationSelectSchema = createSelectSchema(
 	teamApplicationsTable,
 )
 	.extend(createSelectSchema(applicationsTable))
-	.strict()
 	.readonly();
 
 export type TeamApplication = z.infer<typeof teamApplicationSelectSchema>;

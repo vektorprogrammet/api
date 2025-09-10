@@ -9,7 +9,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const expenseRequestParser = z
-	.object({
+	.strictObject({
 		userId: serialIdParser,
 		title: z.string().min(1),
 		moneyAmount: currencyParser,
@@ -19,7 +19,6 @@ export const expenseRequestParser = z
 			.length(11),
 		purchaseTime: timeStringParser,
 	})
-	.strict()
 	.meta({
 		id: "expense-request"
 	});
@@ -31,9 +30,9 @@ export const expenseRequestToInsertParser = expenseRequestParser
 			norwegianBankAccountNumberParser,
 		),
 		purchaseTime: expenseRequestParser.shape.purchaseTime.pipe(
-			z.coerce.date().max(new Date()),
-		),
+			z.coerce.date(),
+		).pipe(z.date().max(new Date())),
 	})
-	.pipe(createInsertSchema(expensesTable).strict().readonly());
+	.pipe(createInsertSchema(expensesTable).readonly());
 
 export type NewExpense = z.infer<typeof expenseRequestToInsertParser>;

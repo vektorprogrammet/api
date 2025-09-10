@@ -8,7 +8,6 @@ import {
 } from "@/db/tables/users";
 
 export const userSelectSchema = createSelectSchema(usersTable)
-	.strict()
 	.readonly();
 
 export type User = z.infer<typeof userSelectSchema>;
@@ -16,12 +15,10 @@ export type UserKey = User["id"];
 
 export const teamUserSelectSchema = createSelectSchema(teamUsersTable)
 	.extend(createSelectSchema(usersTable))
-	.strict()
 	.readonly();
 export type TeamUser = z.infer<typeof teamUserSelectSchema>;
 
 export const assistantUserSelectSchema = createSelectSchema(assistantUsersTable)
 	.extend(createSelectSchema(usersTable))
-	.strict()
 	.readonly();
 export type AssistantUser = z.infer<typeof assistantUserSelectSchema>;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { serialIdParser } from "./common";
 
 export const semesterRequestParser = z
-	.object({
+	.strictObject({
 		id: serialIdParser,
 		lastSemesterId: serialIdParser,
 		semesterStartDate: timeStringParser,
@@ -15,7 +15,7 @@ export const semesterRequestParser = z
 		departmentId: serialIdParser,
 		name: z.string(),
 	})
-	.strict().meta({
+	.meta({
 		id: "semester-request"
 	});
 
@@ -35,6 +35,6 @@ export const semesterRequestToInsertParser = semesterRequestParser
 			z.coerce.date(),
 		),
 	})
-	.pipe(createInsertSchema(semestersTable).strict().readonly());
+	.pipe(createInsertSchema(semestersTable).readonly());
 
 export type NewSemester = z.infer<typeof semesterRequestToInsertParser>;

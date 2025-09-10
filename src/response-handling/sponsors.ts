@@ -3,7 +3,6 @@ import { createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
 
 export const sponsorsSelectSchema = createSelectSchema(sponsorsTable)
-	.strict()
 	.readonly();
 
 export type Sponsor = z.infer<typeof sponsorsSelectSchema>;

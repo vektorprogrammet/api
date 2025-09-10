@@ -5,7 +5,7 @@ import { z } from "zod";
 import { serialIdParser } from "./common";
 
 export const schoolRequestParser = z
-	.object({
+	.strictObject({
 		id: serialIdParser.,
 		departmentId: serialIdParser,
 		name: z.string(),
@@ -15,7 +15,7 @@ export const schoolRequestParser = z
 		isInternational: z
 			.boolean(),
 	})
-	.strict().meta({
+	.meta({
 		id: "school-request"
 	});
 
@@ -25,6 +25,6 @@ export const schoolRequestToInsertParser = schoolRequestParser
 		contactPersonName: schoolRequestParser.shape.contactPersonName.trim(),
 		contactPersonEmail: schoolRequestParser.shape.contactPersonEmail.trim(),
 	})
-	.pipe(createInsertSchema(schoolsTable).strict().readonly());
+	.pipe(createInsertSchema(schoolsTable).readonly());
 
 export type NewSchool = z.infer<typeof schoolRequestToInsertParser>;

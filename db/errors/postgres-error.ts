@@ -12,7 +12,7 @@ import { z } from "zod";
 // https://github.com/brianc/node-postgres/blob/master/packages/pg-protocol/src/messages.ts
 
 export const postgresErrorParser = z
-	.object({
+	.strictObject({
 		length: z.int().nonnegative(),
 		name: z.string(),
 		code: postgresErrorCodeParser,
@@ -21,11 +21,13 @@ export const postgresErrorParser = z
 		hint: z.string().optional(),
 		position: z
 			.string()
-			.pipe(z.coerce.number().int().nonnegative())
+			.pipe(z.coerce.number())
+			.pipe(z.number().int().nonnegative())
 			.optional(),
 		internalPosition: z
 			.string()
-			.pipe(z.coerce.number().int().nonnegative())
+			.pipe(z.coerce.number())
+			.pipe(z.number().int().nonnegative())
 			.optional(),
 		internalQuery: z.string().optional(),
 		where: z.string().optional(),
@@ -37,7 +39,8 @@ export const postgresErrorParser = z
 		file: z.string().optional(),
 		line: z
 			.string()
-			.pipe(z.coerce.number().int().nonnegative())
+			.pipe(z.coerce.number())
+			.pipe(z.number().int().nonnegative())
 			.optional(),
 		routine: z.string().optional(),
 	})

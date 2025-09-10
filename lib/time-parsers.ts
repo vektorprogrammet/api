@@ -9,7 +9,7 @@ export const toDateParser = z
 	.pipe(dateParser);
 
 export const datePeriodParser = z
-	.object({
+	.strictObject({
 		startDate: dateParser,
 		endDate: dateParser,
 	})
@@ -18,7 +18,7 @@ export const datePeriodParser = z
 	}, "Invalid date period. StartDate must be before or equal to endDate.");
 
 export const toDatePeriodParser = z
-	.object({
+	.strictObject({
 		startDate: toDateParser,
 		endDate: toDateParser,
 	})

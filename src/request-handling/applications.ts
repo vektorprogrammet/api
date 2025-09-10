@@ -9,7 +9,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const applicationParser = z
-	.object({
+	.strictObject({
 		firstName: z
 			.string()
 			.min(1),
@@ -18,7 +18,7 @@ export const applicationParser = z
 			.min(1),
 		email: z.email({ pattern: z.regexes.html5Email }),
 		gender: z
-			.enum(["Female", "Male", "Other"]),
+			.enum(["female", "male", "other"]),
 		fieldOfStudyId: serialIdParser,
 		yearOfStudy: z
 			.number()
@@ -33,10 +33,9 @@ export const applicationParser = z
 		id: "base-application",
 		description: "The base parser for team and assistant applications, with all common attributes."
 	})
-	.strict();
 
 export const teamApplicationParser = z
-	.object({
+	.strictObject({
 		teamId: serialIdParser,
 		motivationText: z
 			.string()
@@ -46,16 +45,14 @@ export const teamApplicationParser = z
 			.max(MAX_TEXT_LENGTH),
 	})
 	.extend(applicationParser)
-	.strict();
 
 export const assistantApplicationParser = z
-	.object({})
+	.strictObject({})
 	.extend(applicationParser)
-	.strict();
 
 export const applicationToInsertParser = applicationParser
 	.extend({})
-	.pipe(createInsertSchema(applicationsTable).strict().readonly());
+	.pipe(createInsertSchema(applicationsTable).readonly());
 
 export const teamApplicationToInsertParser = teamApplicationParser
 	.extend({
@@ -66,7 +63,6 @@ export const teamApplicationToInsertParser = teamApplicationParser
 	.pipe(
 		createInsertSchema(teamApplicationsTable)
 			.extend(createInsertSchema(applicationsTable))
-			.strict()
 			.readonly(),
 	);
 
@@ -75,7 +71,6 @@ export const assistantApplicationToInsertParser = assistantApplicationParser
 	.pipe(
 		createInsertSchema(assistantApplicationsTable)
 			.extend(createInsertSchema(applicationsTable))
-			.strict()
 			.readonly(),
 	);
 
