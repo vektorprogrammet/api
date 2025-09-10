@@ -2,7 +2,6 @@ import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
 import { serial, text } from "drizzle-orm/pg-core";
 import { semestersTable } from "./semesters";
-import { integer } from "drizzle-orm/sqlite-core";
 
 export const meetingsTable = mainSchema.table("meetings", {
 	id: serial("id").primaryKey(),
