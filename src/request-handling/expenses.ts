@@ -10,17 +10,19 @@ import { z } from "zod";
 
 export const expenseRequestParser = z
 	.object({
-		userId: serialIdParser.describe("Id of user requesting expense"),
-		title: z.string().min(1).describe("Title of expense"),
-		moneyAmount: currencyParser.describe("Amount of money used"),
-		description: z.string().min(1).describe("Description of expense"),
+		userId: serialIdParser,
+		title: z.string().min(1),
+		moneyAmount: currencyParser,
+		description: z.string().min(1),
 		bankAccountNumber: z
 			.string()
-			.length(11)
-			.describe("Norwegian account number"),
-		purchaseTime: timeStringParser.describe("Time of purcase"),
+			.length(11),
+		purchaseTime: timeStringParser,
 	})
-	.strict();
+	.strict()
+	.meta({
+		id: "expense-request"
+	});
 export const expenseRequestToInsertParser = expenseRequestParser
 	.extend({
 		title: expenseRequestParser.shape.title.trim(),

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const timeStringParser = z.union([z.string().date(), z.string().time()]);
+export const timeStringParser = z.union([z.iso.date(), z.iso.time()]);
 
 export const dateParser = z.date();
 export const toDateParser = z

@@ -2,7 +2,6 @@ import { env } from "node:process";
 import type { ConnectionOptions } from "node:tls";
 import { hostingStringParser, toPortParser } from "@/lib/network-parsers";
 import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
 
 function getCaCert(): string | Buffer | (string | Buffer)[] | undefined {
 	return env.CA_CERT;
@@ -26,9 +25,10 @@ const parametersResult = z
 				z.literal("prod-provide_ca_cert").transform((_, ctx) => {
 					const caCert = getCaCert();
 					if (caCert === undefined) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Could not find ca certificate",
+						ctx.issues.push({
+							code: "custom",
+							input: caCert,
+							message: "need to provide ca_cert"
 						});
 						return z.NEVER;
 					}
@@ -67,7 +67,7 @@ const parametersResult = z
 
 if (!parametersResult.success) {
 	console.error("Error when parsing enviroment variables.");
-	console.error(fromZodError(parametersResult.error).message);
+	console.error(z.prettifyError(parametersResult.error));
 	process.exit(1);
 }
 export const databaseConnectionParameters = parametersResult.data;

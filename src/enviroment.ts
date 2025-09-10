@@ -2,7 +2,6 @@ import { hostingStringParser, toPortParser } from "@/lib/network-parsers";
 import "dotenv/config";
 import { env } from "node:process";
 import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
 
 const hostOptionsResult = z
 	.object({
@@ -19,7 +18,7 @@ const hostOptionsResult = z
 
 if (!hostOptionsResult.success) {
 	console.error("Error when parsing enviroment variables.");
-	console.error(fromZodError(hostOptionsResult.error).message);
+	console.error(z.prettifyError(hostOptionsResult.error));
 	process.exit(1);
 }
 

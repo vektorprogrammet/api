@@ -13,7 +13,7 @@ import { z } from "zod";
 
 export const postgresErrorParser = z
 	.object({
-		length: z.number().finite().safe().int().nonnegative(),
+		length: z.int().nonnegative(),
 		name: z.string(),
 		code: postgresErrorCodeParser,
 		severity: postgresSeverityParser,
@@ -21,11 +21,11 @@ export const postgresErrorParser = z
 		hint: z.string().optional(),
 		position: z
 			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
+			.pipe(z.coerce.number().int().nonnegative())
 			.optional(),
 		internalPosition: z
 			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
+			.pipe(z.coerce.number().int().nonnegative())
 			.optional(),
 		internalQuery: z.string().optional(),
 		where: z.string().optional(),
@@ -37,7 +37,7 @@ export const postgresErrorParser = z
 		file: z.string().optional(),
 		line: z
 			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
+			.pipe(z.coerce.number().int().nonnegative())
 			.optional(),
 		routine: z.string().optional(),
 	})

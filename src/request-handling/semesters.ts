@@ -6,20 +6,18 @@ import { serialIdParser } from "./common";
 
 export const semesterRequestParser = z
 	.object({
-		id: serialIdParser.describe("Id of semester"),
-		lastSemesterId: serialIdParser.describe("Id of last semester"),
-		semesterStartDate: timeStringParser.describe("Date of semester start"),
-		semesterEndDate: timeStringParser.describe("Date of semester end"),
-		recruitmentStartDate: timeStringParser.describe(
-			"Date of recruitment period start",
-		),
-		recruitmentEndDate: timeStringParser.describe(
-			"Date of recruitment period end",
-		),
-		departmentId: serialIdParser.describe("Id of corresponding department"),
-		name: z.string().describe("Name of semester"),
+		id: serialIdParser,
+		lastSemesterId: serialIdParser,
+		semesterStartDate: timeStringParser,
+		semesterEndDate: timeStringParser,
+		recruitmentStartDate: timeStringParser,
+		recruitmentEndDate: timeStringParser,
+		departmentId: serialIdParser,
+		name: z.string(),
 	})
-	.strict();
+	.strict().meta({
+		id: "semester-request"
+	});
 
 export const semesterRequestToInsertParser = semesterRequestParser
 	.extend({

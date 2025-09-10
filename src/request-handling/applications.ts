@@ -12,52 +12,45 @@ export const applicationParser = z
 	.object({
 		firstName: z
 			.string()
-			.min(1)
-			.describe("First name of user applying for a team"),
+			.min(1),
 		lastName: z
 			.string()
-			.min(1)
-			.describe("Last name of user applying for a team"),
-		email: z.string().email().describe("Email of user applying for a team"),
+			.min(1),
+		email: z.email({ pattern: z.regexes.html5Email }),
 		gender: z
-			.enum(["Female", "Male", "Other"])
-			.describe("The gender of the user applying for a team"),
-		fieldOfStudyId: serialIdParser.describe(
-			"Studyfield of user applying for a team",
-		),
+			.enum(["Female", "Male", "Other"]),
+		fieldOfStudyId: serialIdParser,
 		yearOfStudy: z
 			.number()
-			.finite()
-			.safe()
 			.positive()
 			.int()
-			.max(7)
-			.describe("The year of study the user applying for a team is in"),
+			.max(7),
 		phonenumber: z
 			.string()
-			.regex(/^\d{8}$/, "Phone number must be 8 digits")
-			.describe("The phonenumber of the user applying for a team"),
+			.regex(/^\d{8}$/, "Phone number must be 8 digits"),
+	})
+	.meta({
+		id: "base-application",
+		description: "The base parser for team and assistant applications, with all common attributes."
 	})
 	.strict();
 
 export const teamApplicationParser = z
 	.object({
-		teamId: serialIdParser.describe("Id of team applied for"),
+		teamId: serialIdParser,
 		motivationText: z
 			.string()
-			.max(MAX_TEXT_LENGTH)
-			.describe("The motivation text of user applying for a team"),
+			.max(MAX_TEXT_LENGTH),
 		biography: z
 			.string()
-			.max(MAX_TEXT_LENGTH)
-			.describe("The biography of the user applying for a team"),
+			.max(MAX_TEXT_LENGTH),
 	})
-	.merge(applicationParser)
+	.extend(applicationParser)
 	.strict();
 
 export const assistantApplicationParser = z
 	.object({})
-	.merge(applicationParser)
+	.extend(applicationParser)
 	.strict();
 
 export const applicationToInsertParser = applicationParser
@@ -72,7 +65,7 @@ export const teamApplicationToInsertParser = teamApplicationParser
 	})
 	.pipe(
 		createInsertSchema(teamApplicationsTable)
-			.merge(createInsertSchema(applicationsTable))
+			.extend(createInsertSchema(applicationsTable))
 			.strict()
 			.readonly(),
 	);
@@ -81,7 +74,7 @@ export const assistantApplicationToInsertParser = assistantApplicationParser
 	.extend({})
 	.pipe(
 		createInsertSchema(assistantApplicationsTable)
-			.merge(createInsertSchema(applicationsTable))
+			.extend(createInsertSchema(applicationsTable))
 			.strict()
 			.readonly(),
 	);

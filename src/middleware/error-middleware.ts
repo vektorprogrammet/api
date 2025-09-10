@@ -3,6 +3,7 @@ import { isOrmError } from "@/src/error/orm-error";
 import type { ErrorRequestHandler } from "express";
 import { isZodErrorLike } from "zod-validation-error";
 import { isJsonParsingError } from "../error/json-errors";
+import { $ZodError } from "zod/v4/core/errors.cjs";
 
 export const jsonParsingErrorHandler: ErrorRequestHandler = (
 	err,
@@ -38,7 +39,7 @@ export const ormErrorHandler: ErrorRequestHandler = (err, _req, _res, next) => {
 };
 
 export const zodErrorHandler: ErrorRequestHandler = (err, _req, _res, next) => {
-	if (isZodErrorLike(err)) {
+	if (err instanceof $ZodError) {
 		return next(clientError(401, "Bad request syntax"));
 	}
 	return next(err);

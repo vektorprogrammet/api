@@ -5,28 +5,34 @@ export const sortParser = z
 	.enum(["desc", "asc"])
 	.optional()
 	.default("desc")
-	.describe("Sort descending or acending");
+	.meta({
+		id: "sort-keyword",
+		description: "Accepts strings with descending(desc) or ascending(asc)"
+	})
 export const limitParser = z
 	.number()
-	.finite()
-	.safe()
 	.positive()
 	.int()
 	.default(DEFAULT_QUERY_LIMIT)
-	.describe("Amount of items requested");
+	.meta({
+		id: "limit",
+		description: "For limits of amount of items to return. Must be a positive integer."
+	})
 export const toLimitParser = z
 	.union([z.number(), z.string()])
 	.pipe(z.coerce.number())
 	.pipe(limitParser)
-	.default(DEFAULT_QUERY_LIMIT);
+	.default(DEFAULT_QUERY_LIMIT)
+
 export const offsetParser = z
 	.number()
-	.finite()
-	.safe()
 	.nonnegative()
 	.int()
 	.default(0)
-	.describe("Offset for pagination");
+	.meta({
+		id: "offset",
+		description: "Offset for pagination."
+	})
 export const toOffsetParser = z
 	.union([z.number(), z.string()])
 	.pipe(z.coerce.number())
@@ -47,7 +53,7 @@ export const toListQueryParser = z
 
 export type QueryParameters = z.infer<typeof listQueryParser>;
 
-export const serialIdParser = z.number().finite().safe().positive().int();
+export const serialIdParser = z.int().positive();
 export const toSerialIdParser = z
 	.union([z.number(), z.string()])
 	.pipe(z.coerce.number())

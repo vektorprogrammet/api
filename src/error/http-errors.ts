@@ -15,7 +15,7 @@ import {
 	getHttpServerErrorCodeInfo,
 } from "@/src/error/http-codes-manipulators";
 import { isOrmError } from "@/src/error/orm-error";
-import { fromZodError, isZodErrorLike } from "zod-validation-error";
+import { $ZodError } from "zod/v4/core/errors.cjs";
 
 class HttpError extends Error {
 	declare message: HttpErrorMessage;
@@ -43,8 +43,8 @@ class HttpError extends Error {
 			this.cause.getPublicDatabaseMessage() !== undefined
 		) {
 			response += `\n${this.cause.getPublicDatabaseMessage()}`;
-		} else if (isZodErrorLike(this.cause)) {
-			response += `\n${fromZodError(this.cause).message}`;
+		} else if (this.cause instanceof $ZodError) {
+			response += `\n${z.prettifyError(this.cause)}`;
 		} else if (this.cause instanceof HttpError) {
 			response += `\n${this.cause.getResponseString()}`;
 		} else if (this.cause instanceof Error) {

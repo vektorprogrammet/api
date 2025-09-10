@@ -14,7 +14,7 @@ export const userRequestParser = z
 		lastName: z.string().nonempty(),
 		fieldOfStudyId: serialIdParser,
 		bankAccountNumber: z.string().length(11),
-		personalEmail: z.string().email(),
+		personalEmail: z.email({ pattern: z.regexes.html5Email }),
 		phoneNumber: z.string().min(8),
 	})
 	.strict();

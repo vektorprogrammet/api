@@ -6,19 +6,18 @@ import { serialIdParser } from "./common";
 
 export const schoolRequestParser = z
 	.object({
-		id: serialIdParser.describe("Id of school"),
-		departmentId: serialIdParser.describe("Id of corresponding department"),
-		name: z.string().describe("Name of school"),
-		contactPersonName: z.string().describe("Name of contact person on school"),
-		contactPersonPhoneNumber: phoneNumberParser.describe(
-			"Phone number of contact person",
-		),
-		contactPersonEmail: z.string().describe("Email of contact person"),
+		id: serialIdParser.,
+		departmentId: serialIdParser,
+		name: z.string(),
+		contactPersonName: z.string(),
+		contactPersonPhoneNumber: phoneNumberParser,
+		contactPersonEmail: z.string(),
 		isInternational: z
-			.boolean()
-			.describe("Whether the school is international or not"),
+			.boolean(),
 	})
-	.strict();
+	.strict().meta({
+		id: "school-request"
+	});
 
 export const schoolRequestToInsertParser = schoolRequestParser
 	.extend({

@@ -16,7 +16,7 @@ export type ApplicationKey = Application["id"];
 export const teamApplicationSelectSchema = createSelectSchema(
 	teamApplicationsTable,
 )
-	.merge(createSelectSchema(applicationsTable))
+	.extend(createSelectSchema(applicationsTable))
 	.strict()
 	.readonly();
 

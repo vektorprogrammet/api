@@ -6,21 +6,20 @@ import { z } from "zod";
 
 export const sponsorRequestParser = z
 	.object({
-		id: serialIdParser.describe("Id of sponsor"),
-		name: z.string().describe("Name of sponsor"),
-		homePageUrl: z.string().url().describe("URL to homepage of sponsor"),
-		startTime: timeStringParser.describe("Date when sponsor started support"),
+		id: serialIdParser,
+		name: z.string(),
+		homePageUrl: z.url(),
+		startTime: timeStringParser,
 		endTime: timeStringParser
-			.nullable()
-			.describe("Date when sponsor ended support"),
+			.nullable(),
 		size: z
-			.enum(["small", "medium", "large"])
-			.describe("Size of sponsor support"),
+			.enum(["small", "medium", "large"]),
 		spesificDepartmentId: serialIdParser
-			.nullable()
-			.describe("Id of department that sponsor is connected to"),
+			.nullable(),
 	})
-	.strict();
+	.strict().meta({
+		id: "sponsor-request"
+	});
 
 export const sponsorRequestToInsertParser = sponsorRequestParser
 	.extend({
