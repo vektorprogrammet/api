@@ -1,13 +1,8 @@
 import { mainSchema } from "@/db/tables/schema";
-import { usersTable } from "@/db/tables/users";
 import { relations } from "drizzle-orm";
 import {
-    boolean,
-    integer,
-    numeric,
     serial,
     text,
-    timestamp,
 } from "drizzle-orm/pg-core";
 import { semestersTable } from "./semesters";
 
