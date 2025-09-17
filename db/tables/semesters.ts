@@ -16,10 +16,10 @@ export const semestersTable = mainSchema.table("semesters", {
 	lastSemesterId: integer("lastSemesterId").references(
 		(): AnyPgColumn => semestersTable.id,
 	),
-	semesterStartDate: date("semesterStartDate").notNull(),
-	semesterEndDate: date("semesterEndDate").notNull(),
-	recruitmentStartDate: date("recruitmentStartDate").notNull(),
-	recruitmentEndDate: date("recruitmentEndDate").notNull(),
+	semesterStartDate: date("semesterStartDate", { mode: "date" }).notNull(),
+	semesterEndDate: date("semesterEndDate", { mode: "date" }).notNull(),
+	recruitmentStartDate: date("recruitmentStartDate", { mode: "date" }).notNull(),
+	recruitmentEndDate: date("recruitmentEndDate", { mode: "date" }).notNull(),
 	departmentId: integer("departmentId")
 		.notNull()
 		.references(() => departmentsTable.id),

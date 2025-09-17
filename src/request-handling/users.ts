@@ -13,7 +13,7 @@ export const userRequestParser = z
 		firstName: z.string().nonempty(),
 		lastName: z.string().nonempty(),
 		fieldOfStudyId: serialIdParser,
-		bankAccountNumber: z.string().length(11),
+		bankAccountNumber: z.string().length(11).optional().nullable(),
 		personalEmail: z.email({ pattern: z.regexes.html5Email }),
 		phoneNumber: z.string().min(8),
 	});
@@ -36,7 +36,7 @@ export const userRequestToInsertParser = userRequestParser
 		lastName: userRequestParser.shape.lastName.trim(),
 		bankAccountNumber: userRequestParser.shape.bankAccountNumber.pipe(
 			norwegianBankAccountNumberParser,
-		),
+		).optional().nullable(),
 	})
 	.pipe(createInsertSchema(usersTable).readonly());
 

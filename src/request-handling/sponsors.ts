@@ -6,16 +6,15 @@ import { z } from "zod";
 
 export const sponsorRequestParser = z
 	.strictObject({
-		id: serialIdParser,
+		id: serialIdParser.optional(),
 		name: z.string(),
 		homePageUrl: z.url(),
 		startTime: timeStringParser,
-		endTime: timeStringParser
-			.nullable(),
+		endTime: timeStringParser.optional().nullable(),
 		size: z
 			.enum(["small", "medium", "large"]),
-		spesificDepartmentId: serialIdParser
-			.nullable(),
+		spesificDepartmentId: serialIdParser.nullable()
+			.optional(),
 	})
 	.meta({
 		id: "sponsor-request"
@@ -27,8 +26,9 @@ export const sponsorRequestToInsertParser = sponsorRequestParser
 		startTime: sponsorRequestParser.shape.startTime.pipe(
 			z.coerce.date(),
 		).pipe(z.date().max(new Date())),
-		endTime: sponsorRequestParser.shape.endTime.pipe(z.coerce.date()),
+		endTime: sponsorRequestParser.shape.endTime.pipe(z.coerce.date()).nullable().optional(),
 	})
 	.pipe(createInsertSchema(sponsorsTable).readonly());
-
+const x = createInsertSchema(sponsorsTable)
+type X = z.infer<typeof x>;
 export type NewSponsor = z.infer<typeof sponsorRequestToInsertParser>;

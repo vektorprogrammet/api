@@ -1,9 +1,8 @@
 import { clientError, isHttpError, serverError } from "@/src/error/http-errors";
 import { isOrmError } from "@/src/error/orm-error";
 import type { ErrorRequestHandler } from "express";
-import { isZodErrorLike } from "zod-validation-error";
 import { isJsonParsingError } from "../error/json-errors";
-import { $ZodError } from "zod/v4/core/errors.cjs";
+import { ZodError } from "zod";
 
 export const jsonParsingErrorHandler: ErrorRequestHandler = (
 	err,
@@ -39,7 +38,7 @@ export const ormErrorHandler: ErrorRequestHandler = (err, _req, _res, next) => {
 };
 
 export const zodErrorHandler: ErrorRequestHandler = (err, _req, _res, next) => {
-	if (err instanceof $ZodError) {
+	if (err instanceof ZodError) {
 		return next(clientError(401, "Bad request syntax"));
 	}
 	return next(err);

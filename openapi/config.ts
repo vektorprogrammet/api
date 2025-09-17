@@ -1,4 +1,3 @@
-import "zod-openapi/extend";
 import { datePeriodParser } from "@/lib/time-parsers";
 import { hostOptions } from "@/src/enviroment";
 import { teamApplicationParser } from "@/src/request-handling/applications";
@@ -86,10 +85,10 @@ const openapiDocument = createDocument({
 			teamApplicationRequest: teamApplicationParser,
 		},
 		parameters: {
-			id: serialIdParser.openapi({ param: { in: "path", name: "id" } }),
-			limit: limitParser.openapi({ param: { in: "query", name: "limit" } }),
-			sort: sortParser.openapi({ param: { in: "query", name: "sort" } }),
-			offset: offsetParser.openapi({
+			id: serialIdParser.meta({ param: { in: "path", name: "id" } }),
+			limit: limitParser.meta({ param: { in: "query", name: "limit" } }),
+			sort: sortParser.meta({ param: { in: "query", name: "sort" } }),
+			offset: offsetParser.meta({
 				param: { in: "query", name: "offset" },
 			}),
 		},

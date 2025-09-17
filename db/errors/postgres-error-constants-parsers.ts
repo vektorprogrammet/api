@@ -6,19 +6,13 @@ import {
 	POSTGRES_NOTICE_SEVERITIES,
 	PUBLIC_POSTGRES_ERROR_CLASSES,
 } from "@/db/errors/postgres-error-constants";
-import { zodEnumFromObjKeys } from "@/lib/lib";
 import { z } from "zod";
 
-export const postgresErrorCodeParser = zodEnumFromObjKeys(
-	POSTGRES_ERROR_CODE_TO_MESSAGE_MAP,
-);
 
-export const clientFaultPostgresErrorClassParser = zodEnumFromObjKeys(
-	POSTGRES_ERROR_CLASS_TO_TITLE_MAP,
-).extract(CLIENT_FAULT_POSTGRES_ERROR_CLASSES);
-export const publicPostgresErrorClassParser = zodEnumFromObjKeys(
-	POSTGRES_ERROR_CLASS_TO_TITLE_MAP,
-).extract(PUBLIC_POSTGRES_ERROR_CLASSES);
+export const postgresErrorCodeParser = z.enum(Object.keys(POSTGRES_ERROR_CODE_TO_MESSAGE_MAP) as Array<(keyof typeof POSTGRES_ERROR_CODE_TO_MESSAGE_MAP)>);
+
+export const clientFaultPostgresErrorClassParser = z.enum(CLIENT_FAULT_POSTGRES_ERROR_CLASSES);
+export const publicPostgresErrorClassParser = z.enum(PUBLIC_POSTGRES_ERROR_CLASSES);
 
 type PostgresErrorCode = keyof typeof POSTGRES_ERROR_CODE_TO_MESSAGE_MAP;
 type PostgresErrorMessage =

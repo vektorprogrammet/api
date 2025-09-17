@@ -6,7 +6,7 @@ import { serialIdParser } from "./common";
 
 export const schoolRequestParser = z
 	.strictObject({
-		id: serialIdParser.,
+		id: serialIdParser.optional(),
 		departmentId: serialIdParser,
 		name: z.string(),
 		contactPersonName: z.string(),
@@ -18,7 +18,6 @@ export const schoolRequestParser = z
 	.meta({
 		id: "school-request"
 	});
-
 export const schoolRequestToInsertParser = schoolRequestParser
 	.extend({
 		name: schoolRequestParser.shape.name.trim(),

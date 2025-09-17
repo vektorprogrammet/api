@@ -6,7 +6,7 @@ import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
 
 export const schoolsTable = mainSchema.table("schools", {
 	id: serial("id").primaryKey(),
-	departmentId: integer("departmentId").references(() => departmentsTable.id),
+	departmentId: integer("departmentId").references(() => departmentsTable.id).notNull(),
 	name: text("name").notNull(),
 	contactPersonName: text("contactPersonName").notNull(),
 	contactPersonPhoneNumber: text("contactPersonPhoneNumber").notNull(),

@@ -44,12 +44,11 @@ export const teamApplicationParser = z
 			.string()
 			.max(MAX_TEXT_LENGTH),
 	})
-	.extend(applicationParser)
+	.extend(applicationParser.shape)
 
 export const assistantApplicationParser = z
 	.strictObject({})
-	.extend(applicationParser)
-
+	.extend(applicationParser.shape)
 export const applicationToInsertParser = applicationParser
 	.extend({})
 	.pipe(createInsertSchema(applicationsTable).readonly());
@@ -62,7 +61,7 @@ export const teamApplicationToInsertParser = teamApplicationParser
 	})
 	.pipe(
 		createInsertSchema(teamApplicationsTable)
-			.extend(createInsertSchema(applicationsTable))
+			.extend(createInsertSchema(applicationsTable).shape)
 			.readonly(),
 	);
 
@@ -70,7 +69,7 @@ export const assistantApplicationToInsertParser = assistantApplicationParser
 	.extend({})
 	.pipe(
 		createInsertSchema(assistantApplicationsTable)
-			.extend(createInsertSchema(applicationsTable))
+			.extend(createInsertSchema(applicationsTable).shape)
 			.readonly(),
 	);
 

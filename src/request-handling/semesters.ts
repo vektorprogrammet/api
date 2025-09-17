@@ -1,13 +1,13 @@
 import { semestersTable } from "@/db/tables/semesters";
 import { timeStringParser } from "@/lib/time-parsers";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { nullable, z } from "zod";
 import { serialIdParser } from "./common";
 
 export const semesterRequestParser = z
 	.strictObject({
-		id: serialIdParser,
-		lastSemesterId: serialIdParser,
+		id: serialIdParser.optional(),
+		lastSemesterId: serialIdParser.optional().nullable(),
 		semesterStartDate: timeStringParser,
 		semesterEndDate: timeStringParser,
 		recruitmentStartDate: timeStringParser,
@@ -18,7 +18,6 @@ export const semesterRequestParser = z
 	.meta({
 		id: "semester-request"
 	});
-
 export const semesterRequestToInsertParser = semesterRequestParser
 	.extend({
 		name: semesterRequestParser.shape.name.trim(),
@@ -36,5 +35,6 @@ export const semesterRequestToInsertParser = semesterRequestParser
 		),
 	})
 	.pipe(createInsertSchema(semestersTable).readonly());
+
 
 export type NewSemester = z.infer<typeof semesterRequestToInsertParser>;

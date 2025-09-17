@@ -18,7 +18,7 @@ export const expensesTable = mainSchema.table("expenses", {
 	title: text("title").notNull(),
 	description: text("description").notNull(),
 	moneyAmount: numeric("moneyAmount", { scale: 2 }).notNull(),
-	accountNumber: text("accountNumber").notNull(),
+	bankAccountNumber: text("accountNumber").notNull(),
 	purchaseTime: timestamp("purchaseTime").notNull(),
 	submitTime: timestamp("submitTime").defaultNow().notNull(),
 	isAccepted: boolean("isAccepted").default(true).notNull(),
