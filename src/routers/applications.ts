@@ -1,5 +1,7 @@
 import {
+	createTeamApplicationFromAssistantApplication,
 	insertTeamApplication,
+	makeTeamApplicationFromAssistantApplication,
 	selectTeamApplications,
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
@@ -135,6 +137,54 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 		return next(error);
 	}
 	const databaseResult = await insertTeamApplication(
+		teamApplicationBodyResult.data,
+	);
+	if (!databaseResult.success) {
+		const error = clientError(
+			400,
+			"Failed to execute the database command",
+			databaseResult.error,
+		);
+		return next(error);
+	}
+	res.status(201).json(databaseResult.data);
+});
+
+/**
+ * @openapi
+ * /teamapplications/:
+ *  post:
+ *   tags: [teamapplications]
+ *   summary: Make teamapplication from assistantapplication
+ *   description: Make teamapplication from assistantapplication
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     json:
+ *      schema:
+ *       $ref: "#/components/schemas/teamApplicationRequest"
+ *   responses:
+ *    201:
+ *     description: Successfull response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        $ref: "#/components/schemas/teamApplication"
+ */
+teamApplicationRouter.post("/", async (req, res, next) => {
+	const teamApplicationBodyResult = teamApplicationToInsertParser.safeParse(
+		req.body,
+	);
+
+	if (!teamApplicationBodyResult.success) {
+		const error = clientError(
+			400,
+			"Invalid request format",
+			teamApplicationBodyResult.error,
+		);
+		return next(error);
+	}
+	const databaseResult = await createTeamApplicationFromAssistantApplication(
 		teamApplicationBodyResult.data,
 	);
 	if (!databaseResult.success) {

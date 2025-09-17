@@ -6,6 +6,7 @@ import {
 import type { OrmResult } from "@/src/error/orm-error";
 import type {
 	NewApplication,
+	NewAssistantApplication,
 	NewTeamApplication,
 } from "@/src/request-handling/applications";
 import type { QueryParameters } from "@/src/request-handling/common";
@@ -145,3 +146,7 @@ export async function insertTeamApplication(
 		};
 	});
 }
+
+export async function createTeamApplicationFromAssistantApplication(
+	
+)
