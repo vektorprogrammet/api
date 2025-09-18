@@ -137,6 +137,7 @@ export async function insertTeamApplication(
 				teamId: teamApplication.teamId,
 				motivationText: teamApplication.motivationText,
 				biography: teamApplication.biography,
+				teamInterest: teamApplication.teamInterest,
 			})
 			.returning();
 
@@ -148,5 +149,25 @@ export async function insertTeamApplication(
 }
 
 export async function createTeamApplicationFromAssistantApplication(
-	
-)
+	assistantApplicationId: Number,
+	teamId: Number
+): Promise<OrmResult<TeamApplication>> {
+	return await newDatabaseTransaction(database, async (tx) => {
+		// TODO: generate id
+
+		const newTeamApplicationResult = await tx
+			.insert(teamApplicationsTable)
+			.values({
+				id: assistantApplicationId,
+				teamId: teamId,
+				motivationText: null,
+				biography: null,
+				teamInterest: null,
+			})
+			.returning();
+
+		return {
+			...newTeamApplicationResult[0],
+		};
+	});
+}
