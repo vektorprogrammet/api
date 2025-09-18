@@ -21,5 +21,8 @@ export const teamApplicationSelectSchema = createSelectSchema(
 	.readonly();
 
 export type TeamApplication = z.infer<typeof teamApplicationSelectSchema>;
-export type TeamApplicationKey = TeamApplication["id"];
+export type TeamApplicationKey = {
+	id: TeamApplication["id"],
+	applicationParentId: TeamApplication["applicationParentId"],
+};
 export type TeamKey = TeamApplication["teamId"];

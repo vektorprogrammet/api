@@ -25,6 +25,7 @@ export const selectTeamApplications = async (
 		const teamApplications = await tx
 			.select({
 				id: applicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -35,12 +36,13 @@ export const selectTeamApplications = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			)
 			.limit(parameters.limit)
 			.offset(parameters.offset);
@@ -57,6 +59,7 @@ export const selectTeamApplicationsByTeamId = async (
 		const selectResult = await tx
 			.select({
 				id: applicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -67,13 +70,14 @@ export const selectTeamApplicationsByTeamId = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
 			.where(inArray(teamApplicationsTable.id, teamId))
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			)
 			.limit(parameters.limit)
 			.offset(parameters.offset);
@@ -89,6 +93,7 @@ export const selectTeamApplicationsById = async (
 		const selectResult = await tx
 			.select({
 				id: applicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -99,13 +104,14 @@ export const selectTeamApplicationsById = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
 			.where(inArray(teamApplicationsTable.id, applicationIds))
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			);
 
 		return selectResult;
@@ -133,7 +139,7 @@ export async function insertTeamApplication(
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				id: newApplicationId,
+				applicationParentId: newApplicationId,
 				teamId: teamApplication.teamId,
 				motivationText: teamApplication.motivationText,
 				biography: teamApplication.biography,
@@ -158,7 +164,7 @@ export async function createTeamApplicationFromAssistantApplication(
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				id: assistantApplicationId,
+				applicationParentId: assistantApplicationId,
 				teamId: teamId,
 				motivationText: null,
 				biography: null,
@@ -166,8 +172,6 @@ export async function createTeamApplicationFromAssistantApplication(
 			})
 			.returning();
 
-		return {
-			...newTeamApplicationResult[0],
-		};
+		return newTeamApplicationResult
 	});
 }
