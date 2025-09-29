@@ -48,8 +48,8 @@ export const teamApplicationsTable = mainSchema.table("teamApplications", {
 	teamId: integer("teamId")
 		.notNull()
 		.references(() => teamsTable.id),
-	motivationText: text("motivationText").notNull(),
-	biography: text("biography").notNull(),
+	motivationText: text("motivationText"),
+	biography: text("biography"),
 	teamInterest: boolean("teamInterest").notNull(),
 }, (table) => ({
 	primaryKey: primaryKey({ columns: [table.id, table.applicationParentId]})

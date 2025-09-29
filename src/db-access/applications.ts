@@ -3,7 +3,7 @@ import {
 	applicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
-import type { OrmResult } from "@/src/error/orm-error";
+import { ormError, type OrmResult } from "@/src/error/orm-error";
 import type {
 	NewApplication,
 	NewAssistantApplication,
@@ -15,7 +15,7 @@ import type {
 	TeamApplication,
 	TeamKey,
 } from "@/src/response-handling/applications";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { newDatabaseTransaction } from "./common";
 
 export const selectTeamApplications = async (
@@ -88,6 +88,7 @@ export const selectTeamApplicationsByTeamId = async (
 
 export const selectTeamApplicationsById = async (
 	applicationIds: ApplicationKey[],
+	teamApplicationIds: number[],
 ): Promise<OrmResult<TeamApplication[]>> => {
 	return await newDatabaseTransaction(database, async (tx) => {
 		const selectResult = await tx
@@ -108,7 +109,7 @@ export const selectTeamApplicationsById = async (
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
-			.where(inArray(teamApplicationsTable.id, applicationIds))
+			.where(and(inArray(teamApplicationsTable.applicationParentId, applicationIds), inArray(teamApplicationsTable.id, teamApplicationIds)))
 			.innerJoin(
 				applicationsTable,
 				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
@@ -155,23 +156,32 @@ export async function insertTeamApplication(
 }
 
 export async function createTeamApplicationFromAssistantApplication(
-	assistantApplicationId: Number,
-	teamId: Number
-): Promise<OrmResult<TeamApplication>> {
+	assistantApplicationId: number,
+	teamId: number,
+	biography: string|null|undefined,	// Wasn't able to make biography and motivationText fields unable to be undefined
+	motivationText: string|null|undefined,
+): Promise<OrmResult<TeamApplication[]>> {
 	return await newDatabaseTransaction(database, async (tx) => {
-		// TODO: generate id
 
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				applicationParentId: assistantApplicationId,
+				applicationParentId: 0,
 				teamId: teamId,
-				motivationText: null,
-				biography: null,
-				teamInterest: null,
+				motivationText: motivationText,
+				biography: biography,
+				teamInterest: true,
 			})
 			.returning();
 
-		return newTeamApplicationResult
+		const teamApplicationResult = await selectTeamApplicationsById([assistantApplicationId], [newTeamApplicationResult[0].id]);
+		if (!teamApplicationResult.success){
+			throw ormError(
+				"Transaction failed",
+				teamApplicationResult.error
+			)
+		}
+
+		return teamApplicationResult.data;
 	});
 }

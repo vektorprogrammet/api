@@ -1,7 +1,6 @@
 import {
 	createTeamApplicationFromAssistantApplication,
 	insertTeamApplication,
-	makeTeamApplicationFromAssistantApplication,
 	selectTeamApplications,
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
@@ -185,7 +184,10 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 		return next(error);
 	}
 	const databaseResult = await createTeamApplicationFromAssistantApplication(
-		teamApplicationBodyResult.data,
+		teamApplicationBodyResult.data.applicationParentId,
+		teamApplicationBodyResult.data.teamId,
+		teamApplicationBodyResult.data.biography,
+		teamApplicationBodyResult.data.motivationText,
 	);
 	if (!databaseResult.success) {
 		const error = clientError(
