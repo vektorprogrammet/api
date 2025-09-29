@@ -151,7 +151,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
 
 /**
  * @openapi
- * /teamapplications/:
+ * /teamapplications/createFromAssistantApplication:
  *  post:
  *   tags: [teamapplications]
  *   summary: Make teamapplication from assistantapplication
@@ -170,7 +170,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
  *       schema:
  *        $ref: "#/components/schemas/teamApplication"
  */
-teamApplicationRouter.post("/", async (req, res, next) => {
+teamApplicationRouter.post("/createFromAssistantApplication/", async (req, res, next) => {
 	const teamApplicationBodyResult = teamApplicationToInsertParser.safeParse(
 		req.body,
 	);

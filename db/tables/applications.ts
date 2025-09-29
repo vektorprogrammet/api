@@ -42,8 +42,7 @@ export const applicationsRelations = relations(
 
 export const teamApplicationsTable = mainSchema.table("teamApplications", {
 	id: serial("id"),
-	applicationParentId: integer("id")
-		.primaryKey()
+	applicationParentId: integer("applicationParentId")
 		.references(() => applicationsTable.id),
 	teamId: integer("teamId")
 		.notNull()
