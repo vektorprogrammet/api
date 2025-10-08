@@ -5,7 +5,10 @@ import {
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
 import { clientError } from "@/src/error/http-errors";
-import { teamApplicationToInsertParser, teamInterestParser } from "@/src/request-handling/applications";
+import {
+	teamApplicationToInsertParser,
+	teamInterestParser,
+} from "@/src/request-handling/applications";
 import {
 	toListQueryParser,
 	toSerialIdParser,
@@ -170,32 +173,33 @@ teamApplicationRouter.post("/", async (req, res, next) => {
  *       schema:
  *        $ref: "#/components/schemas/teamApplication"
  */
-teamApplicationRouter.post("/createFromAssistantApplication/", async (req, res, next) => {
-	const teamApplicationBodyResult = teamInterestParser.safeParse(
-		req.body,
-	);
+teamApplicationRouter.post(
+	"/createFromAssistantApplication/",
+	async (req, res, next) => {
+		const teamApplicationBodyResult = teamInterestParser.safeParse(req.body);
 
-	if (!teamApplicationBodyResult.success) {
-		const error = clientError(
-			400,
-			"Invalid request format",
-			teamApplicationBodyResult.error,
+		if (!teamApplicationBodyResult.success) {
+			const error = clientError(
+				400,
+				"Invalid request format",
+				teamApplicationBodyResult.error,
+			);
+			return next(error);
+		}
+		const databaseResult = await createTeamApplicationFromAssistantApplication(
+			teamApplicationBodyResult.data.applicationParentId,
+			teamApplicationBodyResult.data.teamId,
+			teamApplicationBodyResult.data.biography,
+			teamApplicationBodyResult.data.motivationText,
 		);
-		return next(error);
-	}
-	const databaseResult = await createTeamApplicationFromAssistantApplication(
-		teamApplicationBodyResult.data.applicationParentId,
-		teamApplicationBodyResult.data.teamId,
-		teamApplicationBodyResult.data.biography,
-		teamApplicationBodyResult.data.motivationText,
-	);
-	if (!databaseResult.success) {
-		const error = clientError(
-			400,
-			"Failed to execute the database command",
-			databaseResult.error,
-		);
-		return next(error);
-	}
-	res.status(201).json(databaseResult.data);
-});
+		if (!databaseResult.success) {
+			const error = clientError(
+				400,
+				"Failed to execute the database command",
+				databaseResult.error,
+			);
+			return next(error);
+		}
+		res.status(201).json(databaseResult.data);
+	},
+);

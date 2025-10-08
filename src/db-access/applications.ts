@@ -3,10 +3,9 @@ import {
 	applicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
-import { ormError, type OrmResult } from "@/src/error/orm-error";
+import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type {
 	NewApplication,
-	NewAssistantApplication,
 	NewTeamApplication,
 } from "@/src/request-handling/applications";
 import type { QueryParameters } from "@/src/request-handling/common";
@@ -109,7 +108,12 @@ export const selectTeamApplicationsById = async (
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
-			.where(and(inArray(teamApplicationsTable.applicationParentId, applicationIds), inArray(teamApplicationsTable.id, teamApplicationIds)))
+			.where(
+				and(
+					inArray(teamApplicationsTable.applicationParentId, applicationIds),
+					inArray(teamApplicationsTable.id, teamApplicationIds),
+				),
+			)
 			.innerJoin(
 				applicationsTable,
 				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
@@ -158,11 +162,10 @@ export async function insertTeamApplication(
 export async function createTeamApplicationFromAssistantApplication(
 	assistantApplicationId: number,
 	teamId: number,
-	biography: string|null|undefined,	// Wasn't able to make biography and motivationText fields unable to be undefined
-	motivationText: string|null|undefined,
+	biography: string | null | undefined, // Wasn't able to make biography and motivationText fields unable to be undefined
+	motivationText: string | null | undefined,
 ): Promise<OrmResult<TeamApplication[]>> {
 	return await newDatabaseTransaction(database, async (tx) => {
-
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
@@ -174,12 +177,12 @@ export async function createTeamApplicationFromAssistantApplication(
 			})
 			.returning();
 
-		const teamApplicationResult = await selectTeamApplicationsById([assistantApplicationId], [newTeamApplicationResult[0].id]);
-		if (!teamApplicationResult.success){
-			throw ormError(
-				"Transaction failed",
-				teamApplicationResult.error
-			)
+		const teamApplicationResult = await selectTeamApplicationsById(
+			[assistantApplicationId],
+			[newTeamApplicationResult[0].id],
+		);
+		if (!teamApplicationResult.success) {
+			throw ormError("Transaction failed", teamApplicationResult.error);
 		}
 
 		return teamApplicationResult.data;
