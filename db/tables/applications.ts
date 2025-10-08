@@ -4,6 +4,7 @@ import { date, integer, serial, text } from "drizzle-orm/pg-core";
 
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
+import { interviewsTable } from "./interviews";
 
 export const gendersEnum = mainSchema.enum("gender", [
 	"female",
@@ -37,6 +38,7 @@ export const applicationsRelations = relations(
 			references: [assistantApplicationsTable.id],
 		}),
 		teamApplication: many(teamApplicationsTable),
+		interview: many(interviewsTable),
 	}),
 );
 
@@ -81,5 +83,6 @@ export const assistantApplicationsRelations = relations(
 			fields: [assistantApplicationsTable.id],
 			references: [applicationsTable.id],
 		}),
+		interview: one(interviewsTable),
 	}),
 );
