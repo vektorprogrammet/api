@@ -1,10 +1,10 @@
 import { assistantApplicationsTable } from "@/db/tables/applications";
+import { interviewSchemasTable } from "@/db/tables/interview-schemas";
 import { mainSchema } from "@/db/tables/schema";
 import { teamUsersTable } from "@/db/tables/users";
 import { relations } from "drizzle-orm";
 import { primaryKey } from "drizzle-orm/pg-core";
 import { boolean, integer, json, serial, timestamp } from "drizzle-orm/pg-core";
-import { interviewSchemasTable } from "./interview-schemas";
 
 export const interviewsTable = mainSchema.table("interviews", {
 	id: serial("id").primaryKey(),
