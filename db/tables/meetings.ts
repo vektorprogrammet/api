@@ -1,17 +1,17 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { serial, text } from "drizzle-orm/pg-core";
+import { date, integer, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { semestersTable } from "./semesters";
 
 export const meetingsTable = mainSchema.table("meetings", {
 	id: serial("id").primaryKey(),
 	title: text("title").notNull(),
 	description: text("description").notNull(),
-	semesterId: serial("semesterId")
+	semesterId: integer("semesterId")
 		.notNull()
 		.references(() => semestersTable.id),
-	date: text("date").notNull(),
-	timestart: text("TimeStart").notNull(),
+	date: date("date").notNull(),
+	timestart: timestamp("TimeStart").notNull(),
 	timeEnd: text("TimeEnd").notNull(),
 	room: text("room").notNull(),
 });
@@ -23,4 +23,4 @@ export const meetingsRelations = relations(meetingsTable, ({ one }) => ({
 	}),
 }));
 
-export const meetings = relations(meetingsTable, () => ({}));
+

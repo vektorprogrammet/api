@@ -9,7 +9,7 @@
 		"module": "esnext",
 		"skipLibCheck": true,
 		//
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		//
 		"target": "es2022",
 		//
@@ -31,5 +31,6 @@
 			"@/lib/*": ["./lib/*"],
 			"@/docs/*": ["./openapi/*"]
 		}
+	
 	}
 }
