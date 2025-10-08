@@ -166,7 +166,7 @@ export async function createTeamApplicationFromAssistantApplication(
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				applicationParentId: 0,
+				applicationParentId: assistantApplicationId,
 				teamId: teamId,
 				motivationText: motivationText,
 				biography: biography,
