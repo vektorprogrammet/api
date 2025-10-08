@@ -187,10 +187,7 @@ teamApplicationRouter.post(
 			return next(error);
 		}
 		const databaseResult = await createTeamApplicationFromAssistantApplication(
-			teamApplicationBodyResult.data.applicationParentId,
-			teamApplicationBodyResult.data.teamId,
-			teamApplicationBodyResult.data.biography,
-			teamApplicationBodyResult.data.motivationText,
+			teamApplicationBodyResult.data,
 		);
 		if (!databaseResult.success) {
 			const error = clientError(

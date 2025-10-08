@@ -7,6 +7,7 @@ import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type {
 	NewApplication,
 	NewTeamApplication,
+	NewTeamInterestApplication,
 } from "@/src/request-handling/applications";
 import type { QueryParameters } from "@/src/request-handling/common";
 import type {
@@ -160,25 +161,22 @@ export async function insertTeamApplication(
 }
 
 export async function createTeamApplicationFromAssistantApplication(
-	assistantApplicationId: number,
-	teamId: number,
-	biography: string | null | undefined, // Wasn't able to make biography and motivationText fields unable to be undefined
-	motivationText: string | null | undefined,
+	teamInterestApplication: NewTeamInterestApplication,
 ): Promise<OrmResult<TeamApplication[]>> {
 	return await newDatabaseTransaction(database, async (tx) => {
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				applicationParentId: assistantApplicationId,
-				teamId: teamId,
-				motivationText: motivationText,
-				biography: biography,
+				applicationParentId: teamInterestApplication.applicationParentId,
+				teamId: teamInterestApplication.teamId,
+				motivationText: teamInterestApplication.motivationText,
+				biography: teamInterestApplication.biography,
 				teamInterest: true,
 			})
 			.returning();
 
 		const teamApplicationResult = await selectTeamApplicationsById(
-			[assistantApplicationId],
+			[teamInterestApplication.applicationParentId],
 			[newTeamApplicationResult[0].id],
 		);
 		if (!teamApplicationResult.success) {

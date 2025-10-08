@@ -98,3 +98,4 @@ export type NewTeamApplication = z.infer<typeof teamApplicationToInsertParser>;
 export type NewAssistantApplication = z.infer<
 	typeof assistantApplicationToInsertParser
 >;
+export type NewTeamInterestApplication = z.infer<typeof teamInterestParser>;
