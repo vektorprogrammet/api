@@ -86,6 +86,13 @@ export const assistantApplicationToInsertParser = assistantApplicationParser
 			.readonly(),
 	);
 
+export const teamInterestParser = z.object({
+	applicationParentId: serialIdParser,
+	teamId: teamApplicationParser.shape.teamId,
+	biography: teamApplicationParser.shape.biography.nullable(),
+	motivationText: teamApplicationParser.shape.motivationText.nullable(),
+});
+
 export type NewApplication = z.infer<typeof applicationToInsertParser>;
 export type NewTeamApplication = z.infer<typeof teamApplicationToInsertParser>;
 export type NewAssistantApplication = z.infer<

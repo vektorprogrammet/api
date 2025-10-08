@@ -5,7 +5,7 @@ import {
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
 import { clientError } from "@/src/error/http-errors";
-import { teamApplicationToInsertParser } from "@/src/request-handling/applications";
+import { teamApplicationToInsertParser, teamInterestParser } from "@/src/request-handling/applications";
 import {
 	toListQueryParser,
 	toSerialIdParser,
@@ -171,7 +171,7 @@ teamApplicationRouter.post("/", async (req, res, next) => {
  *        $ref: "#/components/schemas/teamApplication"
  */
 teamApplicationRouter.post("/createFromAssistantApplication/", async (req, res, next) => {
-	const teamApplicationBodyResult = teamApplicationToInsertParser.safeParse(
+	const teamApplicationBodyResult = teamInterestParser.safeParse(
 		req.body,
 	);
 
