@@ -93,7 +93,7 @@ export const selectTeamApplicationsById = async (
 	return await newDatabaseTransaction(database, async (tx) => {
 		const selectResult = await tx
 			.select({
-				id: applicationsTable.id,
+				id: teamApplicationsTable.id,
 				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
