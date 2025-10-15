@@ -9,8 +9,12 @@ export const schoolSemesterAssistantsTable = mainSchema.table(
 	"schoolSemesterAssistant",
 	{
 		schoolId: integer("schoolId").references(() => schoolsTable.id),
-		semesterId: integer("semesterId").references(() => semestersTable.id).notNull(),
-		assistantUserId: integer("userId").references(() => assistantUsersTable.id).notNull(),
+		semesterId: integer("semesterId")
+			.references(() => semestersTable.id)
+			.notNull(),
+		assistantUserId: integer("userId")
+			.references(() => assistantUsersTable.id)
+			.notNull(),
 	},
 	(table) => ({
 		pk: primaryKey({
