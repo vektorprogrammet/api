@@ -5,8 +5,8 @@ import { schoolsTable } from "./schools";
 import { semestersTable } from "./semesters";
 import { assistantUsersTable } from "./users";
 
-export const schoolAssignmentTable = mainSchema.table(
-	"schoolAssignment",
+export const schoolAssignmentsTable = mainSchema.table(
+	"schoolAssignments",
 	{
 		schoolId: integer("schoolId").references(() => schoolsTable.id),
 		semesterId: integer("semesterId")
@@ -23,19 +23,19 @@ export const schoolAssignmentTable = mainSchema.table(
 	}),
 );
 
-export const schoolAssignmentRelations = relations(
-	schoolAssignmentTable,
+export const schoolAssignmentsRelations = relations(
+	schoolAssignmentsTable,
 	({ one }) => ({
 		school: one(schoolsTable, {
-			fields: [schoolAssignmentTable.schoolId],
+			fields: [schoolAssignmentsTable.schoolId],
 			references: [schoolsTable.id],
 		}),
 		semester: one(semestersTable, {
-			fields: [schoolAssignmentTable.semesterId],
+			fields: [schoolAssignmentsTable.semesterId],
 			references: [semestersTable.id],
 		}),
 		assistantUser: one(assistantUsersTable, {
-			fields: [schoolAssignmentTable.assistantUserId],
+			fields: [schoolAssignmentsTable.assistantUserId],
 			references: [assistantUsersTable.id],
 		}),
 	}),

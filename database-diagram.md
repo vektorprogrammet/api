@@ -99,7 +99,7 @@ erDiagram
         string contactPersonEmail
         boolean isInternational
     }
-    SCHOOL_ASSIGNMENT{
+    SCHOOL_ASSIGNMENTS{
         int school FK
         int semester FK
         int user FK
@@ -122,9 +122,9 @@ erDiagram
     SEMESTER }|--|| VEKTOR_DEPARTMENT : department
     SCHOOL }|--|| VEKTOR_DEPARTMENT : department
     SEMESTER }o--|| ASSISTENT_APPLICATION : admissionPeriod
-    SCHOOL_ASSIGNMENT ||--o{ SCHOOL : schoolAssignment
-    SCHOOL_ASSIGNMENT ||--o{ SEMESTER : schoolAssignment
-    SCHOOL_ASSIGNMENT ||--o{ USER : schoolAssignment
+    SCHOOL_ASSIGNMENTS ||--o{ SCHOOL : schoolAssignments
+    SCHOOL_ASSIGNMENTS ||--o{ SEMESTER : schoolAssignments
+    SCHOOL_ASSIGNMENTS ||--o{ USER : schoolAssignments
     TEAM_SEMESTER_USER ||--o{ TEAM : teamSemesterUser
     TEAM_SEMESTER_USER ||--o{ SEMESTER : teamSemesterUser    
     TEAM_SEMESTER_USER ||--o{ USER : teamSemesterUser

@@ -5,7 +5,7 @@ import { integer, serial, text } from "drizzle-orm/pg-core";
 import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { teamsTable } from "@/db/tables/teams";
-import { schoolAssignmentTable } from "./school-assignment";
+import { schoolAssignmentsTable } from "./school-assignments";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const usersTable = mainSchema.table("users", {
@@ -65,6 +65,6 @@ export const assistantUsersRelation = relations(
 			fields: [assistantUsersTable.id],
 			references: [usersTable.id],
 		}),
-		schoolSemesters: many(schoolAssignmentTable),
+		schoolSemesters: many(schoolAssignmentsTable),
 	}),
 );
