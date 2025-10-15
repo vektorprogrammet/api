@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 import { boolean, integer, serial, text } from "drizzle-orm/pg-core";
 import { departmentsTable } from "./departments";
 import { mainSchema } from "./schema";
-import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
+import { schoolSemesterAssistantsTable } from "./schoolAssignment";
 
 export const schoolsTable = mainSchema.table("schools", {
 	id: serial("id").primaryKey(),

@@ -5,7 +5,7 @@ import { integer, serial, text } from "drizzle-orm/pg-core";
 import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { teamsTable } from "@/db/tables/teams";
-import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
+import { schoolSemesterAssistantsTable } from "./schoolAssignment";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const usersTable = mainSchema.table("users", {
