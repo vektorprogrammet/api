@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer } from "drizzle-orm/pg-core";
+import { integer, primaryKey } from "drizzle-orm/pg-core";
 import { mainSchema } from "./schema";
 import { schoolsTable } from "./schools";
 import { semestersTable } from "./semesters";
@@ -12,6 +12,11 @@ export const schoolSemesterAssistantsTable = mainSchema.table(
 		semesterId: integer("semesterId").references(() => semestersTable.id).notNull(),
 		assistantUserId: integer("userId").references(() => assistantUsersTable.id).notNull(),
 	},
+	(table) => ({
+		pk: primaryKey({
+			columns: [table.semesterId, table.assistantUserId],
+		}),
+	}),
 );
 
 export const schoolSemesterAssistantsRelations = relations(
