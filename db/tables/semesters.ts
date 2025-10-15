@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { departmentsTable } from "./departments";
 import { mainSchema } from "./schema";
-import { schoolSemesterAssistantsTable } from "./schoolAssignment";
+import { schoolSemesterAssistantsTable } from "./school-assignment";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const semestersTable = mainSchema.table("semesters", {
