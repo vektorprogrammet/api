@@ -37,6 +37,7 @@ export const selectTeamApplications = async (
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
 				teamInterest: teamApplicationsTable.teamInterest,
+				semester: applicationsTable.semester,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
@@ -71,6 +72,7 @@ export const selectTeamApplicationsByTeamId = async (
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
 				teamInterest: teamApplicationsTable.teamInterest,
+				semester: applicationsTable.semester,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
@@ -106,6 +108,7 @@ export const selectTeamApplicationsById = async (
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
 				teamInterest: teamApplicationsTable.teamInterest,
+				semester: applicationsTable.semester,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
@@ -138,6 +141,7 @@ export async function insertTeamApplication(
 				fieldOfStudyId: teamApplication.fieldOfStudyId,
 				yearOfStudy: teamApplication.yearOfStudy,
 				phonenumber: teamApplication.phonenumber,
+				semester: teamApplication.semester,
 			})
 			.returning();
 		const newApplicationId = newApplication[0].id;

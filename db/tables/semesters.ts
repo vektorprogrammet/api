@@ -10,6 +10,7 @@ import { departmentsTable } from "./departments";
 import { mainSchema } from "./schema";
 import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
 import { teamSemesterUsersTable } from "./team-semester-user";
+import { applicationsTable } from "./applications";
 
 export const semestersTable = mainSchema.table("semesters", {
 	id: serial("id").primaryKey(),
@@ -43,5 +44,6 @@ export const semestersRelations = relations(
 		}),
 		schoolAssistants: many(schoolSemesterAssistantsTable),
 		teamUsers: many(teamSemesterUsersTable),
+		applications: many(applicationsTable),
 	}),
 );
