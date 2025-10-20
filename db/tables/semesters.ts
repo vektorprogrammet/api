@@ -6,11 +6,11 @@ import {
 	serial,
 	text,
 } from "drizzle-orm/pg-core";
+import { applicationsTable } from "./applications";
 import { departmentsTable } from "./departments";
 import { mainSchema } from "./schema";
 import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
 import { teamSemesterUsersTable } from "./team-semester-user";
-import { applicationsTable } from "./applications";
 
 export const semestersTable = mainSchema.table("semesters", {
 	id: serial("id").primaryKey(),

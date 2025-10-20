@@ -37,9 +37,7 @@ export const applicationParser = z
 			.string()
 			.regex(/^\d{8}$/, "Phone number must be 8 digits")
 			.describe("The phonenumber of the user applying for a team"),
-		semester: serialIdParser.describe(
-			"The semester the application is for",
-		),
+		semester: serialIdParser.describe("The semester the application is for"),
 	})
 	.strict();
 
