@@ -1,11 +1,6 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { date,
-	integer,
-	serial,
-	text,
-	time
-	} from "drizzle-orm/pg-core";
+import { date, integer, serial, text, time } from "drizzle-orm/pg-core";
 import { semestersTable } from "./semesters";
 
 export const meetingsTable = mainSchema.table("meetings", {

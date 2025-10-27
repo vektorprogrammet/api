@@ -12,7 +12,6 @@ import { mainSchema } from "./schema";
 import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
-
 export const semestersTable = mainSchema.table("semesters", {
 	id: serial("id").primaryKey(),
 	lastSemesterId: integer("lastSemesterId").references(
