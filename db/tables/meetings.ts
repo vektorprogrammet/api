@@ -12,7 +12,7 @@ export const meetingsTable = mainSchema.table("meetings", {
 		.references(() => semestersTable.id),
 	date: date("date").notNull(),
 	timeStart: time("timeStart").notNull(),
-	timeEnd: text("TimeEnd").notNull(),
+	timeEnd: text("timeEnd").notNull(),
 	room: text("room").notNull(),
 });
 
