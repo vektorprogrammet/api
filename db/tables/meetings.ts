@@ -11,7 +11,7 @@ export const meetingsTable = mainSchema.table("meetings", {
 		.notNull()
 		.references(() => semestersTable.id),
 	date: date("date").notNull(),
-	timestart: time("timeStart").notNull(),
+	timeStart: time("timeStart").notNull(),
 	timeEnd: text("TimeEnd").notNull(),
 	room: text("room").notNull(),
 });
