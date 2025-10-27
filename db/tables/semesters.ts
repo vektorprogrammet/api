@@ -7,6 +7,7 @@ import {
 	text,
 } from "drizzle-orm/pg-core";
 import { departmentsTable } from "./departments";
+import { meetingsTable } from "./meetings";
 import { mainSchema } from "./schema";
 import { schoolAssignmentsTable } from "./school-assignments";
 import { teamSemesterUsersTable } from "./team-semester-user";
@@ -43,5 +44,6 @@ export const semestersRelations = relations(
 		}),
 		schoolAssistants: many(schoolAssignmentsTable),
 		teamUsers: many(teamSemesterUsersTable),
+		meetings: many(meetingsTable),
 	}),
 );
