@@ -18,5 +18,4 @@ export const seedingTables = {
 	applicationsTable,
 	// meetingsTable,
 	// schoolsTable
-
 };

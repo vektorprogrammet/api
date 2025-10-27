@@ -22,5 +22,3 @@ export const meetingsRelations = relations(meetingsTable, ({ one }) => ({
 		references: [semestersTable.id], // PK i semesters
 	}),
 }));
-
-
