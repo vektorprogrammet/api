@@ -7,10 +7,11 @@ import {
 	text,
 } from "drizzle-orm/pg-core";
 import { departmentsTable } from "./departments";
+import { meetingsTable } from "./meetings";
 import { mainSchema } from "./schema";
 import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
 import { teamSemesterUsersTable } from "./team-semester-user";
-import { meetingsTable } from "./meetings";
+
 
 export const semestersTable = mainSchema.table("semesters", {
 	id: serial("id").primaryKey(),
