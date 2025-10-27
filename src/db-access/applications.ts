@@ -3,10 +3,11 @@ import {
 	applicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
-import type { OrmResult } from "@/src/error/orm-error";
+import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type {
 	NewApplication,
 	NewTeamApplication,
+	NewTeamInterestApplication,
 } from "@/src/request-handling/applications";
 import type { QueryParameters } from "@/src/request-handling/common";
 import type {
@@ -14,7 +15,7 @@ import type {
 	TeamApplication,
 	TeamKey,
 } from "@/src/response-handling/applications";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { newDatabaseTransaction } from "./common";
 
 export const selectTeamApplications = async (
@@ -24,6 +25,7 @@ export const selectTeamApplications = async (
 		const teamApplications = await tx
 			.select({
 				id: applicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -34,12 +36,13 @@ export const selectTeamApplications = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			)
 			.limit(parameters.limit)
 			.offset(parameters.offset);
@@ -56,6 +59,7 @@ export const selectTeamApplicationsByTeamId = async (
 		const selectResult = await tx
 			.select({
 				id: applicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -66,13 +70,14 @@ export const selectTeamApplicationsByTeamId = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
 			.where(inArray(teamApplicationsTable.id, teamId))
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			)
 			.limit(parameters.limit)
 			.offset(parameters.offset);
@@ -83,11 +88,13 @@ export const selectTeamApplicationsByTeamId = async (
 
 export const selectTeamApplicationsById = async (
 	applicationIds: ApplicationKey[],
+	teamApplicationIds: number[],
 ): Promise<OrmResult<TeamApplication[]>> => {
 	return await newDatabaseTransaction(database, async (tx) => {
 		const selectResult = await tx
 			.select({
-				id: applicationsTable.id,
+				id: teamApplicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
 				teamId: teamApplicationsTable.teamId,
 				firstName: applicationsTable.firstName,
 				lastName: applicationsTable.lastName,
@@ -98,13 +105,19 @@ export const selectTeamApplicationsById = async (
 				phonenumber: applicationsTable.phonenumber,
 				motivationText: teamApplicationsTable.motivationText,
 				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
-			.where(inArray(teamApplicationsTable.id, applicationIds))
+			.where(
+				and(
+					inArray(teamApplicationsTable.applicationParentId, applicationIds),
+					inArray(teamApplicationsTable.id, teamApplicationIds),
+				),
+			)
 			.innerJoin(
 				applicationsTable,
-				eq(teamApplicationsTable.id, applicationsTable.id),
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			);
 
 		return selectResult;
@@ -132,10 +145,11 @@ export async function insertTeamApplication(
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)
 			.values({
-				id: newApplicationId,
+				applicationParentId: newApplicationId,
 				teamId: teamApplication.teamId,
 				motivationText: teamApplication.motivationText,
 				biography: teamApplication.biography,
+				teamInterest: teamApplication.teamInterest,
 			})
 			.returning();
 
@@ -143,5 +157,32 @@ export async function insertTeamApplication(
 			...newApplication[0],
 			...newTeamApplicationResult[0],
 		};
+	});
+}
+
+export async function createTeamApplicationFromAssistantApplication(
+	teamInterestApplication: NewTeamInterestApplication,
+): Promise<OrmResult<TeamApplication[]>> {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const newTeamApplicationResult = await tx
+			.insert(teamApplicationsTable)
+			.values({
+				applicationParentId: teamInterestApplication.applicationParentId,
+				teamId: teamInterestApplication.teamId,
+				motivationText: teamInterestApplication.motivationText,
+				biography: teamInterestApplication.biography,
+				teamInterest: true,
+			})
+			.returning();
+
+		const teamApplicationResult = await selectTeamApplicationsById(
+			[teamInterestApplication.applicationParentId],
+			[newTeamApplicationResult[0].id],
+		);
+		if (!teamApplicationResult.success) {
+			throw ormError("Transaction failed", teamApplicationResult.error);
+		}
+
+		return teamApplicationResult.data;
 	});
 }

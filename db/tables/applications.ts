@@ -1,9 +1,17 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { date, integer, serial, text } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	date,
+	integer,
+	primaryKey,
+	serial,
+	text,
+} from "drizzle-orm/pg-core";
 
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
+import { interviewsTable } from "./interviews";
 
 export const gendersEnum = mainSchema.enum("gender", [
 	"female",
@@ -37,19 +45,28 @@ export const applicationsRelations = relations(
 			references: [assistantApplicationsTable.id],
 		}),
 		teamApplication: many(teamApplicationsTable),
+		interview: many(interviewsTable),
 	}),
 );
 
-export const teamApplicationsTable = mainSchema.table("teamApplications", {
-	id: integer("id")
-		.primaryKey()
-		.references(() => applicationsTable.id),
-	teamId: integer("teamId")
-		.notNull()
-		.references(() => teamsTable.id),
-	motivationText: text("motivationText").notNull(),
-	biography: text("biography").notNull(),
-});
+export const teamApplicationsTable = mainSchema.table(
+	"teamApplications",
+	{
+		id: serial("id"),
+		applicationParentId: integer("applicationParentId").references(
+			() => applicationsTable.id,
+		),
+		teamId: integer("teamId")
+			.notNull()
+			.references(() => teamsTable.id),
+		motivationText: text("motivationText"),
+		biography: text("biography"),
+		teamInterest: boolean("teamInterest").notNull(),
+	},
+	(table) => ({
+		primaryKey: primaryKey({ columns: [table.id, table.applicationParentId] }),
+	}),
+);
 
 export const teamApplicationsRelations = relations(
 	teamApplicationsTable,
@@ -81,5 +98,6 @@ export const assistantApplicationsRelations = relations(
 			fields: [assistantApplicationsTable.id],
 			references: [applicationsTable.id],
 		}),
+		interview: one(interviewsTable),
 	}),
 );
