@@ -8,8 +8,9 @@ import {
 } from "drizzle-orm/pg-core";
 import { applicationsTable } from "./applications";
 import { departmentsTable } from "./departments";
+import { meetingsTable } from "./meetings";
 import { mainSchema } from "./schema";
-import { schoolSemesterAssistantsTable } from "./school-semester-assistant";
+import { schoolAssignmentsTable } from "./school-assignments";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const semestersTable = mainSchema.table("semesters", {
@@ -42,8 +43,9 @@ export const semestersRelations = relations(
 			fields: [semestersTable.id],
 			references: [semestersTable.lastSemesterId],
 		}),
-		schoolAssistants: many(schoolSemesterAssistantsTable),
+		schoolAssistants: many(schoolAssignmentsTable),
 		teamUsers: many(teamSemesterUsersTable),
 		applications: many(applicationsTable),
+		meetings: many(meetingsTable),
 	}),
 );
