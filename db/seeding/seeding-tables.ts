@@ -1,3 +1,4 @@
+import { applicationsTable } from "@/db/tables/applications";
 import { departmentsTable } from "@/db/tables/departments";
 import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
@@ -9,8 +10,12 @@ export const seedingTables = {
 	fieldsOfStudyTable,
 	teamsTable,
 	usersTable,
+	// meetings,
 	//teamUsersTable, these two tables dont work currently
 	//assistantUsersTable,
 	//teamApplicationsTable,
 	expensesTable,
+	applicationsTable,
+	// meetingsTable,
+	// schoolsTable
 };
