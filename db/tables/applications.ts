@@ -12,6 +12,7 @@ import {
 import { teamsTable } from "@/db/tables/teams";
 import { fieldsOfStudyTable } from "./fields-of-study";
 import { interviewsTable } from "./interviews";
+import { semestersTable } from "./semesters";
 
 export const gendersEnum = mainSchema.enum("gender", [
 	"female",
@@ -30,6 +31,9 @@ export const applicationsTable = mainSchema.table("applications", {
 		.references(() => fieldsOfStudyTable.id),
 	yearOfStudy: integer("yearOfStudy").notNull(),
 	phonenumber: text("phonenumber").notNull(),
+	semester: integer("semester")
+		.notNull()
+		.references(() => semestersTable.id),
 	submitDate: date("submitDate", { mode: "date" }).defaultNow().notNull(),
 });
 
@@ -40,12 +44,15 @@ export const applicationsRelations = relations(
 			fields: [applicationsTable.fieldOfStudyId],
 			references: [fieldsOfStudyTable.id],
 		}),
+		semesters: one(semestersTable, {
+			fields: [applicationsTable.semester],
+			references: [semestersTable.id],
+		}),
 		assistantApplication: one(assistantApplicationsTable, {
 			fields: [applicationsTable.id],
 			references: [assistantApplicationsTable.id],
 		}),
 		teamApplication: many(teamApplicationsTable),
-		interview: many(interviewsTable),
 	}),
 );
 
