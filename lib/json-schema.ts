@@ -14,7 +14,7 @@ const ajv = new Ajv();
 
 export function validateJsonSchema(
 	schema: JSONSchemaType<unknown>,
-	data: Json,
+	data: unknown,
 ): JsonSchemaResult {
 	const validator = ajv.compile(schema);
 	const isValid = validator(data);
