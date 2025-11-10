@@ -13,8 +13,8 @@ export const seedingTables = {
 	//teamUsersTable, these two tables dont work currently
 	//assistantUsersTable,
 	//teamApplicationsTable,
-	expensesTable,
-	applicationsTable,
+	//expensesTable,
+	//applicationsTable,
 	// meetingsTable,
 	// schoolsTable
 };
