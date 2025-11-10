@@ -6,11 +6,10 @@ import { teamsTable } from "@/db/tables/teams";
 import { usersTable } from "@/db/tables/users";
 
 export const seedingTables = {
-	departmentsTable,
-	fieldsOfStudyTable,
-	teamsTable,
-	usersTable,
-	// meetings,
+	//departmentsTable,
+	//fieldsOfStudyTable,
+	//teamsTable,
+	//usersTable,
 	//teamUsersTable, these two tables dont work currently
 	//assistantUsersTable,
 	//teamApplicationsTable,
