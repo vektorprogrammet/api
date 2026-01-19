@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { newInterviewSchemaToInsertSchema, newInterviewToInsertSchema } from "../request-handling/interviews";
 import { clientError } from "../error/http-errors";
-import { insertInterviewSchema, selectInterviewSchemaWithId } from "../db-access/interviews";
+import { insertInterview, insertInterviewSchema, selectInterviewSchemaWithId } from "../db-access/interviews";
 import { validateJsonSchema } from "@/lib/json-schema";
 import { JSONSchemaType } from "ajv";
 
@@ -34,8 +34,13 @@ interviewsRouter.post("/", async (req, res, next) => {
 		}
 	}
 
-	// TODO: insert interview
-	// TODO: return
+	const databaseResult = await insertInterview([body]);
+	if (!databaseResult.success) {
+		next(clientError(400, "Database error", databaseResult.error));
+		return;
+	}
+
+	res.json(databaseResult.data);
 });
 
 interviewsRouter.post("/schema", async (req, res, next) => {
