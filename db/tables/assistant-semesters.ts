@@ -26,5 +26,6 @@ export const assistantSemestersRelations = relations(
 	assistantSemestersTable,
 	({ many }) => ({
 		assistant: many(assistantUsersTable),
+		semester: many(semestersTable),
 	}),
 );
