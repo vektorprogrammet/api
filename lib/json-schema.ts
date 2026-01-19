@@ -1,4 +1,4 @@
-import Ajv, { type JSONSchemaType, type ErrorObject } from "ajv";
+import Ajv, { type ErrorObject, type AnySchema } from "ajv";
 import z from "zod";
 
 type JsonSchemaResult =
@@ -13,7 +13,7 @@ type JsonSchemaResult =
 const ajv = new Ajv();
 
 export function validateJsonSchema(
-	schema: JSONSchemaType<unknown>,
+	schema: AnySchema,
 	data: unknown,
 ): JsonSchemaResult {
 	const validator = ajv.compile(schema);
@@ -30,7 +30,7 @@ export function validateJsonSchema(
 
 
 export function turnJsonIntoZodSchema(
-	schema: JSONSchemaType<unknown>
+	schema: AnySchema
 ) {
 	return z.object({}).passthrough().superRefine((data, ctx) => {
 		let validationResult = validateJsonSchema(schema, data);
