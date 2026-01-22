@@ -1,10 +1,12 @@
-import { date, foreignKey, integer, time } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { date, foreignKey, integer, serial, time } from "drizzle-orm/pg-core";
 import { assistantSemestersTable } from "./assistant-semesters";
 import { mainSchema } from "./schema";
 
 export const datesTable = mainSchema.table(
 	"dates",
 	{
+		id: serial("id").primaryKey(),
 		date: date("date").notNull(),
 		startTime: time("startTime").notNull(),
 		endTime: time("endTime").notNull(),
@@ -21,3 +23,7 @@ export const datesTable = mainSchema.table(
 		}),
 	}),
 );
+
+export const datesRelations = relations(datesTable, ({ one }) => ({
+	assistantSemester: one(assistantSemestersTable),
+}));
