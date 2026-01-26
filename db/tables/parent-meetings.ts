@@ -12,7 +12,8 @@ export const parentMeetingsTable = mainSchema.table("parentMeetings", {
 	semesterId: integer("semesterId")
 		.notNull()
 		.references(() => semestersTable.id),
-	teamUserId: integer("userId")
+	// id of the team user responsible for organizing and conducting the parent meeting
+	responsibleUserId: integer("responsibleUserId")
 		.notNull()
 		.references(() => teamUsersTable.id),
 });
@@ -25,7 +26,7 @@ export const parentMeetingsRelations = relations(
 			references: [semestersTable.id],
 		}),
 		teamUser: one(teamUsersTable, {
-			fields: [parentMeetingsTable.teamUserId],
+			fields: [parentMeetingsTable.responsibleUserId],
 			references: [teamUsersTable.id],
 		}),
 	}),
