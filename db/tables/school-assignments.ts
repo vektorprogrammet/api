@@ -1,24 +1,25 @@
 import { relations } from "drizzle-orm";
-import { integer, primaryKey } from "drizzle-orm/pg-core";
+import { date, foreignKey, integer, serial, time } from "drizzle-orm/pg-core";
+import { assistantSemestersTable } from "./assistant-semesters";
 import { mainSchema } from "./schema";
-import { schoolsTable } from "./schools";
-import { semestersTable } from "./semesters";
-import { assistantUsersTable } from "./users";
 
 export const schoolAssignmentsTable = mainSchema.table(
-	"schoolAssignments",
+	"dates",
 	{
-		schoolId: integer("schoolId").references(() => schoolsTable.id),
-		semesterId: integer("semesterId")
-			.references(() => semestersTable.id)
-			.notNull(),
-		assistantUserId: integer("userId")
-			.references(() => assistantUsersTable.id)
-			.notNull(),
+		id: serial("id").primaryKey(),
+		date: date("date").notNull(),
+		startTime: time("startTime").notNull(),
+		endTime: time("endTime").notNull(),
+		assistantId: integer("semesterId").notNull(),
+		semesterId: integer("assistantId").notNull(),
 	},
 	(table) => ({
-		pk: primaryKey({
-			columns: [table.semesterId, table.assistantUserId],
+		assistantSemesterFk: foreignKey({
+			columns: [table.assistantId, table.semesterId],
+			foreignColumns: [
+				assistantSemestersTable.assistantId,
+				assistantSemestersTable.semesterId,
+			],
 		}),
 	}),
 );
@@ -26,17 +27,6 @@ export const schoolAssignmentsTable = mainSchema.table(
 export const schoolAssignmentsRelations = relations(
 	schoolAssignmentsTable,
 	({ one }) => ({
-		school: one(schoolsTable, {
-			fields: [schoolAssignmentsTable.schoolId],
-			references: [schoolsTable.id],
-		}),
-		semester: one(semestersTable, {
-			fields: [schoolAssignmentsTable.semesterId],
-			references: [semestersTable.id],
-		}),
-		assistantUser: one(assistantUsersTable, {
-			fields: [schoolAssignmentsTable.assistantUserId],
-			references: [assistantUsersTable.id],
-		}),
+		assistantSemester: one(assistantSemestersTable),
 	}),
 );
