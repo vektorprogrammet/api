@@ -12,8 +12,12 @@ export const schoolAssignmentsTable = mainSchema.table(
 		date: date("date").notNull(),
 		startTime: time("startTime").notNull(),
 		endTime: time("endTime").notNull(),
-		assistantId: integer("semesterId").notNull(),
-		semesterId: integer("assistantId").notNull(),
+		assistantId: integer("semesterId")
+			.notNull()
+			.references(() => assistantUsersTable.id),
+		semesterId: integer("assistantId")
+			.notNull()
+			.references(() => semestersTable.id),
 	},
 	(table) => ({
 		assistantSemesterFk: foreignKey({
@@ -29,7 +33,16 @@ export const schoolAssignmentsTable = mainSchema.table(
 export const schoolAssignmentsRelations = relations(
 	schoolAssignmentsTable,
 	({ one }) => ({
-		assistantSemester: one(assistantSemestersTable),
+		assistantSemester: one(assistantSemestersTable, {
+			fields: [
+				schoolAssignmentsTable.assistantId,
+				schoolAssignmentsTable.semesterId,
+			],
+			references: [
+				assistantSemestersTable.assistantId,
+				assistantSemestersTable.semesterId,
+			],
+		}),
 		assistant: one(assistantUsersTable, {
 			fields: [schoolAssignmentsTable.assistantId],
 			references: [assistantUsersTable.id],
