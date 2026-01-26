@@ -3,7 +3,7 @@ import { date, foreignKey, integer, serial, time } from "drizzle-orm/pg-core";
 import { assistantSemestersTable } from "./assistant-semesters";
 import { mainSchema } from "./schema";
 
-export const datesTable = mainSchema.table(
+export const schoolAssignmentsTable = mainSchema.table(
 	"dates",
 	{
 		id: serial("id").primaryKey(),
@@ -24,6 +24,6 @@ export const datesTable = mainSchema.table(
 	}),
 );
 
-export const datesRelations = relations(datesTable, ({ one }) => ({
+export const schoolAssignmentsRelations = relations(schoolAssignmentsTable, ({ one }) => ({
 	assistantSemester: one(assistantSemestersTable),
 }));
