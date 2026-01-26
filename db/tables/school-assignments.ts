@@ -4,7 +4,7 @@ import { assistantSemestersTable } from "./assistant-semesters";
 import { mainSchema } from "./schema";
 
 export const schoolAssignmentsTable = mainSchema.table(
-	"dates",
+	"schoolAssignments",
 	{
 		id: serial("id").primaryKey(),
 		date: date("date").notNull(),

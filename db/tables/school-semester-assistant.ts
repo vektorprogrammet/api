@@ -6,7 +6,7 @@ import { semestersTable } from "./semesters";
 import { assistantUsersTable } from "./users";
 
 export const schoolSemesterAssistantsTable = mainSchema.table(
-	"schoolAssignments",
+	"schoolSemesterAssistants",
 	{
 		schoolId: integer("schoolId").references(() => schoolsTable.id),
 		semesterId: integer("semesterId")
@@ -18,7 +18,7 @@ export const schoolSemesterAssistantsTable = mainSchema.table(
 	},
 	(table) => ({
 		pk: primaryKey({
-			columns: [table.semesterId, table.assistantUserId],
+			columns: [table.semesterId, table.assistantUserId, table.schoolId],
 		}),
 	}),
 );
