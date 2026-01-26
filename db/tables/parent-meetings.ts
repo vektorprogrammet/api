@@ -1,0 +1,32 @@
+import { relations } from "drizzle-orm";
+import { date, integer, serial, time } from "drizzle-orm/pg-core";
+import { mainSchema } from "./schema";
+import { semestersTable } from "./semesters";
+import { teamUsersTable } from "./users";
+
+export const parentMeetingsTable = mainSchema.table("parentMeetings", {
+	id: serial("id").primaryKey(),
+	date: date("date").notNull(),
+	startTime: time("startTime").notNull(),
+	endTime: time("endTime").notNull(),
+	semesterId: integer("semesterId")
+		.notNull()
+		.references(() => semestersTable.id),
+	teamUserId: integer("userId")
+		.notNull()
+		.references(() => teamUsersTable.id),
+});
+
+export const parentMeetingsRelations = relations(
+	parentMeetingsTable,
+	({ one }) => ({
+		semester: one(semestersTable, {
+			fields: [parentMeetingsTable.semesterId],
+			references: [semestersTable.id],
+		}),
+		teamUser: one(teamUsersTable, {
+			fields: [parentMeetingsTable.teamUserId],
+			references: [teamUsersTable.id],
+		}),
+	}),
+);
