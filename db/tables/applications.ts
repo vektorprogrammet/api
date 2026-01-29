@@ -45,7 +45,6 @@ export const applicationsRelations = relations(
 			references: [assistantApplicationsTable.id],
 		}),
 		teamApplication: many(teamApplicationsTable),
-		interview: many(interviewsTable),
 	}),
 );
 
@@ -98,6 +97,9 @@ export const assistantApplicationsRelations = relations(
 			fields: [assistantApplicationsTable.id],
 			references: [applicationsTable.id],
 		}),
-		interview: one(interviewsTable),
+		interview: one(interviewsTable, {
+			fields: [assistantApplicationsTable.id],
+			references: [interviewsTable.applicationId],
+		}),
 	}),
 );

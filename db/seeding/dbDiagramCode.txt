@@ -1,0 +1,250 @@
+Copy the code below into https://dbdiagram.io/d to map
+out the different tables and their relations.
+
+
+// Enums
+Enum gender {
+  female
+  male
+  other
+}
+
+Enum size {
+  small
+  medium
+  large
+}
+
+Enum city {
+  Trondheim
+  Ås
+  Bergen
+  Tromsø
+}
+
+/*
+ Tables
+*/
+
+Table users {
+  id int [pk, increment]
+  firstName varchar
+  lastName varchar
+  fieldOfStudyId int
+  accountNumber varchar [unique]      // bankAccountNumber in code
+  personalEmail varchar [unique]
+  phoneNumber varchar [unique]
+}
+
+Table teamUsers {
+  id int [pk]                         // also references users.id (see refs)
+  teamId int
+  username varchar [unique]
+}
+
+Table assistantUsers {
+  id int [pk]                         // references users.id
+}
+
+Table teams {
+  id int [pk, increment]
+  departmentId int
+  name varchar [unique]
+  email varchar [unique]
+  description text
+  shortDescription text
+  acceptApplication boolean
+  active boolean
+  deadline datetime
+}
+
+Table departments {
+  id int [pk, increment]
+  city city
+}
+
+Table fieldsOfStudy {
+  id int [pk, increment]
+  studyCode varchar [unique]
+  name varchar [unique]
+  departmentId int
+}
+
+Table semesters {
+  id int [pk, increment]
+  lastSemesterId int                  // self reference -> semesters.id
+  semesterStartDate date
+  semesterEndDate date
+  recruitmentStartDate date
+  recruitmentEndDate date
+  departmentId int
+  name varchar
+}
+
+Table applications {
+  id int [pk, increment]
+  firstname varchar
+  lastname varchar
+  gender gender
+  email varchar
+  fieldOfStudyId int
+  yearOfStudy int
+  phonenumber varchar
+  semester int
+  submitDate date
+}
+
+Table teamApplications {
+  id int [pk]                       // part of composite PK
+  applicationParentId int [pk]      // part of composite PK
+  teamId int
+  motivationText text
+  biography text
+  teamInterest boolean
+}
+
+Table assistantApplications {
+  id int [pk]         // references applications.id
+}
+
+Table interviewSchemas {
+  id int [pk, increment]
+  jsonSchema json
+}
+
+Table interviews {
+  id int [pk, increment]
+  applicationId int
+  interviewSchemaId int
+  interviewAnswers json
+  isCancelled boolean
+  plannedTime datetime
+  timeFinished datetime
+}
+
+Table interviewHolders {
+  interviewId int [pk]
+  interviewHolderId int [pk]
+}
+
+Table teamSemesterUser {
+  teamId int
+  semesterId int
+  teamUserId int
+}
+
+Table schools {
+  id int [pk, increment]
+  departmentId int
+  name varchar
+  contactPersonName varchar
+  contactPersonPhoneNumber varchar
+  contactpersonEmail varchar
+  isInternational boolean
+}
+
+Table schoolAssignments {
+  schoolId int
+  semesterId int [pk]
+  assistantUserId int [pk]
+}
+
+Table meetings {
+  id int [pk, increment]
+  title varchar
+  description text
+  semesterId int
+  date date
+  timeStart time
+  timeEnd text
+  room text
+}
+
+Table sponsors {
+  id int [pk, increment]
+  name varchar
+  homePageURL varchar
+  startTime datetime
+  endTime datetime
+  size size
+  spesificDepartmentId int
+}
+
+Table expenses {
+  id int [pk, increment]
+  userId int
+  title varchar
+  description text
+  moneyAmount numeric(12,2)
+  accountNumber varchar
+  purchaseTime datetime
+  submitTime datetime
+  isAccepted boolean
+  handlingTime datetime
+}
+
+/*
+ Relationships (foreign keys & references)
+*/
+
+// users
+Ref: users.fieldOfStudyId > fieldsOfStudy.id
+// teamUsers / users
+Ref: teamUsers.id > users.id
+Ref: teamUsers.teamId > teams.id
+
+// assistantUsers -> users
+Ref: assistantUsers.id > users.id
+
+// teams -> departments
+Ref: teams.departmentId > departments.id
+
+// fieldsOfStudy -> departments
+Ref: fieldsOfStudy.departmentId > departments.id
+
+// departments -> semesters (department has many semesters)
+Ref: semesters.departmentId > departments.id
+
+// semesters self reference
+Ref: semesters.lastSemesterId > semesters.id
+
+// applications -> fieldsOfStudy, semesters
+Ref: applications.fieldOfStudyId > fieldsOfStudy.id
+Ref: applications.semester > semesters.id
+
+// teamApplications -> applications, teams
+Ref: teamApplications.applicationParentId > applications.id
+Ref: teamApplications.teamId > teams.id
+
+// assistantApplications has PK referencing applications.id
+Ref: assistantApplications.id > applications.id
+
+// interviews -> assistantApplications, interviewSchemas
+Ref: interviews.applicationId > assistantApplications.id
+Ref: interviews.interviewSchemaId > interviewSchemas.id
+
+// interviewHolders -> interviews, teamUsers
+Ref: interviewHolders.interviewId > interviews.id
+Ref: interviewHolders.interviewHolderId > teamUsers.id
+
+// teamSemesterUser -> teams, semesters, teamUsers
+Ref: teamSemesterUser.teamId > teams.id
+Ref: teamSemesterUser.semesterId > semesters.id
+Ref: teamSemesterUser.teamUserId > teamUsers.id
+
+// schools -> departments
+Ref: schools.departmentId > departments.id
+
+// schoolAssignments -> schools, semesters, assistantUsers
+Ref: schoolAssignments.schoolId > schools.id
+Ref: schoolAssignments.semesterId > semesters.id
+Ref: schoolAssignments.assistantUserId > assistantUsers.id
+
+// meetings -> semesters
+Ref: meetings.semesterId > semesters.id
+
+// sponsors -> departments
+Ref: sponsors.spesificDepartmentId > departments.id
+
+// expenses -> users
+Ref: expenses.userId > users.id
