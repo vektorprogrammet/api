@@ -1,6 +1,6 @@
-import { createSelectSchema } from "drizzle-zod";
 import { interviewSchemasTable } from "@/db/tables/interview-schemas";
-import { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 const interviewSchemaSchema = createSelectSchema(interviewSchemasTable)
 	.strict()

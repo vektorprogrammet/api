@@ -23,28 +23,29 @@ export function validateJsonSchema(
 	}
 	return {
 		success: false,
-		error: validator.errors === undefined || 
-			validator.errors === null ? [] : validator.errors,
+		error:
+			validator.errors === undefined || validator.errors === null
+				? []
+				: validator.errors,
 	};
 }
 
+export function turnJsonIntoZodSchema(schema: AnySchema) {
+	return z
+		.object({})
+		.passthrough()
+		.superRefine((data, ctx) => {
+			const validationResult = validateJsonSchema(schema, data);
+			if (!validationResult.success) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "The interview schema is not valid",
+					params: validationResult.error,
+				});
+			}
 
-export function turnJsonIntoZodSchema(
-	schema: AnySchema
-) {
-	return z.object({}).passthrough().superRefine((data, ctx) => {
-		let validationResult = validateJsonSchema(schema, data);
-		if (!validationResult.success) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: "The interview schema is not valid",
-				params: validationResult.error,
-			});
-		}
-
-		return validationResult.success;
-	});
-
+			return validationResult.success;
+		});
 }
 
 // from: https://www.reddit.com/r/typescript/comments/13mssvc/types_for_json_and_writing_json

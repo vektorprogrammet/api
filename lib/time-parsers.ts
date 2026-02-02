@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-export const timeStringParser = z.union([z.string().date(), z.string().time(), z.string().datetime()]);
+export const timeStringParser = z.union([
+	z.string().date(),
+	z.string().time(),
+	z.string().datetime(),
+]);
 
 // Date here refers to the JS object date, so it allows more specific times than dates
 export const dateParser = z.date();

@@ -2,7 +2,7 @@ import { assistantApplicationsTable } from "@/db/tables/applications";
 import { interviewSchemasTable } from "@/db/tables/interview-schemas";
 import { mainSchema } from "@/db/tables/schema";
 import { teamUsersTable } from "@/db/tables/users";
-import { Json } from "@/lib/json-schema";
+import type { Json } from "@/lib/json-schema";
 import { relations } from "drizzle-orm";
 import { primaryKey } from "drizzle-orm/pg-core";
 import { boolean, integer, json, serial, timestamp } from "drizzle-orm/pg-core";
