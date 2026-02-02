@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { newInterviewSchemaToInsertSchema, newInterviewToInsertSchema } from "../request-handling/interviews";
-import { clientError } from "../error/http-errors";
-import { insertInterview, insertInterviewSchema, selectInterviewSchemaWithId } from "../db-access/interviews";
+import { clientError, serverError } from "../error/http-errors";
+import { insertInterview, insertInterviewSchema, selectInterviewSchemas, selectInterviewSchemaWithId } from "../db-access/interviews";
 import { validateJsonSchema } from "@/lib/json-schema";
 import { JSONSchemaType } from "ajv";
+import { serialIdParser, toListQueryParser, toSerialIdParser } from "../request-handling/common";
+import { param } from "drizzle-orm";
 
 
 const interviewsRouter = Router();
@@ -57,4 +59,32 @@ interviewsRouter.post("/schema", async (req, res, next) => {
 		return;
 	}
 	res.json(databaseResult.data);
+});
+
+interviewsRouter.get("/schema/:id", async (req, res, next) => {
+	const idParameterResult = toSerialIdParser.safeParse(req.params.id);
+	if(!idParameterResult.success) {
+		next(clientError(400, "Invalid input data", idParameterResult.error));
+		return;
+	}
+	const schemaResult = await selectInterviewSchemaWithId([idParameterResult.data]);
+	if(!schemaResult.success) {
+		next(clientError(400, "Database error", schemaResult.error));
+		return;
+	}
+	res.json(schemaResult.data);
+});
+
+interviewsRouter.get("/schema", async (req, res, next) => {
+	const queryResult = toListQueryParser.safeParse(req.query);
+	if(!queryResult.success) {
+		next(clientError(400, "Invalid input data", queryResult.error));
+		return;
+	}
+	const dbResult = await selectInterviewSchemas(queryResult.data);
+	if(!dbResult.success) {
+		next(serverError(500, "Data processing error", dbResult.error));
+		return;
+	}
+	res.json(dbResult.data);
 });

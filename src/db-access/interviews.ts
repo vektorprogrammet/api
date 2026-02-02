@@ -6,6 +6,7 @@ import { ormError, OrmResult } from "../error/orm-error";
 import type { InterviewSchema, InterviewSchemaKey } from "@/src/response-handling/interviews";
 import type { NewInterview, NewInterviewSchema } from "@/src/request-handling/interviews";
 import { interviewsTable } from "@/db/tables/interviews";
+import { QueryParameters } from "../request-handling/common";
 
 export async function selectInterviewSchemaWithId(id: InterviewSchemaKey[]): Promise<OrmResult<InterviewSchema[]>> {
 	return await newDatabaseTransaction(database, async (tx) => {
@@ -18,6 +19,14 @@ export async function selectInterviewSchemaWithId(id: InterviewSchemaKey[]): Pro
 
 		return result;
 	});
+}
+
+export async function selectInterviewSchemas(list_queries: QueryParameters) {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const result = await tx.select().from(interviewSchemasTable).limit(list_queries.limit).offset(list_queries.offset);
+		
+		return result;
+	})
 }
 
 export async function insertInterviewSchema(interviewSchemaRequests: NewInterviewSchema[]): Promise<OrmResult<InterviewSchema[]>> {
