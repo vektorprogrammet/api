@@ -26,6 +26,7 @@ Kildekoden er på engelsk.
 
 Kildekoden er på engelsk
 For at testene skal fungere, bruk node version >=22
+
 - `/`
   - `db/` database modul
   - `lib/` generell delt kode
@@ -115,7 +116,7 @@ For å kjøre appen og migrere databasen, se [scripts](#database).
 
 ### Imports Autocomplete
 
-[`christian-kohler.npm-intellisense`](<https://marketplace.visualstudio.com/items?itemName=christian-kohler.npm-intellisense>)
+[`christian-kohler.npm-intellisense`](https://marketplace.visualstudio.com/items?itemName=christian-kohler.npm-intellisense)
 
 ### Formatting and Linting
 
@@ -226,12 +227,19 @@ Open the database in the drizzle studio interface:
 pnpm db:studio
 ```
 
-Seed the database with random, but deterministic values:
+Seed the database with values:
+for windows:
 
 ```sh
 pnpm db:seed
 ```
 
+for linux and mac:
+
+```sh
+db:seed:unix
+```
+
 ## Info
 
-Tabellnavn er i *flertall* (users > user)
+Tabellnavn er i _flertall_ (users > user)
