@@ -1,14 +1,13 @@
 import { relations } from "drizzle-orm";
-import { date, integer, serial, text, time } from "drizzle-orm/pg-core";
+import { integer, interval, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { mainSchema } from "./schema";
 import { semestersTable } from "./semesters";
 import { teamUsersTable } from "./users";
 
 export const parentMeetingsTable = mainSchema.table("parentMeetings", {
 	id: serial("id").primaryKey(),
-	date: date("date").notNull(),
-	startTime: time("startTime").notNull(),
-	endTime: time("endTime").notNull(),
+	dateTime: timestamp("dateTime").notNull(),
+	duration: interval("duration").notNull(),
 	place: text("place").notNull(),
 	semesterId: integer("semesterId")
 		.notNull()
