@@ -7,10 +7,10 @@ import { assistantUsersTable } from "./users";
 export const assistantSemestersTable = mainSchema.table(
 	"assistantSemesters",
 	{
-		assistantId: integer("semesterId")
+		assistantId: integer("assistantId")
 			.references(() => assistantUsersTable.id)
 			.notNull(),
-		semesterId: integer("assistantId")
+		semesterId: integer("semesterId")
 			.references(() => semestersTable.id)
 			.notNull(),
 		isSubstitute: boolean("isSubstitute").notNull(),
@@ -24,8 +24,14 @@ export const assistantSemestersTable = mainSchema.table(
 
 export const assistantSemestersRelations = relations(
 	assistantSemestersTable,
-	({ many }) => ({
-		assistant: many(assistantUsersTable),
-		semester: many(semestersTable),
+	({ one }) => ({
+		assistant: one(assistantUsersTable, {
+			fields: [assistantSemestersTable.assistantId],
+			references: [assistantUsersTable.id],
+		}),
+		semester: one(semestersTable, {
+			fields: [assistantSemestersTable.semesterId],
+			references: [semestersTable.id],
+		}),
 	}),
 );
