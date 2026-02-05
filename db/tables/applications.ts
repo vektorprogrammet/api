@@ -53,6 +53,7 @@ export const applicationsRelations = relations(
 			references: [assistantApplicationsTable.id],
 		}),
 		teamApplication: many(teamApplicationsTable),
+		//interview: many(interviewsTable),
 	}),
 );
 
