@@ -1,24 +1,29 @@
 import { relations } from "drizzle-orm";
-import { integer, primaryKey } from "drizzle-orm/pg-core";
+import { foreignKey, integer, primaryKey } from "drizzle-orm/pg-core";
 import { mainSchema } from "./schema";
 import { schoolsTable } from "./schools";
 import { semestersTable } from "./semesters";
 import { assistantUsersTable } from "./users";
+import { assistantSemestersTable } from "./assistant-semesters";
 
 export const schoolSemesterAssistantsTable = mainSchema.table(
 	"schoolSemesterAssistants",
 	{
 		schoolId: integer("schoolId").references(() => schoolsTable.id),
 		semesterId: integer("semesterId")
-			.references(() => semestersTable.id)
+			.references(() => assistantSemestersTable.semesterId)
 			.notNull(),
 		assistantUserId: integer("userId")
-			.references(() => assistantUsersTable.id)
+			.references(() => assistantSemestersTable.assistantId)
 			.notNull(),
 	},
 	(table) => ({
 		pk: primaryKey({
 			columns: [table.semesterId, table.assistantUserId, table.schoolId],
+		}),
+		assistantSemesterFK: foreignKey({
+			columns: [table.semesterId, table.assistantUserId],
+			foreignColumns: [assistantSemestersTable.semesterId, assistantSemestersTable.assistantId],
 		}),
 	}),
 );
