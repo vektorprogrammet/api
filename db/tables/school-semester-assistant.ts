@@ -3,13 +3,13 @@ import { foreignKey, integer, primaryKey } from "drizzle-orm/pg-core";
 import { assistantSemestersTable } from "./assistant-semesters";
 import { mainSchema } from "./schema";
 import { schoolsTable } from "./schools";
-import { semestersTable } from "./semesters";
-import { assistantUsersTable } from "./users";
 
 export const schoolSemesterAssistantsTable = mainSchema.table(
 	"schoolSemesterAssistants",
 	{
-		schoolId: integer("schoolId").references(() => schoolsTable.id),
+		schoolId: integer("schoolId")
+			.references(() => schoolsTable.id)
+			.notNull(),
 		semesterId: integer("semesterId")
 			.references(() => assistantSemestersTable.semesterId)
 			.notNull(),
@@ -38,13 +38,15 @@ export const schoolSemesterAssistantsRelations = relations(
 			fields: [schoolSemesterAssistantsTable.schoolId],
 			references: [schoolsTable.id],
 		}),
-		semester: one(semestersTable, {
-			fields: [schoolSemesterAssistantsTable.semesterId],
-			references: [semestersTable.id],
-		}),
-		assistantUser: one(assistantUsersTable, {
-			fields: [schoolSemesterAssistantsTable.assistantUserId],
-			references: [assistantUsersTable.id],
+		assistantSemester: one(assistantSemestersTable, {
+			fields: [
+				schoolSemesterAssistantsTable.semesterId,
+				schoolSemesterAssistantsTable.assistantUserId,
+			],
+			references: [
+				assistantSemestersTable.semesterId,
+				assistantSemestersTable.assistantId,
+			],
 		}),
 	}),
 );
