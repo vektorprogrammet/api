@@ -1,12 +1,12 @@
 import type { RequestHandler } from "express";
 import type { ZodSchema } from "zod";
-import { clientError } from "./error/http-errors";
-import type { OrmResult } from "./error/orm-error";
-import { QueryParameters } from "./request-handling/common";
+import { clientError } from "../error/http-errors";
+import type { OrmResult } from "../error/orm-error";
+import type { QueryParameters } from "../request-handling/common";
 
 type DatabaseCall<Req, Res> = (items: Req) => Promise<OrmResult<Res>>;
 
-function makeStandardBodyRequestHandler<Req, Res>(
+export function makeStandardBodyRequestHandler<Req, Res>(
 	zodSchema: ZodSchema<Req>,
 	databaseCall: DatabaseCall<Req[], Res>,
 	options: { httpReturnCode: number } = { httpReturnCode: 200 },
@@ -34,7 +34,7 @@ function makeStandardBodyRequestHandler<Req, Res>(
 	};
 }
 
-function makeStandardQueryRequestHandler<Res>(
+export function makeStandardQueryRequestHandler<Res>(
 	zodSchema: ZodSchema<QueryParameters>,
 	databaseCall: DatabaseCall<QueryParameters, Res>,
 	options: { httpReturnCode: number } = { httpReturnCode: 200 },
@@ -62,7 +62,7 @@ function makeStandardQueryRequestHandler<Res>(
 	};
 }
 
-function makeStandardParameterHandler<Param, Res>(
+export function makeStandardParameterHandler<Param, Res>(
 	zodSchema: ZodSchema<Param>,
 	databaseCall: DatabaseCall<Param, Res>,
 	options: { httpReturnCode: number } = { httpReturnCode: 200 },
