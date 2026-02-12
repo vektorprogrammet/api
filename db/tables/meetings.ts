@@ -1,6 +1,6 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { date, integer, serial, text, time } from "drizzle-orm/pg-core";
+import { integer, interval, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { semestersTable } from "./semesters";
 
 export const meetingsTable = mainSchema.table("meetings", {
@@ -10,9 +10,8 @@ export const meetingsTable = mainSchema.table("meetings", {
 	semesterId: integer("semesterId")
 		.notNull()
 		.references(() => semestersTable.id),
-	date: date("date").notNull(),
-	timeStart: time("timeStart").notNull(),
-	timeEnd: text("timeEnd").notNull(),
+	startTime: timestamp("startTime").notNull(),
+	duration: interval("duration").notNull(),
 	room: text("room").notNull(),
 });
 
