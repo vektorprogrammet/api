@@ -13,7 +13,7 @@ export const schoolSemesterAssistantsTable = mainSchema.table(
 		semesterId: integer("semesterId")
 			.references(() => assistantSemestersTable.semesterId)
 			.notNull(),
-		assistantUserId: integer("userId")
+		assistantUserId: integer("assistantUserId")
 			.references(() => assistantSemestersTable.assistantId)
 			.notNull(),
 	},
