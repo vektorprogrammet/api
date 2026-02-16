@@ -4,6 +4,7 @@ import type { z } from "zod";
 import {
 	applicationsTable,
 	teamApplicationsTable,
+	assistantApplicationsTable
 } from "@/db/tables/applications";
 
 export const applicationSelectSchema = createSelectSchema(applicationsTable)
@@ -26,3 +27,11 @@ export type TeamApplicationKey = {
 	applicationParentId: TeamApplication["applicationParentId"];
 };
 export type TeamKey = TeamApplication["teamId"];
+
+export const assistantApplicationSelectSchema = createSelectSchema(
+	assistantApplicationsTable,
+)
+	.merge(createSelectSchema(applicationsTable))
+	.strict()
+	.readonly();
+export type AssistantApplication = z.infer<typeof assistantApplicationSelectSchema>;

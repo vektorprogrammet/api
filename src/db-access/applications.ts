@@ -1,6 +1,7 @@
 import { database } from "@/db/setup/query-postgres";
 import {
 	applicationsTable,
+	assistantApplicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
@@ -12,6 +13,7 @@ import type {
 import type { QueryParameters } from "@/src/request-handling/common";
 import type {
 	ApplicationKey,
+	AssistantApplication,
 	TeamApplication,
 	TeamKey,
 } from "@/src/response-handling/applications";
@@ -158,6 +160,39 @@ export const selectTeamApplicationsBySemester = async (
 			.innerJoin(
 				applicationsTable,
 				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
+			)
+			.limit(parameters.limit)
+			.offset(parameters.offset);
+
+		return selectResult;
+	});
+};
+
+export const selectAssistantApplicationsBySemester = async (
+	semesterId: SemesterKey[],
+	parameters: QueryParameters,
+): Promise<OrmResult<AssistantApplication[]>> => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const selectResult = await tx
+			.select({
+				id: assistantApplicationsTable.id,
+				firstName: applicationsTable.firstName,
+				lastName: applicationsTable.lastName,
+				gender: applicationsTable.gender,
+				email: applicationsTable.email,
+				fieldOfStudyId: applicationsTable.fieldOfStudyId,
+				yearOfStudy: applicationsTable.yearOfStudy,
+				phonenumber: applicationsTable.phonenumber,
+				semester: applicationsTable.semester,
+				submitDate: applicationsTable.submitDate,
+			})
+			.from(assistantApplicationsTable)
+			.where(
+				inArray(applicationsTable.semester, semesterId),
+			)
+			.innerJoin(
+				applicationsTable,
+				eq(assistantApplicationsTable.id, applicationsTable.id),
 			)
 			.limit(parameters.limit)
 			.offset(parameters.offset);
