@@ -18,8 +18,8 @@ import type {
 	TeamKey,
 } from "@/src/response-handling/applications";
 import { and, eq, inArray } from "drizzle-orm";
+import type { SemesterKey } from "../response-handling/semesters";
 import { newDatabaseTransaction } from "./common";
-import { SemesterKey } from "../response-handling/semesters";
 
 export const selectTeamApplications = async (
 	parameters: QueryParameters,
@@ -154,9 +154,7 @@ export const selectTeamApplicationsBySemester = async (
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(teamApplicationsTable)
-			.where(
-				inArray(applicationsTable.semester, semesterId),
-			)
+			.where(inArray(applicationsTable.semester, semesterId))
 			.innerJoin(
 				applicationsTable,
 				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
@@ -187,9 +185,7 @@ export const selectAssistantApplicationsBySemester = async (
 				submitDate: applicationsTable.submitDate,
 			})
 			.from(assistantApplicationsTable)
-			.where(
-				inArray(applicationsTable.semester, semesterId),
-			)
+			.where(inArray(applicationsTable.semester, semesterId))
 			.innerJoin(
 				applicationsTable,
 				eq(assistantApplicationsTable.id, applicationsTable.id),

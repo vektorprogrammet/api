@@ -129,7 +129,9 @@ teamApplicationRouter.get("/:teamID/", async (req, res, next) => {
 teamApplicationRouter.get("/semester/:semesterID/", async (req, res, next) => {
 	const semesterIdResult = toSerialIdParser.safeParse(req.params.semesterID);
 	if (!semesterIdResult.success) {
-		return next(clientError(400, "Invalid request format", semesterIdResult.error));
+		return next(
+			clientError(400, "Invalid request format", semesterIdResult.error),
+		);
 	}
 	const queryParametersResult = toListQueryParser.safeParse(req.query);
 	if (!queryParametersResult.success) {
@@ -153,7 +155,6 @@ teamApplicationRouter.get("/semester/:semesterID/", async (req, res, next) => {
 	res.json(databaseResult.data);
 });
 
-
 /**
  * @openapi
  * /assistantapplications/semester/{semesterId}/:
@@ -172,32 +173,37 @@ teamApplicationRouter.get("/semester/:semesterID/", async (req, res, next) => {
  *       schema:
  *        $ref: "#/components/schemas/assistantApplication"
  */
-assistantApplicationRouter.get("/semester/:semesterID/", async (req, res, next) => {
-	const semesterIdResult = toSerialIdParser.safeParse(req.params.semesterID);
-	if (!semesterIdResult.success) {
-		return next(clientError(400, "Invalid request format", semesterIdResult.error));
-	}
-	const queryParametersResult = toListQueryParser.safeParse(req.query);
-	if (!queryParametersResult.success) {
-		return next(
-			clientError(400, "Invalid request format", queryParametersResult.error),
+assistantApplicationRouter.get(
+	"/semester/:semesterID/",
+	async (req, res, next) => {
+		const semesterIdResult = toSerialIdParser.safeParse(req.params.semesterID);
+		if (!semesterIdResult.success) {
+			return next(
+				clientError(400, "Invalid request format", semesterIdResult.error),
+			);
+		}
+		const queryParametersResult = toListQueryParser.safeParse(req.query);
+		if (!queryParametersResult.success) {
+			return next(
+				clientError(400, "Invalid request format", queryParametersResult.error),
+			);
+		}
+		const databaseResult = await selectAssistantApplicationsBySemester(
+			[semesterIdResult.data],
+			queryParametersResult.data,
 		);
-	}
-	const databaseResult = await selectAssistantApplicationsBySemester(
-		[semesterIdResult.data],
-		queryParametersResult.data,
-	);
-	if (!databaseResult.success) {
-		return next(
-			clientError(
-				400,
-				"Failed to retrieve data from the database",
-				databaseResult.error,
-			),
-		);
-	}
-	res.json(databaseResult.data);
-});
+		if (!databaseResult.success) {
+			return next(
+				clientError(
+					400,
+					"Failed to retrieve data from the database",
+					databaseResult.error,
+				),
+			);
+		}
+		res.json(databaseResult.data);
+	},
+);
 
 /**
  * @openapi

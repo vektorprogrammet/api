@@ -3,8 +3,8 @@ import type { z } from "zod";
 
 import {
 	applicationsTable,
+	assistantApplicationsTable,
 	teamApplicationsTable,
-	assistantApplicationsTable
 } from "@/db/tables/applications";
 
 export const applicationSelectSchema = createSelectSchema(applicationsTable)
@@ -34,4 +34,6 @@ export const assistantApplicationSelectSchema = createSelectSchema(
 	.merge(createSelectSchema(applicationsTable))
 	.strict()
 	.readonly();
-export type AssistantApplication = z.infer<typeof assistantApplicationSelectSchema>;
+export type AssistantApplication = z.infer<
+	typeof assistantApplicationSelectSchema
+>;
