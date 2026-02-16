@@ -2,6 +2,7 @@ import {
 	createTeamApplicationFromAssistantApplication,
 	insertTeamApplication,
 	selectTeamApplications,
+	selectTeamApplicationsBySemester,
 	selectTeamApplicationsByTeamId,
 } from "@/src/db-access/applications";
 import { clientError } from "@/src/error/http-errors";
@@ -90,6 +91,51 @@ teamApplicationRouter.get("/:teamID/", async (req, res, next) => {
 	}
 	const databaseResult = await selectTeamApplicationsByTeamId(
 		[teamIdResult.data],
+		queryParametersResult.data,
+	);
+	if (!databaseResult.success) {
+		return next(
+			clientError(
+				400,
+				"Failed to retrieve data from the database",
+				databaseResult.error,
+			),
+		);
+	}
+	res.json(databaseResult.data);
+});
+
+/**
+ * @openapi
+ * /teamapplications/{semesterId}/:
+ *  get:
+ *   tags: [teamapplications]
+ *   summary: Get teamapplications with semesterid
+ *   description: Get teamapplications with semesterid
+ *   parameters:
+ *    - $ref: "#/components/parameters/offset"
+ *    - $ref: "#/components/parameters/limit"
+ *   responses:
+ *    200:
+ *     description: Successfull response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        $ref: "#/components/schemas/teamApplication"
+ */
+teamApplicationRouter.get("/semester/:semesterID/", async (req, res, next) => {
+	const semesterIdResult = toSerialIdParser.safeParse(req.params.semesterID);
+	if (!semesterIdResult.success) {
+		return next(clientError(400, "Invalid request format", semesterIdResult.error));
+	}
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
+	if (!queryParametersResult.success) {
+		return next(
+			clientError(400, "Invalid request format", queryParametersResult.error),
+		);
+	}
+	const databaseResult = await selectTeamApplicationsBySemester(
+		[semesterIdResult.data],
 		queryParametersResult.data,
 	);
 	if (!databaseResult.success) {

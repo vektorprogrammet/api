@@ -17,6 +17,7 @@ import type {
 } from "@/src/response-handling/applications";
 import { and, eq, inArray } from "drizzle-orm";
 import { newDatabaseTransaction } from "./common";
+import { SemesterKey } from "../response-handling/semesters";
 
 export const selectTeamApplications = async (
 	parameters: QueryParameters,
@@ -122,6 +123,44 @@ export const selectTeamApplicationsById = async (
 				applicationsTable,
 				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
 			);
+
+		return selectResult;
+	});
+};
+
+export const selectTeamApplicationsBySemester = async (
+	semesterId: SemesterKey[],
+	parameters: QueryParameters,
+): Promise<OrmResult<TeamApplication[]>> => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const selectResult = await tx
+			.select({
+				id: teamApplicationsTable.id,
+				applicationParentId: teamApplicationsTable.applicationParentId,
+				teamId: teamApplicationsTable.teamId,
+				firstName: applicationsTable.firstName,
+				lastName: applicationsTable.lastName,
+				gender: applicationsTable.gender,
+				email: applicationsTable.email,
+				fieldOfStudyId: applicationsTable.fieldOfStudyId,
+				yearOfStudy: applicationsTable.yearOfStudy,
+				phonenumber: applicationsTable.phonenumber,
+				motivationText: teamApplicationsTable.motivationText,
+				biography: teamApplicationsTable.biography,
+				teamInterest: teamApplicationsTable.teamInterest,
+				semester: applicationsTable.semester,
+				submitDate: applicationsTable.submitDate,
+			})
+			.from(teamApplicationsTable)
+			.where(
+				inArray(applicationsTable.semester, semesterId),
+			)
+			.innerJoin(
+				applicationsTable,
+				eq(teamApplicationsTable.applicationParentId, applicationsTable.id),
+			)
+			.limit(parameters.limit)
+			.offset(parameters.offset);
 
 		return selectResult;
 	});
