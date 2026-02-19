@@ -8,7 +8,10 @@ import {
 	zodErrorHandler,
 } from "@/src/middleware/error-middleware";
 import { logger } from "@/src/middleware/logging-middleware";
-import { teamApplicationRouter } from "@/src/routers/applications";
+import {
+	assistantApplicationRouter,
+	teamApplicationRouter,
+} from "@/src/routers/applications";
 import { expensesRouter } from "@/src/routers/expenses";
 import { sponsorsRouter } from "@/src/routers/sponsors";
 import { teamsRouter } from "@/src/routers/teams";
@@ -37,6 +40,9 @@ api.use("/sponsors", sponsorsRouter);
 api.use("/users", usersRouter);
 
 api.use("/teamapplications", teamApplicationRouter);
+
+api.use("/assistantapplications", assistantApplicationRouter);
+
 api.use("/teams", teamsRouter);
 
 // Error handling
