@@ -23,6 +23,7 @@ import type {
 	UserKey,
 } from "@/src/response-handling/users";
 import { eq, inArray } from "drizzle-orm";
+import type { TeamKey } from "../response-handling/teams";
 
 export async function selectUsersById(
 	userIds: UserKey[],
@@ -134,6 +135,35 @@ export async function selectTeamUsers(
 				.offset(queryParameters.offset);
 
 			return users;
+		})
+		.then(handleDatabaseFullfillment, handleDatabaseRejection);
+}
+
+export async function selectTeamUsersByTeamid(
+	queryParameters: QueryParameters,
+	teamIds: TeamKey[],
+): Promise<OrmResult<TeamUser[]>> {
+	return await database
+		.transaction(async (tx) => {
+			const selectResult = await tx
+				.select({
+					id: usersTable.id,
+					firstName: usersTable.firstName,
+					lastName: usersTable.lastName,
+					fieldOfStudyId: usersTable.fieldOfStudyId,
+					bankAccountNumber: usersTable.bankAccountNumber,
+					phoneNumber: usersTable.phoneNumber,
+					personalEmail: usersTable.personalEmail,
+					teamId: teamUsersTable.teamId,
+					username: teamUsersTable.username,
+				})
+				.from(teamUsersTable)
+				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.limit(queryParameters.limit)
+				.offset(queryParameters.offset)
+				.where(inArray(teamUsersTable.teamId, teamIds));
+
+			return selectResult;
 		})
 		.then(handleDatabaseFullfillment, handleDatabaseRejection);
 }
