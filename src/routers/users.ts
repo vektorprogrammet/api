@@ -6,6 +6,7 @@ import {
 	selectAssistantUsersById,
 	selectTeamUsers,
 	selectTeamUsersById,
+	selectTeamUsersByTeamid,
 	selectUsers,
 	selectUsersById,
 } from "@/src/db-access/users";
@@ -201,6 +202,54 @@ teamUsersRouter.get("", async (req, res, next) => {
 		);
 	}
 	const databaseResult = await selectTeamUsers(queryParameterResult.data);
+	if (!databaseResult.success) {
+		return next(
+			clientError(
+				400,
+				"Failed to retrieve data from the database",
+				databaseResult.error,
+			),
+		);
+	}
+	res.json(databaseResult.data);
+});
+
+/**
+ * @openapi
+ * /users/team-members:
+ *  get:
+ *   tags: [users]
+ *   summary: Get team member users for spesific team
+ *   description: Get team member users for spesific team
+ *   parameters:
+ *    - $ref: "#/components/parameters/limit"
+ *    - $ref: "#/components/parameters/offset"
+ *    - $ref: "#/components/parameters/sort"
+ *   responses:
+ *    200:
+ *     description: Successfull response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        $ref: "#/components/schemas/teamUser/{teamId}"
+ */
+teamUsersRouter.get("/:teamId", async (req, res, next) => {
+	const queryParameterResult = toListQueryParser.safeParse(req.query);
+	const teamIdRequest = toSerialIdParser.safeParse(req.params.teamId);
+	if (!queryParameterResult.success) {
+		return next(
+			clientError(400, "Invalid request format", queryParameterResult.error),
+		);
+	}
+	if (!teamIdRequest.success) {
+		return next(
+			clientError(400, "Invalid request format", teamIdRequest.error),
+		);
+	}
+	const databaseResult = await selectTeamUsersByTeamid(
+		queryParameterResult.data,
+		[teamIdRequest.data],
+	);
 	if (!databaseResult.success) {
 		return next(
 			clientError(
