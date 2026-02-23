@@ -233,7 +233,7 @@ teamUsersRouter.get("", async (req, res, next) => {
  *       schema:
  *        $ref: "#/components/schemas/teamUser/{teamId}"
  */
-teamUsersRouter.get("/:teamId", async (req, res, next) => {
+teamUsersRouter.get("/teamId/:teamId", async (req, res, next) => {
 	const queryParameterResult = toListQueryParser.safeParse(req.query);
 	const teamIdRequest = toSerialIdParser.safeParse(req.params.teamId);
 	if (!queryParameterResult.success) {
