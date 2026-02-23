@@ -237,7 +237,11 @@ pnpm db:seed
 for linux and mac:
 
 ```sh
-db:seed:unix
+pnpm db seed:unix
+```
+
+```sh
+pnpm db seed:unix
 ```
 
 ## Info
