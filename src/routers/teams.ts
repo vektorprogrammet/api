@@ -1,7 +1,8 @@
-import { selectTeamsById } from "@/src/db-access/teams";
+import { selectActiveTeams, selectTeamsById } from "@/src/db-access/teams";
 import { clientError } from "@/src/error/http-errors";
 import {
 	listQueryParser,
+	toListQueryParser,
 	toSerialIdParser,
 } from "@/src/request-handling/common";
 import { Router, json } from "express";
@@ -9,6 +10,44 @@ import { Router, json } from "express";
 export const teamsRouter = Router();
 teamsRouter.use(json());
 
+/**
+ * @openapi
+ * /teams/active/:
+ *  get:
+ *   tags: [teams]
+ *   summary: Get all active teams
+ *   description: Return all active teams
+ *   parameters:
+ *    - $ref: "#/components/parameters/offset"
+ *    - $ref: "#/components/parameters/limit"
+ *   responses:
+ *    200:
+ *     description: Successfull response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        $ref: "#/components/schemas/teams"
+ */
+teamsRouter.get("/active", async (req, res, next) => {
+	const queryParametersResult = toListQueryParser.safeParse(req.query);
+	if (!queryParametersResult.success) {
+		return next(
+			clientError(400, "Invalid request format", queryParametersResult.error),
+		);
+	}
+
+	const results = await selectActiveTeams(queryParametersResult.data);
+	if (!results.success) {
+		return next(
+			clientError(
+				400,
+				"Failed to retrieve data from the database",
+				results.error,
+			),
+		);
+	}
+	res.json(results.data);
+});
 /**
  * @openapi
  * /teams/{teamId}/:
