@@ -3,6 +3,7 @@ import type { z } from "zod";
 
 import {
 	applicationsTable,
+	assistantApplicationsTable,
 	teamApplicationsTable,
 } from "@/db/tables/applications";
 
@@ -26,3 +27,13 @@ export type TeamApplicationKey = {
 	applicationParentId: TeamApplication["applicationParentId"];
 };
 export type TeamKey = TeamApplication["teamId"];
+
+export const assistantApplicationSelectSchema = createSelectSchema(
+	assistantApplicationsTable,
+)
+	.merge(createSelectSchema(applicationsTable))
+	.strict()
+	.readonly();
+export type AssistantApplication = z.infer<
+	typeof assistantApplicationSelectSchema
+>;
