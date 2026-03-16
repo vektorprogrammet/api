@@ -1,4 +1,8 @@
-import { selectActiveTeams, selectInActiveTeams, selectTeamsById } from "@/src/db-access/teams";
+import {
+	selectActiveTeams,
+	selectInActiveTeams,
+	selectTeamsById,
+} from "@/src/db-access/teams";
 import { clientError } from "@/src/error/http-errors";
 import {
 	listQueryParser,

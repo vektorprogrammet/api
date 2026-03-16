@@ -20,6 +20,7 @@ import { teamApplicationSelectSchema } from "@/src/response-handling/application
 import { expensesSelectSchema } from "@/src/response-handling/expenses";
 import { sponsorsSelectSchema } from "@/src/response-handling/sponsors";
 
+import { teamsRequestParser } from "@/src/request-handling/teams";
 import {
 	assistantUserSelectSchema,
 	teamUserSelectSchema,
@@ -27,7 +28,6 @@ import {
 } from "@/src/response-handling/users";
 import openapiFromJsdoc from "swagger-jsdoc";
 import { createDocument } from "zod-openapi";
-import { teamsRequestParser } from "@/src/request-handling/teams";
 
 const openapiDocument = createDocument({
 	openapi: "3.1.0",
@@ -85,7 +85,7 @@ const openapiDocument = createDocument({
 			datePeriod: datePeriodParser,
 			teamApplication: teamApplicationSelectSchema,
 			teamApplicationRequest: teamApplicationParser,
-			teams: teamsRequestParser
+			teams: teamsRequestParser,
 		},
 		parameters: {
 			id: serialIdParser.openapi({ param: { in: "path", name: "id" } }),
