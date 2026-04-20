@@ -35,3 +35,17 @@ export const selectActiveTeams = async (
 		return teams;
 	});
 };
+export const selectInActiveTeams = async (
+	parameters: QueryParameters,
+): Promise<OrmResult<Team[]>> => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const teams = await tx
+			.select()
+			.from(teamsTable)
+			.where(eq(teamsTable.active, false))
+			.limit(parameters.limit)
+			.offset(parameters.offset);
+
+		return teams;
+	});
+};
