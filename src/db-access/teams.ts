@@ -2,7 +2,8 @@ import { database } from "@/db/setup/query-postgres";
 import { teamsTable } from "@/db/tables/teams";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type { Team, TeamKey } from "@/src/response-handling/teams";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
+import type { QueryParameters } from "../request-handling/common";
 import { newDatabaseTransaction } from "./common";
 
 export async function selectTeamsById(
@@ -19,3 +20,18 @@ export async function selectTeamsById(
 		return selectResult;
 	});
 }
+
+export const selectActiveTeams = async (
+	parameters: QueryParameters,
+): Promise<OrmResult<Team[]>> => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const teams = await tx
+			.select()
+			.from(teamsTable)
+			.where(eq(teamsTable.active, true))
+			.limit(parameters.limit)
+			.offset(parameters.offset);
+
+		return teams;
+	});
+};
