@@ -19,6 +19,7 @@ import { usersRouter } from "@/src/routers/users";
 import { customCors, customHelmetSecurity } from "@/src/security";
 import express from "express";
 import { departmentsRouter } from "./routers/departments";
+import { emailRouter } from "@/src/routers/email";
 
 export const api = express();
 
@@ -47,6 +48,8 @@ api.use("/assistantapplications", assistantApplicationRouter);
 api.use("/teams", teamsRouter);
 
 api.use("/departments", departmentsRouter)
+
+api.use("/email", emailRouter)
 
 // Error handling
 api.use(
