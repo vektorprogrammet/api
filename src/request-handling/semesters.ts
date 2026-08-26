@@ -1,8 +1,13 @@
 import { semestersTable } from "@/db/tables/semesters";
 import { timeStringParser } from "@/lib/time-parsers";
+import { parseWithSchema } from "@/lib/zod";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { serialIdParser } from "./common";
+
+const semesterInsertSchema = createInsertSchema(semestersTable)
+	.strict()
+	.readonly();
 
 export const semesterRequestParser = z
 	.object({
@@ -24,19 +29,21 @@ export const semesterRequestParser = z
 export const semesterRequestToInsertParser = semesterRequestParser
 	.extend({
 		name: semesterRequestParser.shape.name.trim(),
-		semesterStartDate: semesterRequestParser.shape.semesterStartDate.pipe(
-			z.coerce.date(),
+		semesterStartDate: semesterRequestParser.shape.semesterStartDate.transform(
+			parseWithSchema(z.coerce.date()),
 		),
-		semesterEndDate: semesterRequestParser.shape.semesterEndDate.pipe(
-			z.coerce.date(),
+		semesterEndDate: semesterRequestParser.shape.semesterEndDate.transform(
+			parseWithSchema(z.coerce.date()),
 		),
-		recruitmentStartDate: semesterRequestParser.shape.recruitmentStartDate.pipe(
-			z.coerce.date(),
-		),
-		recruitmentEndDate: semesterRequestParser.shape.recruitmentEndDate.pipe(
-			z.coerce.date(),
-		),
+		recruitmentStartDate:
+			semesterRequestParser.shape.recruitmentStartDate.transform(
+				parseWithSchema(z.coerce.date()),
+			),
+		recruitmentEndDate:
+			semesterRequestParser.shape.recruitmentEndDate.transform(
+				parseWithSchema(z.coerce.date()),
+			),
 	})
-	.pipe(createInsertSchema(semestersTable).strict().readonly());
+	.transform(parseWithSchema(semesterInsertSchema));
 
 export type NewSemester = z.infer<typeof semesterRequestToInsertParser>;

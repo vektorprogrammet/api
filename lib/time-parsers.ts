@@ -1,17 +1,17 @@
+import { parseWithSchema } from "@/lib/zod";
 import { z } from "zod";
 
 export const timeStringParser = z.union([
-	z.string().date(),
-	z.string().time(),
-	z.string().datetime(),
+	z.iso.date(),
+	z.iso.time(),
+	z.iso.datetime(),
 ]);
 
 // Date here refers to the JS object date, so it allows more specific times than dates
 export const dateParser = z.date();
 export const toDateParser = z
 	.union([timeStringParser, z.date()])
-	.pipe(z.coerce.date())
-	.pipe(dateParser);
+	.transform(parseWithSchema(z.coerce.date()));
 
 export const datePeriodParser = z
 	.object({
@@ -27,7 +27,7 @@ export const toDatePeriodParser = z
 		startDate: toDateParser,
 		endDate: toDateParser,
 	})
-	.pipe(datePeriodParser);
+	.transform(parseWithSchema(datePeriodParser));
 
 export const pastDateParser = dateParser.max(new Date());
 export const futureDateParser = dateParser.min(new Date());

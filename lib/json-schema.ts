@@ -43,8 +43,6 @@ export function turnJsonIntoZodSchema(schema: AnySchema) {
 					params: validationResult.error,
 				});
 			}
-
-			return validationResult.success;
 		});
 }
 
