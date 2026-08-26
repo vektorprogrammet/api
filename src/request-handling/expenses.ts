@@ -9,7 +9,9 @@ import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-const expenseInsertSchema = createInsertSchema(expensesTable).strict().readonly();
+const expenseInsertSchema = createInsertSchema(expensesTable)
+	.strict()
+	.readonly();
 
 export const expenseRequestParser = z
 	.object({

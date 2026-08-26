@@ -5,7 +5,9 @@ import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-const sponsorInsertSchema = createInsertSchema(sponsorsTable).strict().readonly();
+const sponsorInsertSchema = createInsertSchema(sponsorsTable)
+	.strict()
+	.readonly();
 
 export const sponsorRequestParser = z
 	.object({

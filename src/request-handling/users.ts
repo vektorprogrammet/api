@@ -10,7 +10,9 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 const userInsertSchema = createInsertSchema(usersTable).strict().readonly();
-const teamUserInsertSchema = createInsertSchema(teamUsersTable).strict().readonly();
+const teamUserInsertSchema = createInsertSchema(teamUsersTable)
+	.strict()
+	.readonly();
 const assistantUserInsertSchema = createInsertSchema(assistantUsersTable)
 	.strict()
 	.readonly();
@@ -56,8 +58,10 @@ export const teamUserRequestToInsertParser = teamUserRequestParser
 	})
 	.transform(parseWithSchema(teamUserInsertSchema));
 
-export const assistantUserRequestToInsertParser = assistantUserRequestParser
-	.transform(parseWithSchema(assistantUserInsertSchema));
+export const assistantUserRequestToInsertParser =
+	assistantUserRequestParser.transform(
+		parseWithSchema(assistantUserInsertSchema),
+	);
 
 export type NewUser = z.infer<typeof userRequestToInsertParser>;
 export type NewTeamUser = z.infer<typeof teamUserRequestToInsertParser>;

@@ -57,6 +57,14 @@ const parametersResult = z
 			case "false":
 				ssl = false;
 				break;
+			default: {
+				ctx.addIssue({
+					code: "custom",
+					message: "No valid ssl option",
+					path: ["DATABASE_SSL_OPTION"],
+				});
+				return z.NEVER;
+			}
 		}
 		return {
 			host: schema.DATABASE_HOST.trim(),
