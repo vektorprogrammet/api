@@ -1,8 +1,13 @@
 import { sponsorsTable } from "@/db/tables/sponsors";
 import { timeStringParser } from "@/lib/time-parsers";
+import { parseWithSchema } from "@/lib/zod";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+const sponsorInsertSchema = createInsertSchema(sponsorsTable)
+	.strict()
+	.readonly();
 
 export const sponsorRequestParser = z
 	.object({
@@ -25,11 +30,13 @@ export const sponsorRequestParser = z
 export const sponsorRequestToInsertParser = sponsorRequestParser
 	.extend({
 		name: sponsorRequestParser.shape.name.trim(),
-		startTime: sponsorRequestParser.shape.startTime.pipe(
-			z.coerce.date().max(new Date()),
+		startTime: sponsorRequestParser.shape.startTime.transform(
+			parseWithSchema(z.coerce.date().max(new Date())),
 		),
-		endTime: sponsorRequestParser.shape.endTime.pipe(z.coerce.date()),
+		endTime: sponsorRequestParser.shape.endTime.transform(
+			parseWithSchema(z.coerce.date()),
+		),
 	})
-	.pipe(createInsertSchema(sponsorsTable).strict().readonly());
+	.transform(parseWithSchema(sponsorInsertSchema));
 
 export type NewSponsor = z.infer<typeof sponsorRequestToInsertParser>;

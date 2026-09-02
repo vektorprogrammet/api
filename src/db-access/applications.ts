@@ -214,7 +214,10 @@ export async function insertTeamApplication(
 				semester: teamApplication.semester,
 			})
 			.returning();
-		const newApplicationId = newApplication[0].id;
+		const newApplicationId = newApplication[0]?.id;
+		if (newApplicationId === undefined) {
+			throw ormError("Failed to insert all entries");
+		}
 
 		const newTeamApplicationResult = await tx
 			.insert(teamApplicationsTable)

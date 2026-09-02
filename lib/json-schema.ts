@@ -31,21 +31,16 @@ export function validateJsonSchema(
 }
 
 export function turnJsonIntoZodSchema(schema: AnySchema) {
-	return z
-		.object({})
-		.passthrough()
-		.superRefine((data, ctx) => {
-			const validationResult = validateJsonSchema(schema, data);
-			if (!validationResult.success) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: "The interview schema is not valid",
-					params: validationResult.error,
-				});
-			}
-
-			return validationResult.success;
-		});
+	return z.looseObject({}).superRefine((data, ctx) => {
+		const validationResult = validateJsonSchema(schema, data);
+		if (!validationResult.success) {
+			ctx.addIssue({
+				code: "custom",
+				message: "The interview schema is not valid",
+				params: validationResult.error,
+			});
+		}
+	});
 }
 
 // from: https://www.reddit.com/r/typescript/comments/13mssvc/types_for_json_and_writing_json

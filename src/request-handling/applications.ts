@@ -4,9 +4,20 @@ import {
 	teamApplicationsTable,
 } from "@/db/tables/applications";
 import { MAX_TEXT_LENGTH } from "@/lib/global-variables";
+import { parseWithSchema } from "@/lib/zod";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+const applicationInsertSchema = createInsertSchema(applicationsTable).strict();
+const teamApplicationInsertSchema = createInsertSchema(teamApplicationsTable)
+	.merge(applicationInsertSchema)
+	.strict();
+const assistantApplicationInsertSchema = createInsertSchema(
+	assistantApplicationsTable,
+)
+	.merge(applicationInsertSchema)
+	.strict();
 
 export const applicationParser = z
 	.object({
@@ -62,30 +73,40 @@ export const assistantApplicationParser = z
 	.strict();
 
 export const applicationToInsertParser = applicationParser
-	.extend({})
-	.pipe(createInsertSchema(applicationsTable).strict().readonly());
+	.transform((application) => ({
+		...application,
+		firstName: application.firstName.trim(),
+		lastName: application.lastName.trim(),
+		email: application.email.trim().toLowerCase(),
+		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		phonenumber: application.phonenumber.trim(),
+	}))
+	.transform(parseWithSchema(applicationInsertSchema));
 
 export const teamApplicationToInsertParser = teamApplicationParser
-	.extend({
-		email: teamApplicationParser.shape.email.trim().toLowerCase(),
-		motivationText: teamApplicationParser.shape.motivationText.trim(),
-		biography: teamApplicationParser.shape.biography.trim(),
-	})
-	.pipe(
-		createInsertSchema(teamApplicationsTable)
-			.merge(createInsertSchema(applicationsTable))
-			.strict()
-			.readonly(),
-	);
+	.transform((application) => ({
+		...application,
+		firstName: application.firstName.trim(),
+		lastName: application.lastName.trim(),
+		email: application.email.trim().toLowerCase(),
+		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		phonenumber: application.phonenumber.trim(),
+		motivationText: application.motivationText.trim(),
+		biography: application.biography.trim(),
+		teamInterest: false,
+	}))
+	.transform(parseWithSchema(teamApplicationInsertSchema));
 
 export const assistantApplicationToInsertParser = assistantApplicationParser
-	.extend({})
-	.pipe(
-		createInsertSchema(assistantApplicationsTable)
-			.merge(createInsertSchema(applicationsTable))
-			.strict()
-			.readonly(),
-	);
+	.transform((application) => ({
+		...application,
+		firstName: application.firstName.trim(),
+		lastName: application.lastName.trim(),
+		email: application.email.trim().toLowerCase(),
+		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		phonenumber: application.phonenumber.trim(),
+	}))
+	.transform(parseWithSchema(assistantApplicationInsertSchema));
 
 export const teamInterestParser = z.object({
 	applicationParentId: serialIdParser,
