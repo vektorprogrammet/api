@@ -1,20 +1,18 @@
 import { clientError } from "@/src/error/http-errors";
-import {
-    listQueryParser,
-} from "@/src/request-handling/common";
 import { Router, json } from "express";
-import { sendEmail } from "@/src/routers/mail-service"
+import { sendEmail } from "@/src/services/mail-service"
+import { z } from "zod";
 
-export const emailRouter = Router();
-emailRouter.use(json());
+export const contactRouter = Router();
+contactRouter.use(json());
 
 /**
  * @openapi
- * /email:
+ * /contact:
  *  post:
- *   tags: [email]
- *   summary: Send an email
- *   description: Send an email using the configured mail service.
+ *   tags: [contact]
+ *   summary: Send a contact email
+ *   description: Send an email to contact, using the configured mail service.
  *   requestBody:
  *    required: true
  *    content:
@@ -57,25 +55,43 @@ emailRouter.use(json());
  *    400:
  *     description: Invalid request format
  */
-emailRouter.post("/", async (req, res, next) => {
-    const queryParametersResult = listQueryParser.safeParse(req.query);
-    if (!queryParametersResult.success) {
+contactRouter.post("/", async (req, res, next) => {
+    const contactSchema = z.object({
+        receivingEmail: z.string().email(),
+        replyTo: z.string().email(),
+        about: z.string().min(1),
+        text: z.string().optional(),
+        html: z.string().optional(),
+    });
+
+    const result = contactSchema.safeParse(req.body);
+
+    if (!result.success) {
         return next(
-            clientError(400, "Invalid request format", queryParametersResult.error),
+            clientError(400, "Invalid request format", result.error),
         );
     }
 
+    const {
+        receivingEmail,
+        replyTo,
+        about,
+        text,
+        html,
+    } = result.data;
+
     try {
         await sendEmail(
-            req.body.receivingEmail,
-            req.body.replyTo,
-            req.body.about,
-            req.body.text,
-            req.body.html,
+            receivingEmail,
+            replyTo,
+            about,
+            text,
+            html,
         );
 
         res.json("Successfully sent the email!");
     } catch (error) {
+        console.error("CONTACT EMAIL ERROR:", error);
         next(error);
     }
 });
