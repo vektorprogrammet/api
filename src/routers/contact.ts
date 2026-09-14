@@ -1,6 +1,6 @@
 import { clientError } from "@/src/error/http-errors";
+import { sendEmail } from "@/src/services/mail-service";
 import { Router, json } from "express";
-import { sendEmail } from "@/src/services/mail-service"
 import { z } from "zod";
 
 export const contactRouter = Router();
@@ -52,52 +52,38 @@ contactRouter.use(json());
  *     description: Invalid request format
  */
 contactRouter.post("/", async (req, res, next) => {
-    const contactSchema = z.object({
-        receivingEmail: z.string().email(),
-        replyTo: z.string().email(),
-        about: z.string().min(1),
-        text: z.string().optional(),
-    });
+	const contactSchema = z.object({
+		receivingEmail: z.string().email(),
+		replyTo: z.string().email(),
+		about: z.string().min(1),
+		text: z.string().optional(),
+	});
 
-    const result = contactSchema.safeParse(req.body);
+	const result = contactSchema.safeParse(req.body);
 
-    if (!result.success) {
-        return next(
-            clientError(400, "Invalid request format", result.error),
-        );
-    }
+	if (!result.success) {
+		return next(clientError(400, "Invalid request format", result.error));
+	}
 
-    const {
-        receivingEmail,
-        replyTo,
-        about,
-        text,
-    } = result.data;
+	const { receivingEmail, replyTo, about, text } = result.data;
 
+	const validEmailAddresses = [
+		"hovedstyret@vektorprogrammet.no",
+		"styret.ntnu@vektorprogrammet.no",
+		"uib@vektorprogrammet.no",
+		"nmbu@vektorprogrammet.no",
+	];
 
-    const validEmailAddresses = [
-        "hovedstyret@vektorprogrammet.no",
-        "styret.ntnu@vektorprogrammet.no",
-        "uib@vektorprogrammet.no",
-        "nmbu@vektorprogrammet.no"
-    ];
+	if (!validEmailAddresses.includes(receivingEmail)) {
+		return next(clientError(418, "Nice try!"));
+	}
 
+	try {
+		await sendEmail(receivingEmail, replyTo, about, text);
 
-    if (!validEmailAddresses.includes(receivingEmail)) {
-        return next(clientError(418, "Nice try!"));
-    }
-
-    try {
-        await sendEmail(
-            receivingEmail,
-            replyTo,
-            about,
-            text,
-        );
-
-        res.json("Successfully sent the email!");
-    } catch (error) {
-        console.error("CONTACT EMAIL ERROR:", error);
-        next(error);
-    }
+		res.json("Successfully sent the email!");
+	} catch (error) {
+		console.error("CONTACT EMAIL ERROR:", error);
+		next(error);
+	}
 });

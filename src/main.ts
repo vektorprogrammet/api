@@ -12,13 +12,13 @@ import {
 	assistantApplicationRouter,
 	teamApplicationRouter,
 } from "@/src/routers/applications";
+import { contactRouter } from "@/src/routers/contact";
 import { expensesRouter } from "@/src/routers/expenses";
 import { sponsorsRouter } from "@/src/routers/sponsors";
 import { teamsRouter } from "@/src/routers/teams";
 import { usersRouter } from "@/src/routers/users";
 import { customCors, customHelmetSecurity } from "@/src/security";
 import express from "express";
-import { contactRouter } from "@/src/routers/contact";
 
 export const api = express();
 
@@ -46,7 +46,7 @@ api.use("/assistantapplications", assistantApplicationRouter);
 
 api.use("/teams", teamsRouter);
 
-api.use("/contact", contactRouter)
+api.use("/contact", contactRouter);
 
 // Error handling
 api.use(
