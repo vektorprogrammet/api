@@ -1,6 +1,8 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
+    secure: true,
+    requireTLS: true,
     service: "gmail",
     auth: {
         type: "OAuth2",
@@ -15,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail(to: string, replyTo: string, subject: string, text?: string, html?: string) {
     await transporter.sendMail({
         from: `"Vektorprogrammet" <${process.env.GOOGLE_FROM_EMAIL}>`,
-        to,
+        to: "kristoffer.fredrik@gmail.com",
         replyTo,
         subject,
         text,
