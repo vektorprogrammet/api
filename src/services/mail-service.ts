@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Remember to add protection to prevent people from using the endpoint to send arbitrary emails from the mailbot.
+
 export async function sendEmail(to: string, replyTo: string, subject: string, text?: string, html?: string) {
     await transporter.sendMail({
         from: `"Vektorprogrammet" <${process.env.GOOGLE_FROM_EMAIL}>`,

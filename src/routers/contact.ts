@@ -40,10 +40,6 @@ contactRouter.use(json());
  *            type: string
  *            nullable: true
  *            description: Plain text email body
- *          html:
- *            type: string
- *            nullable: true
- *            description: HTML email body
  *   responses:
  *    200:
  *     description: Email sent successfully
@@ -61,7 +57,6 @@ contactRouter.post("/", async (req, res, next) => {
         replyTo: z.string().email(),
         about: z.string().min(1),
         text: z.string().optional(),
-        html: z.string().optional(),
     });
 
     const result = contactSchema.safeParse(req.body);
@@ -77,8 +72,20 @@ contactRouter.post("/", async (req, res, next) => {
         replyTo,
         about,
         text,
-        html,
     } = result.data;
+
+
+    const validEmailAddresses = [
+        "hovedstyret@vektorprogrammet.no",
+        "styret.ntnu@vektorprogrammet.no",
+        "uib@vektorprogrammet.no",
+        "nmbu@vektorprogrammet.no"
+    ];
+
+
+    if (!validEmailAddresses.includes(receivingEmail)) {
+        return next(clientError(418, "Nice try!"));
+    }
 
     try {
         await sendEmail(
@@ -86,7 +93,6 @@ contactRouter.post("/", async (req, res, next) => {
             replyTo,
             about,
             text,
-            html,
         );
 
         res.json("Successfully sent the email!");

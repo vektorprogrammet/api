@@ -69,6 +69,7 @@ const HTTP_CLIENT_ERROR_MESSAGES = [
 	"Failed to execute the database command",
 	"Error parsing database response",
 	"Database error",
+	"Nice try!",
 ] as const;
 const HTTP_SERVER_ERROR_MESSAGES = [
 	"Internal server error occurred",
