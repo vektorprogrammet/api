@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail(to: string, replyTo: string, subject: string, text?: string, html?: string) {
     await transporter.sendMail({
         from: `"Vektorprogrammet" <${process.env.GOOGLE_FROM_EMAIL}>`,
-        to: "kristoffer.fredrik@gmail.com",
+        to,
         replyTo,
         subject,
         text,
