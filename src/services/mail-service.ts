@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
 import { mailOptions } from "@/src/enviroment";
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
 	secure: true,

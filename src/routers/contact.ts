@@ -1,5 +1,5 @@
-import { clientError } from "@/src/error/http-errors";
 import { VALID_CONTACT_EMAIL_ADDRESSES } from "@/lib/global-variables";
+import { clientError } from "@/src/error/http-errors";
 import { sendEmail } from "@/src/services/mail-service";
 import { Router, json } from "express";
 import { z } from "zod";

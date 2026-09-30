@@ -25,16 +25,13 @@ if (!hostOptionsResult.success) {
 
 export const hostOptions = hostOptionsResult.data;
 
-
-
-
 const mailOptionsResult = z
 	.object({
-        GOOGLE_FROM_EMAIL: z.string().email(),
-        GOOGLE_CLIENT_ID: z.string().nonempty(),
-        GOOGLE_CLIENT_SECRET: z.string().nonempty(),
-        GOOGLE_REFRESH_TOKEN: z.string().nonempty(),
-    })
+		GOOGLE_FROM_EMAIL: z.string().email(),
+		GOOGLE_CLIENT_ID: z.string().nonempty(),
+		GOOGLE_CLIENT_SECRET: z.string().nonempty(),
+		GOOGLE_REFRESH_TOKEN: z.string().nonempty(),
+	})
 	.transform((schema) => ({
 		fromEmail: schema.GOOGLE_FROM_EMAIL,
 		clientId: schema.GOOGLE_CLIENT_ID,
