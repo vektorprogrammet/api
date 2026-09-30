@@ -1,4 +1,5 @@
 import { clientError } from "@/src/error/http-errors";
+import { VALID_CONTACT_EMAIL_ADDRESSES } from "@/lib/global-variables";
 import { sendEmail } from "@/src/services/mail-service";
 import { Router, json } from "express";
 import { z } from "zod";
@@ -67,14 +68,7 @@ contactRouter.post("/", async (req, res, next) => {
 
 	const { receivingEmail, replyTo, about, text } = result.data;
 
-	const validEmailAddresses = [
-		"hovedstyret@vektorprogrammet.no",
-		"styret.ntnu@vektorprogrammet.no",
-		"uib@vektorprogrammet.no",
-		"nmbu@vektorprogrammet.no",
-	];
-
-	if (!validEmailAddresses.includes(receivingEmail)) {
+	if (!VALID_CONTACT_EMAIL_ADDRESSES.includes(receivingEmail)) {
 		return next(clientError(418, "Nice try!"));
 	}
 
