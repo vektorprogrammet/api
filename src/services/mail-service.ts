@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { mailOptions } from "@/src/enviroment";
 
 const transporter = nodemailer.createTransport({
 	secure: true,
@@ -7,10 +8,10 @@ const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
 		type: "OAuth2",
-		user: process.env.GOOGLE_FROM_EMAIL,
-		clientId: process.env.GOOGLE_CLIENT_ID,
-		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-		refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+		user: mailOptions.fromEmail,
+		clientId: mailOptions.clientId,
+		clientSecret: mailOptions.clientSecret,
+		refreshToken: mailOptions.refreshToken,
 	},
 });
 
@@ -22,7 +23,7 @@ export async function sendEmail(
 	html?: string,
 ) {
 	await transporter.sendMail({
-		from: `"Vektorprogrammet" <${process.env.GOOGLE_FROM_EMAIL}>`,
+		from: `"Vektorprogrammet" <${mailOptions.fromEmail}>`,
 		to,
 		replyTo,
 		subject,
