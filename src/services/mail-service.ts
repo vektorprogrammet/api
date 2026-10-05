@@ -35,9 +35,9 @@ export async function sendEmail(
 
 		return { success: true, data: undefined };
 	} catch (error: unknown) {
-		return { 
-			success: false, 
-			error: new Error("Failed to send email", { cause: error })
+		return {
+			success: false,
+			error: new Error("Failed to send email", { cause: error }),
 		};
 	}
 }
