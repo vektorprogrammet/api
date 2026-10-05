@@ -111,6 +111,26 @@ i `.env`.
 
 For å kjøre appen og migrere databasen, se [scripts](#database).
 
+
+### Email setup
+
+The API sends email through Gmail using OAuth 2.0. Add the following values to your `.env` file:
+
+```.env
+GOOGLE_FROM_EMAIL=vektorbot@vektorprogrammet.no
+GOOGLE_CLIENT_ID=*Google OAuth client ID*
+GOOGLE_CLIENT_SECRET=*Google OAuth client secret*
+GOOGLE_REFRESH_TOKEN=*OAuth refresh token for the sender account*
+```
+
+`GOOGLE_FROM_EMAIL` is the email address used as the sender. `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET` identify the OAuth client, and `GOOGLE_REFRESH_TOKEN` lets
+the API obtain access to Gmail without storing the account password. All four
+values are required for the API to start. Keep the client secret and refresh token
+private, and do not commit them to the repository.
+
+
+
 ## Recommended Extensions
 
 ### Imports Autocomplete
