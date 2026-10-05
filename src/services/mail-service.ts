@@ -1,3 +1,4 @@
+import type { Result } from "@/lib/types";
 import { mailOptions } from "@/src/enviroment";
 import nodemailer from "nodemailer";
 
@@ -21,13 +22,19 @@ export async function sendEmail(
 	subject: string,
 	text?: string,
 	html?: string,
-) {
-	await transporter.sendMail({
-		from: `"Vektorprogrammet" <${mailOptions.fromEmail}>`,
-		to,
-		replyTo,
-		subject,
-		text,
-		html,
-	});
+): Promise<Result<void, Error>> {
+	try {
+		await transporter.sendMail({
+			from: `"Vektorprogrammet" <${mailOptions.fromEmail}>`,
+			to,
+			replyTo,
+			subject,
+			text,
+			html,
+		});
+
+		return { success: true, data: undefined };
+	} catch (error: unknown) {
+		return { success: false, error: new Error("Failed to send email", { cause: error })};
+	}
 }

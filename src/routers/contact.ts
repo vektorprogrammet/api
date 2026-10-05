@@ -1,5 +1,5 @@
 import { VALID_CONTACT_EMAIL_ADDRESSES } from "@/lib/global-variables";
-import { clientError } from "@/src/error/http-errors";
+import { clientError, serverError } from "@/src/error/http-errors";
 import { sendEmail } from "@/src/services/mail-service";
 import { Router, json } from "express";
 import { z } from "zod";
@@ -72,12 +72,11 @@ contactRouter.post("/", async (req, res, next) => {
 		return next(clientError(418, "Nice try!"));
 	}
 
-	try {
-		await sendEmail(receivingEmail, replyTo, about, text);
+	const emailResult = await sendEmail(receivingEmail, replyTo, about, text);
 
-		res.json("Successfully sent the email!");
-	} catch (error) {
-		console.error("CONTACT EMAIL ERROR:", error);
-		next(error);
+	if (!emailResult.success) {
+		return next(serverError(500, "Data processing error", emailResult.error));
 	}
+
+	return res.json("Successfully sent the email!");
 });
