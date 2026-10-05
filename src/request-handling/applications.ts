@@ -1,8 +1,8 @@
 import {
+	type Gender,
 	applicationsTable,
 	assistantApplicationsTable,
 	teamApplicationsTable,
-	type Gender
 } from "@/db/tables/applications";
 import { MAX_TEXT_LENGTH } from "@/lib/global-variables";
 import { parseWithSchema } from "@/lib/zod";
