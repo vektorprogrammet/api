@@ -2,6 +2,7 @@ import {
 	applicationsTable,
 	assistantApplicationsTable,
 	teamApplicationsTable,
+	type Gender
 } from "@/db/tables/applications";
 import { MAX_TEXT_LENGTH } from "@/lib/global-variables";
 import { parseWithSchema } from "@/lib/zod";
@@ -78,7 +79,7 @@ export const applicationToInsertParser = applicationParser
 		firstName: application.firstName.trim(),
 		lastName: application.lastName.trim(),
 		email: application.email.trim().toLowerCase(),
-		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		gender: application.gender.toLowerCase() as Gender,
 		phonenumber: application.phonenumber.trim(),
 	}))
 	.transform(parseWithSchema(applicationInsertSchema));
@@ -89,7 +90,7 @@ export const teamApplicationToInsertParser = teamApplicationParser
 		firstName: application.firstName.trim(),
 		lastName: application.lastName.trim(),
 		email: application.email.trim().toLowerCase(),
-		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		gender: application.gender.toLowerCase() as Gender,
 		phonenumber: application.phonenumber.trim(),
 		motivationText: application.motivationText.trim(),
 		biography: application.biography.trim(),
@@ -103,7 +104,7 @@ export const assistantApplicationToInsertParser = assistantApplicationParser
 		firstName: application.firstName.trim(),
 		lastName: application.lastName.trim(),
 		email: application.email.trim().toLowerCase(),
-		gender: application.gender.toLowerCase() as "female" | "male" | "other",
+		gender: application.gender.toLowerCase() as Gender,
 		phonenumber: application.phonenumber.trim(),
 	}))
 	.transform(parseWithSchema(assistantApplicationInsertSchema));
