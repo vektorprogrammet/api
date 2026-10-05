@@ -14,11 +14,10 @@ import { fieldsOfStudyTable } from "./fields-of-study";
 import { interviewsTable } from "./interviews";
 import { semestersTable } from "./semesters";
 
-export const gendersEnum = mainSchema.enum("gender", [
-	"female",
-	"male",
-	"other",
-]);
+const genders = ["female", "male", "other"] as const;
+
+export const gendersEnum = mainSchema.enum("gender", genders);
+export type Gender = (typeof genders)[number];
 
 export const applicationsTable = mainSchema.table("applications", {
 	id: serial("id").primaryKey(),

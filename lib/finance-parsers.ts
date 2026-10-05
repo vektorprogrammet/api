@@ -1,8 +1,10 @@
-import validator from "validator";
+import { parseWithSchema } from "@/lib/zod";
+import isCurrency from "validator/lib/isCurrency";
+import isIban from "validator/lib/isIBAN";
 import { z } from "zod";
 
 export const currencyParser = z.string().refine((input) => {
-	return validator.isCurrency(input, {
+	return isCurrency(input, {
 		symbol: "kr",
 		require_symbol: false,
 		allow_space_after_symbol: true,
@@ -18,7 +20,7 @@ export const currencyParser = z.string().refine((input) => {
 }, "is not a valid NOK currency");
 
 export const norwegianIbanParser = z.string().refine((input) => {
-	return validator.isIBAN(input, {
+	return isIban(input, {
 		whitelist: ["NO"],
 	});
 }, "is not a valid norwegian account number");
@@ -27,4 +29,4 @@ export const norwegianBankAccountNumberParser = z
 	.string()
 	.length(11)
 	.transform((string) => `NO93${string}`)
-	.pipe(norwegianIbanParser);
+	.transform(parseWithSchema(norwegianIbanParser));
