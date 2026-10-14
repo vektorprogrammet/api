@@ -25,75 +25,6 @@ const locations: { city: City; key: string }[] = [
 // https://vektorprogrammet.no/team. Individual member details are not imported.
 const teams = [
 	{
-		key: "trondheim-styret",
-		city: "Trondheim",
-		name: "Styret",
-		email: "styret.ntnu@vektorprogrammet.no",
-		description: "Ansvarlig for driften av Vektorprogrammet i Trondheim.",
-	},
-	{
-		key: "trondheim-evaluering",
-		city: "Trondheim",
-		name: "Evaluering",
-		email: "evaluering.ntnu@vektorprogrammet.no",
-		description:
-			"Vi sender ut spørreundersøkelser, lager statistikk av dem og skriver så semester- og årsrapporter.",
-	},
-	{
-		key: "trondheim-rekruttering",
-		city: "Trondheim",
-		name: "Rekruttering",
-		email: "rekruttering.ntnu@vektorprogrammet.no",
-		description: "I rekruttering jobber vi med å skaffe nye vektorassistenter!",
-	},
-	{
-		key: "trondheim-skolekoordinering",
-		city: "Trondheim",
-		name: "Skolekoordinering",
-		email: "skolekoordinering.ntnu@vektorprogrammet.no",
-		description:
-			"Skolekoordinering fungerer som et bindeledd mellom skolene og vektorassistentene gjennom semesteret.",
-	},
-	{
-		key: "trondheim-sponsor",
-		city: "Trondheim",
-		name: "Sponsor",
-		email: "sponsor.ntnu@vektorprogrammet.no",
-		description:
-			"Vektorprogrammets bindeledd til næringslivet, samarbeidspartnere og sponsorer.",
-	},
-	{
-		key: "trondheim-okonomi",
-		city: "Trondheim",
-		name: "Økonomi",
-		email: "okonomi@vektorprogrammet.no",
-		description: "Økonomiteamet har ansvaret for Vektorprogrammets økonomi.",
-	},
-	{
-		key: "trondheim-ekspansjon",
-		city: "Trondheim",
-		name: "Ekspansjon",
-		email: "ekspansjon@vektorprogrammet.no",
-		description:
-			"Ekspansjon er teamet som har ansvaret for kontakten mellom lokalstyrene og utvidelse til Tromsø.",
-	},
-	{
-		key: "trondheim-it",
-		city: "Trondheim",
-		name: "IT",
-		email: "it@vektorprogrammet.no",
-		description:
-			"IT-teamet utvikler og drifter Vektorprogrammets nettside og interne datasystemer.",
-	},
-	{
-		key: "trondheim-profilering",
-		city: "Trondheim",
-		name: "Profilering",
-		email: "profilering.ntnu@vektorprogrammet.no",
-		description:
-			"Profileringsteamet jobber for å gjøre Vektorprogrammet mer synlig gjennom sosiale medier.",
-	},
-	{
 		key: "aas-styret",
 		city: "Ås",
 		name: "Styret",
@@ -167,6 +98,75 @@ const teams = [
 		city: "Bergen",
 		name: "Profilering",
 		email: "profilering.uib@vektorprogrammet.no",
+		description:
+			"Profileringsteamet jobber for å gjøre Vektorprogrammet mer synlig gjennom sosiale medier.",
+	},
+	{
+		key: "trondheim-styret",
+		city: "Trondheim",
+		name: "Styret",
+		email: "styret.ntnu@vektorprogrammet.no",
+		description: "Ansvarlig for driften av Vektorprogrammet i Trondheim.",
+	},
+	{
+		key: "trondheim-evaluering",
+		city: "Trondheim",
+		name: "Evaluering",
+		email: "evaluering.ntnu@vektorprogrammet.no",
+		description:
+			"Vi sender ut spørreundersøkelser, lager statistikk av dem og skriver så semester- og årsrapporter.",
+	},
+	{
+		key: "trondheim-rekruttering",
+		city: "Trondheim",
+		name: "Rekruttering",
+		email: "rekruttering.ntnu@vektorprogrammet.no",
+		description: "I rekruttering jobber vi med å skaffe nye vektorassistenter!",
+	},
+	{
+		key: "trondheim-skolekoordinering",
+		city: "Trondheim",
+		name: "Skolekoordinering",
+		email: "skolekoordinering.ntnu@vektorprogrammet.no",
+		description:
+			"Skolekoordinering fungerer som et bindeledd mellom skolene og vektorassistentene gjennom semesteret.",
+	},
+	{
+		key: "trondheim-sponsor",
+		city: "Trondheim",
+		name: "Sponsor",
+		email: "sponsor.ntnu@vektorprogrammet.no",
+		description:
+			"Vektorprogrammets bindeledd til næringslivet, samarbeidspartnere og sponsorer.",
+	},
+	{
+		key: "trondheim-okonomi",
+		city: "Trondheim",
+		name: "Økonomi",
+		email: "okonomi@vektorprogrammet.no",
+		description: "Økonomiteamet har ansvaret for Vektorprogrammets økonomi.",
+	},
+	{
+		key: "trondheim-ekspansjon",
+		city: "Trondheim",
+		name: "Ekspansjon",
+		email: "ekspansjon@vektorprogrammet.no",
+		description:
+			"Ekspansjon er teamet som har ansvaret for kontakten mellom lokalstyrene og utvidelse til Tromsø.",
+	},
+	{
+		key: "trondheim-it",
+		city: "Trondheim",
+		name: "IT",
+		email: "it@vektorprogrammet.no",
+		description:
+			"IT-teamet utvikler og drifter Vektorprogrammets nettside og interne datasystemer.",
+	},
+	{
+		key: "trondheim-profilering",
+		city: "Trondheim",
+		name: "Profilering",
+		email: "profilering.ntnu@vektorprogrammet.no",
 		description:
 			"Profileringsteamet jobber for å gjøre Vektorprogrammet mer synlig gjennom sosiale medier.",
 	},
