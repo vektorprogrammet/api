@@ -1,19 +1,17 @@
 import { database } from "@/db/setup/query-postgres";
+import { departmentsTable } from "@/db/tables/departments";
 import { teamsTable } from "@/db/tables/teams";
+import { teamUsersTable } from "@/db/tables/users";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type { Team, TeamKey } from "@/src/response-handling/teams";
 import { count, eq, inArray } from "drizzle-orm";
 import type { QueryParameters } from "../request-handling/common";
 import { newDatabaseTransaction } from "./common";
-import { departmentsTable } from "@/db/tables/departments";
-import { teamUsersTable } from "@/db/tables/users";
-
-
 
 type TeamOverview = {
-    team: Team;
-    department: string;
-    memberCount: number;
+	team: Team;
+	department: string;
+	memberCount: number;
 };
 
 export async function selectTeamsById(
@@ -67,20 +65,20 @@ export const selectActiveTeamsOverview = async (
 	return await newDatabaseTransaction(database, async (tx) => {
 		const teams = await tx
 			.select({
-                team: teamsTable,
-                department: departmentsTable.city,
-                memberCount: count(teamUsersTable.id),
-            })
-            .from(teamsTable)
-            .innerJoin(
-                departmentsTable,
-                eq(teamsTable.departmentId, departmentsTable.id),
-            )
-            .leftJoin(teamUsersTable, eq(teamUsersTable.teamId, teamsTable.id))
-            .where(eq(teamsTable.active, true))
-            .groupBy(teamsTable.id, departmentsTable.id)
-            .limit(parameters.limit)
-            .offset(parameters.offset);
+				team: teamsTable,
+				department: departmentsTable.city,
+				memberCount: count(teamUsersTable.id),
+			})
+			.from(teamsTable)
+			.innerJoin(
+				departmentsTable,
+				eq(teamsTable.departmentId, departmentsTable.id),
+			)
+			.leftJoin(teamUsersTable, eq(teamUsersTable.teamId, teamsTable.id))
+			.where(eq(teamsTable.active, true))
+			.groupBy(teamsTable.id, departmentsTable.id)
+			.limit(parameters.limit)
+			.offset(parameters.offset);
 
 		return teams;
 	});

@@ -1,7 +1,7 @@
 import {
 	selectActiveTeams,
-	selectInActiveTeams,
 	selectActiveTeamsOverview,
+	selectInActiveTeams,
 	selectTeamsById,
 } from "@/src/db-access/teams";
 import { clientError } from "@/src/error/http-errors";
@@ -88,7 +88,6 @@ teamsRouter.get("/inactive", async (req, res, next) => {
 	}
 	res.json(results.data);
 });
-
 
 /**
  * @openapi
