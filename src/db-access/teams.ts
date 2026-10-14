@@ -10,7 +10,7 @@ import { newDatabaseTransaction } from "./common";
 
 type TeamOverview = {
 	team: Team;
-	department: string;
+	departmentCity: string;
 	memberCount: number;
 };
 
@@ -66,7 +66,7 @@ export const selectActiveTeamsOverview = async (): Promise<
 		const teams = await tx
 			.select({
 				team: teamsTable,
-				department: departmentsTable.city,
+				departmentCity: departmentsTable.city,
 				memberCount: count(teamUsersTable.id),
 			})
 			.from(teamsTable)
