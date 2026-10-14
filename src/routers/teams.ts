@@ -107,15 +107,8 @@ teamsRouter.get("/inactive", async (req, res, next) => {
  *       schema:
  *        $ref: "#/components/schemas/teams"
  */
-teamsRouter.get("/active/overview", async (req, res, next) => {
-	const queryParametersResult = toListQueryParser.safeParse(req.query);
-	if (!queryParametersResult.success) {
-		return next(
-			clientError(400, "Invalid request format", queryParametersResult.error),
-		);
-	}
-
-	const results = await selectActiveTeamsOverview(queryParametersResult.data);
+teamsRouter.get("/active/overview", async (_req, res, next) => {
+	const results = await selectActiveTeamsOverview();
 	if (!results.success) {
 		return next(
 			clientError(

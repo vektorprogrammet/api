@@ -59,7 +59,8 @@ export const selectInActiveTeams = async (
 	});
 };
 
-export const selectActiveTeamsOverview = async (): Promise<OrmResult<TeamOverview[]>> => {
+export const selectActiveTeamsOverview = async (): Promise<
+	OrmResult<TeamOverview[]>> => {
 	return await newDatabaseTransaction(database, async (tx) => {
 		const teams = await tx
 			.select({
