@@ -59,9 +59,7 @@ export const selectInActiveTeams = async (
 	});
 };
 
-export const selectActiveTeamsOverview = async (
-	parameters: QueryParameters,
-): Promise<OrmResult<TeamOverview[]>> => {
+export const selectActiveTeamsOverview = async (): Promise<OrmResult<TeamOverview[]>> => {
 	return await newDatabaseTransaction(database, async (tx) => {
 		const teams = await tx
 			.select({
@@ -76,9 +74,7 @@ export const selectActiveTeamsOverview = async (
 			)
 			.leftJoin(teamUsersTable, eq(teamUsersTable.teamId, teamsTable.id))
 			.where(eq(teamsTable.active, true))
-			.groupBy(teamsTable.id, departmentsTable.id)
-			.limit(parameters.limit)
-			.offset(parameters.offset);
+			.groupBy(teamsTable.id, departmentsTable.id);
 
 		return teams;
 	});
