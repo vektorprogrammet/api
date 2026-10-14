@@ -322,12 +322,7 @@ async function seedMockData(): Promise<void> {
 						.insert(teamsTable)
 						.values({
 							departmentId,
-							// Local team names need a city suffix to satisfy the global unique constraint.
-							// Hovedstyret remains national and keeps its published name.
-							name:
-								team.key === "hovedstyret"
-									? team.name
-									: `${team.city} - ${team.name}`,
+							name: team.name,
 							email: team.email,
 							description: team.description,
 							shortDescription: team.description,
