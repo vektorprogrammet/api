@@ -67,7 +67,7 @@ export const selectActiveTeamsOverview = async (): Promise<
 			.select({
 				team: teamsTable,
 				departmentCity: departmentsTable.city,
-				memberCount: count(teamUsersTable.id),
+				memberCount: count(teamUsersTable.userId),
 			})
 			.from(teamsTable)
 			.innerJoin(
