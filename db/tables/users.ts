@@ -35,7 +35,7 @@ export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	assistantUser: one(assistantUsersTable),
 }));
 
-export const teamPositionTable = mainSchema.table("teamPosition", {
+export const teamRoleTable = mainSchema.table("teamRole", {
 	id: serial("id").primaryKey(),
 	name: text("name").notNull().unique(),
 });
@@ -48,6 +48,10 @@ export const teamUsersTable = mainSchema.table("teamUsers", {
 		.notNull()
 		.references(() => teamsTable.id),
 	username: text("username").notNull().unique(),
+	teamRoleId: integer("teamRoleId")
+		.notNull()
+		.references(() => teamRoleTable.id),
+	isTeamLeader: boolean("isTeamLeader").notNull().default(false),
 });
 export const teamUsersRelations = relations(
 	teamUsersTable,
@@ -61,6 +65,10 @@ export const teamUsersRelations = relations(
 			references: [teamsTable.id],
 		}),
 		teamSemesters: many(teamSemesterUsersTable),
+		teamRole: one(teamRoleTable, {
+			fields: [teamUsersTable.teamRoleId],
+			references: [teamRoleTable.id],
+		}),
 	}),
 );
 
