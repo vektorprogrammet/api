@@ -1,6 +1,7 @@
 import { database } from "@/db/setup/query-postgres";
 import {
 	assistantUsersTable,
+	teamPositionTable,
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
@@ -56,12 +57,20 @@ export async function selectTeamUsersById(
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamPositionId: teamUsersTable.teamPositionId,
+					teamPositionName: teamPositionTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.where(inArray(assistantUsersTable.id, userIds))
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id));
+				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(
+					teamPositionTable,
+					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+				)
+				.where(inArray(teamUsersTable.id, userIds));
 			if (users.length !== userIds.length) {
 				throw ormError("Couln't find all entries");
 			}
@@ -84,6 +93,7 @@ export async function selectAssistantUsersById(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					bankAccountNumber: usersTable.bankAccountNumber,
+					profilePictureUrl: usersTable.profilePictureUrl,
 				})
 				.from(assistantUsersTable)
 				.where(inArray(assistantUsersTable.id, userIds))
@@ -126,11 +136,19 @@ export async function selectTeamUsers(
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamPositionId: teamUsersTable.teamPositionId,
+					teamPositionName: teamPositionTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
 				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(
+					teamPositionTable,
+					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset);
 
@@ -154,11 +172,19 @@ export async function selectTeamUsersByTeamid(
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamPositionId: teamUsersTable.teamPositionId,
+					teamPositionName: teamPositionTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
 				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(
+					teamPositionTable,
+					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset)
 				.where(inArray(teamUsersTable.teamId, teamIds));
@@ -182,6 +208,7 @@ export async function selectAssistantUsers(
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
 				})
 				.from(assistantUsersTable)
 				.innerJoin(usersTable, eq(assistantUsersTable.id, usersTable.id))

@@ -16,6 +16,7 @@ export const userRequestParser = z
 		bankAccountNumber: z.string().length(11),
 		personalEmail: z.string().email(),
 		phoneNumber: z.string().min(8),
+		profilePictureUrl: z.string().nullable().optional(),
 	})
 	.strict();
 
@@ -23,6 +24,8 @@ export const teamUserRequestParser = z
 	.object({
 		id: serialIdParser,
 		teamId: serialIdParser,
+		teamPositionId: serialIdParser,
+		isTeamLeader: z.boolean().optional(),
 		username: z.string().nonempty(),
 	})
 	.strict();
