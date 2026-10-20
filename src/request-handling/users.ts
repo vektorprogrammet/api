@@ -24,7 +24,7 @@ export const teamUserRequestParser = z
 	.object({
 		id: serialIdParser,
 		teamId: serialIdParser,
-		teamPositionId: serialIdParser,
+		teamRoleId: serialIdParser,
 		isTeamLeader: z.boolean().optional(),
 		username: z.string().nonempty(),
 	})

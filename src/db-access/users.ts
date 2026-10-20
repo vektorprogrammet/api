@@ -1,7 +1,7 @@
 import { database } from "@/db/setup/query-postgres";
 import {
 	assistantUsersTable,
-	teamPositionTable,
+	teamRoleTable,
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
@@ -60,15 +60,15 @@ export async function selectTeamUsersById(
 					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
-					teamPositionId: teamUsersTable.teamPositionId,
-					teamPositionName: teamPositionTable.name,
+					teamRoleId: teamUsersTable.teamRoleId,
+					teamRoleName: teamRoleTable.name,
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
 				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
 				.innerJoin(
-					teamPositionTable,
-					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+					teamRoleTable,
+					eq(teamUsersTable.teamRoleId, teamRoleTable.id),
 				)
 				.where(inArray(teamUsersTable.id, userIds));
 			if (users.length !== userIds.length) {
@@ -139,15 +139,15 @@ export async function selectTeamUsers(
 					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
-					teamPositionId: teamUsersTable.teamPositionId,
-					teamPositionName: teamPositionTable.name,
+					teamRoleId: teamUsersTable.teamRoleId,
+					teamRoleName: teamRoleTable.name,
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
 				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
 				.innerJoin(
-					teamPositionTable,
-					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+					teamRoleTable,
+					eq(teamUsersTable.teamRoleId, teamRoleTable.id),
 				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset);
@@ -175,15 +175,15 @@ export async function selectTeamUsersByTeamid(
 					profilePictureUrl: usersTable.profilePictureUrl,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
-					teamPositionId: teamUsersTable.teamPositionId,
-					teamPositionName: teamPositionTable.name,
+					teamRoleId: teamUsersTable.teamRoleId,
+					teamRoleName: teamRoleTable.name,
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
 				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
 				.innerJoin(
-					teamPositionTable,
-					eq(teamUsersTable.teamPositionId, teamPositionTable.id),
+					teamRoleTable,
+					eq(teamUsersTable.teamRoleId, teamRoleTable.id),
 				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset)
