@@ -7,6 +7,7 @@ import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { teamsTable } from "@/db/tables/teams";
 import { schoolAssignmentsTable } from "./school-assignments";
 import { teamSemesterUsersTable } from "./team-semester-user";
+import { teamUserRolesTable } from "./team-roles";
 
 export const usersTable = mainSchema.table("users", {
 	id: serial("id").primaryKey(),
@@ -31,10 +32,6 @@ export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	assistantUser: one(assistantUsersTable),
 }));
 
-export const teamRoleTable = mainSchema.table("teamRole", {
-	id: serial("id").primaryKey(),
-	name: text("name").notNull().unique(),
-});
 
 export const teamUsersTable = mainSchema.table("teamUsers", {
 	id: integer("id")
@@ -44,9 +41,9 @@ export const teamUsersTable = mainSchema.table("teamUsers", {
 		.notNull()
 		.references(() => teamsTable.id),
 	username: text("username").notNull().unique(),
-	teamRoleId: integer("teamRoleId")
+	teamUserRoleId: integer("teamUserRoleId")
 		.notNull()
-		.references(() => teamRoleTable.id),
+		.references(() => teamUserRolesTable.id),
 	isTeamLeader: boolean("isTeamLeader").notNull().default(false),
 });
 export const teamUsersRelations = relations(
@@ -61,9 +58,9 @@ export const teamUsersRelations = relations(
 			references: [teamsTable.id],
 		}),
 		teamSemesters: many(teamSemesterUsersTable),
-		teamRole: one(teamRoleTable, {
-			fields: [teamUsersTable.teamRoleId],
-			references: [teamRoleTable.id],
+		teamUserRole: one(teamUserRolesTable, {
+			fields: [teamUsersTable.teamUserRoleId],
+			references: [teamUserRolesTable.id],
 		}),
 	}),
 );

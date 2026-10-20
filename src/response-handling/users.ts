@@ -16,7 +16,7 @@ export type UserKey = User["id"];
 
 export const teamUserSelectSchema = createSelectSchema(teamUsersTable)
 	.merge(createSelectSchema(usersTable))
-	.extend({ teamRoleName: z.string() })
+	.extend({ teamUserRoleName: z.string() })
 	.strict()
 	.readonly();
 export type TeamUser = z.infer<typeof teamUserSelectSchema>;
