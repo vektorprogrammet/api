@@ -1,11 +1,12 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { integer, serial, text } from "drizzle-orm/pg-core";
+import { boolean, integer, serial, text } from "drizzle-orm/pg-core";
 
 import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { teamsTable } from "@/db/tables/teams";
 import { schoolAssignmentsTable } from "./school-assignments";
+import { teamUserRolesTable } from "./team-roles";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const usersTable = mainSchema.table("users", {
@@ -18,6 +19,8 @@ export const usersTable = mainSchema.table("users", {
 	bankAccountNumber: text("accountNumber").unique(),
 	personalEmail: text("personalEmail").notNull().unique(),
 	phoneNumber: text("phoneNumber").notNull().unique(),
+	profilePictureUrl: text("profilePictureUrl"),
+	companyEmail: text("companyEmail").unique(),
 });
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	fieldOfStudy: one(fieldsOfStudyTable, {
@@ -37,6 +40,10 @@ export const teamUsersTable = mainSchema.table("teamUsers", {
 		.notNull()
 		.references(() => teamsTable.id),
 	username: text("username").notNull().unique(),
+	teamUserRoleId: integer("teamUserRoleId")
+		.notNull()
+		.references(() => teamUserRolesTable.id),
+	isTeamLeader: boolean("isTeamLeader").notNull().default(false),
 });
 export const teamUsersRelations = relations(
 	teamUsersTable,
@@ -50,6 +57,10 @@ export const teamUsersRelations = relations(
 			references: [teamsTable.id],
 		}),
 		teamSemesters: many(teamSemesterUsersTable),
+		teamUserRole: one(teamUserRolesTable, {
+			fields: [teamUsersTable.teamUserRoleId],
+			references: [teamUserRolesTable.id],
+		}),
 	}),
 );
 

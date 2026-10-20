@@ -96,9 +96,6 @@ teamsRouter.get("/inactive", async (req, res, next) => {
  *   tags: [teams]
  *   summary: Get all active teams with department name and number of members
  *   description: Return all active teams with extra info
- *   parameters:
- *    - $ref: "#/components/parameters/offset"
- *    - $ref: "#/components/parameters/limit"
  *   responses:
  *    200:
  *     description: Successfull response
