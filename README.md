@@ -254,7 +254,7 @@ pnpm db:seed
 ```
 
 This clears all data in those schemas, so use it only with a disposable development
-database. User records it creates use synthetic names and `example.invalid` email
+database. User records it creates use synthetic names and `example.com` email
 addresses.
 
 ## Info
