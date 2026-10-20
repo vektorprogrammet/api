@@ -1,6 +1,12 @@
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { boolean, integer, serial, text } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	integer,
+	primaryKey,
+	serial,
+	text,
+} from "drizzle-orm/pg-core";
 
 import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
@@ -36,19 +42,25 @@ export const teamRoleTable = mainSchema.table("teamRole", {
 	name: text("name").notNull().unique(),
 });
 
-export const teamUsersTable = mainSchema.table("teamUsers", {
-	id: integer("id")
-		.primaryKey()
-		.references(() => usersTable.id),
-	teamId: integer("teamId")
-		.notNull()
-		.references(() => teamsTable.id),
-	username: text("username").notNull().unique(),
-	teamRoleId: integer("teamRoleId")
-		.notNull()
-		.references(() => teamRoleTable.id),
-	isTeamLeader: boolean("isTeamLeader").notNull().default(false),
-});
+export const teamUsersTable = mainSchema.table(
+	"teamUsers",
+	{
+		id: integer("id").references(() => usersTable.id),
+		teamId: integer("teamId")
+			.notNull()
+			.references(() => teamsTable.id),
+		username: text("username").notNull().unique(),
+		teamRoleId: integer("teamRoleId")
+			.notNull()
+			.references(() => teamRoleTable.id),
+		isTeamLeader: boolean("isTeamLeader").notNull().default(false),
+	},
+	(table) => ({
+		pk: primaryKey({
+			columns: [table.id, table.teamId],
+		}),
+	}),
+);
 export const teamUsersRelations = relations(
 	teamUsersTable,
 	({ one, many }) => ({
