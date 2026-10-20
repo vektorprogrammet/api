@@ -28,7 +28,7 @@ export const teamsTable = mainSchema.table(
 		deadline: timestamp("deadline"),
 	},
 	(table) => ({
-		departmentNameUnique: unique("teams_departmentId_name_unique").on(
+		departmentIdNameUnique: unique("teams_departmentId_name_unique").on(
 			table.departmentId,
 			table.name,
 		),

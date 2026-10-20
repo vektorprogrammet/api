@@ -18,7 +18,8 @@
 		"db:migrate": "drizzle-kit migrate --config=db/config/drizzle.config.ts",
 		"db:studio": "drizzle-kit studio --config=db/config/drizzle.config.ts",
 		"db:seed": "tsx ./db/seeding/seed-mock-data.ts",
-		"docs:generate": "tsx ./openapi/generate-document.ts"
+		"docs:generate": "tsx ./openapi/generate-document.ts",
+		"db:push": "drizzle-kit push --config=db/config/drizzle.config.ts"
 	},
 	"license": "ISC",
 	"dependencies": {
