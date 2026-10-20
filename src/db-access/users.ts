@@ -1,10 +1,10 @@
 import { database } from "@/db/setup/query-postgres";
+import { teamUserRolesTable } from "@/db/tables/team-roles";
 import {
 	assistantUsersTable,
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
-import { teamUserRolesTable } from "@/db/tables/team-roles";
 import {
 	type OrmResult,
 	handleDatabaseFullfillment,

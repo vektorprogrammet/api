@@ -6,8 +6,8 @@ import { expensesTable } from "@/db/tables/expenses";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { teamsTable } from "@/db/tables/teams";
 import { schoolAssignmentsTable } from "./school-assignments";
-import { teamSemesterUsersTable } from "./team-semester-user";
 import { teamUserRolesTable } from "./team-roles";
+import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const usersTable = mainSchema.table("users", {
 	id: serial("id").primaryKey(),
@@ -31,7 +31,6 @@ export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	teamUser: one(teamUsersTable),
 	assistantUser: one(assistantUsersTable),
 }));
-
 
 export const teamUsersTable = mainSchema.table("teamUsers", {
 	id: integer("id")
