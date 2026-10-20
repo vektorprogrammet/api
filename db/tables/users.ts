@@ -24,8 +24,6 @@ export const usersTable = mainSchema.table("users", {
 	bankAccountNumber: text("accountNumber").unique(),
 	personalEmail: text("personalEmail").notNull().unique(),
 	phoneNumber: text("phoneNumber").notNull().unique(),
-	profilePictureUrl: text("profilePictureUrl"),
-	companyEmail: text("companyEmail").unique(),
 });
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	fieldOfStudy: one(fieldsOfStudyTable, {
@@ -37,32 +35,20 @@ export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	assistantUser: one(assistantUsersTable),
 }));
 
-export const teamRoleTable = mainSchema.table("teamRole", {
+export const teamPositionTable = mainSchema.table("teamPosition", {
 	id: serial("id").primaryKey(),
 	name: text("name").notNull().unique(),
 });
 
-export const teamUsersTable = mainSchema.table(
-	"teamUsers",
-	{
-		id: integer("id")
-			.notNull()
-			.references(() => usersTable.id),
-		teamId: integer("teamId")
-			.notNull()
-			.references(() => teamsTable.id),
-		username: text("username").notNull().unique(),
-		teamRoleId: integer("teamRoleId")
-			.notNull()
-			.references(() => teamRoleTable.id),
-		isTeamLeader: boolean("isTeamLeader").notNull().default(false),
-	},
-	(table) => ({
-		pk: primaryKey({
-			columns: [table.id, table.teamId],
-		}),
-	}),
-);
+export const teamUsersTable = mainSchema.table("teamUsers", {
+	id: integer("id")
+		.primaryKey()
+		.references(() => usersTable.id),
+	teamId: integer("teamId")
+		.notNull()
+		.references(() => teamsTable.id),
+	username: text("username").notNull().unique(),
+});
 export const teamUsersRelations = relations(
 	teamUsersTable,
 	({ one, many }) => ({
@@ -75,10 +61,6 @@ export const teamUsersRelations = relations(
 			references: [teamsTable.id],
 		}),
 		teamSemesters: many(teamSemesterUsersTable),
-		teamRole: one(teamRoleTable, {
-			fields: [teamUsersTable.teamRoleId],
-			references: [teamRoleTable.id],
-		}),
 	}),
 );
 
