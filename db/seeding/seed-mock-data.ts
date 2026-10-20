@@ -1,9 +1,9 @@
-import { and, eq, sql } from "drizzle-orm";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { database, postgresClient } from "@/db/setup/query-postgres";
 import { assistantSemestersTable } from "@/db/tables/assistant-semesters";
 import { departmentsTable } from "@/db/tables/departments";
 import { fieldsOfStudyTable } from "@/db/tables/fields-of-study";
 import { semestersTable } from "@/db/tables/semesters";
+import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamSemesterUsersTable } from "@/db/tables/team-semester-user";
 import { teamsTable } from "@/db/tables/teams";
 import {
@@ -11,7 +11,8 @@ import {
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
-import { database, postgresClient } from "@/db/setup/query-postgres";
+import { and, eq, sql } from "drizzle-orm";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 
 type City = "Trondheim" | "Ås" | "Bergen";
 
@@ -20,6 +21,25 @@ const locations: { city: City; key: string }[] = [
 	{ city: "Ås", key: "aas" },
 	{ city: "Bergen", key: "bergen" },
 ];
+
+const teamUserRoleNames = [
+	"Medlem",
+	"Utvikler",
+	"Leder",
+	"Nestleder",
+	"Mentor",
+	"Sekretær",
+	"IT-Ansvarlig",
+	"Sponsoransvarlig",
+	"Økonomiansvarlig",
+	"Ekspansjonsansvarlig",
+	"Evaluering",
+	"Profilering",
+	"Rekruttering",
+	"Skolekoordinering",
+	"Sponsor",
+	"Sosialansvarlig",
+] as const;
 
 // Team names, public summaries, and role-based contact addresses are from
 // https://vektorprogrammet.no/team. Individual member details are not imported.
@@ -181,11 +201,90 @@ const teams = [
 	},
 ] as const;
 
-const mockMembersPerTeam = 2;
-const mockAssistantsPerCity = 2;
+const teamsInSeedOrder = [
+	...teams.filter((team) => team.key === "hovedstyret"),
+	...teams.filter((team) => team.key !== "hovedstyret"),
+];
 
-function makeDate(year: number, month: number, day: number): Date {
-	return new Date(Date.UTC(year, month - 1, day));
+const mockMembersPerTeam = 5;
+const mockAssistantsPerCity = 2;
+const mockUserKeys = [
+	...teams.flatMap((team) =>
+		Array.from(
+			{ length: mockMembersPerTeam },
+			(_, index) =>
+				`mock-${team.key}-member-${String(index + 1).padStart(2, "0")}`,
+		),
+	),
+	...locations.flatMap((location) =>
+		Array.from(
+			{ length: mockAssistantsPerCity },
+			(_, index) =>
+				`mock-assistant-${location.key}-${String(index + 1).padStart(2, "0")}`,
+		),
+	),
+];
+const mockUserNumbers = new Map(
+	mockUserKeys.map((key, index) => [key, String(index + 1).padStart(3, "0")]),
+);
+const mockFirstNames = [
+	"Emilie",
+	"Jakob",
+	"Ingrid",
+	"Magnus",
+	"Nora",
+	"Henrik",
+	"Frida",
+	"Oliver",
+	"Amalie",
+	"Sander",
+	"Leah",
+	"Elias",
+	"Tuva",
+	"Mathias",
+	"Sofie",
+	"Aksel",
+] as const;
+const mockLastNames = [
+	"Hansen",
+	"Johansen",
+	"Solberg",
+	"Lund",
+	"Berg",
+	"Andersen",
+	"Moen",
+	"Strand",
+	"Dahl",
+	"Lie",
+	"Vik",
+	"Holm",
+	"Nilsen",
+	"Eriksen",
+	"Østby",
+	"Kristoffersen",
+] as const;
+
+function stableHash(value: string): number {
+	let hash = 0;
+	for (const character of value) {
+		hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+	}
+	return hash;
+}
+
+function getMockUserName(key: string): { firstName: string; lastName: string } {
+	const hash = stableHash(key);
+	return {
+		firstName: mockFirstNames[hash % mockFirstNames.length],
+		lastName:
+			mockLastNames[
+				Math.floor(hash / mockFirstNames.length) % mockLastNames.length
+			],
+	};
+}
+
+function makeDate(year: number, month: number, day: number): string {
+	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 async function seedMockData(): Promise<void> {
@@ -196,27 +295,89 @@ async function seedMockData(): Promise<void> {
 	const semesterIds = new Map<City, number>();
 
 	await database.transaction(async (tx) => {
+		const existingRoles = await tx
+			.select({ name: teamUserRolesTable.name })
+			.from(teamUserRolesTable);
+		const existingRoleNames = new Set(existingRoles.map((role) => role.name));
+		const missingRoleNames = teamUserRoleNames.filter(
+			(name) => !existingRoleNames.has(name),
+		);
+		if (missingRoleNames.length > 0) {
+			await tx
+				.insert(teamUserRolesTable)
+				.values(missingRoleNames.map((name) => ({ name })));
+		}
+
+		const seededRoles = await tx
+			.select({
+				id: teamUserRolesTable.id,
+				name: teamUserRolesTable.name,
+			})
+			.from(teamUserRolesTable);
+		const teamUserRoleIds = new Map(
+			seededRoles.map((role) => [role.name, role.id]),
+		);
+		for (const roleName of teamUserRoleNames) {
+			if (!teamUserRoleIds.has(roleName)) {
+				throw new Error(`Could not create team user role ${roleName}`);
+			}
+		}
+		const nonLeaderRoleNames = teamUserRoleNames.filter(
+			(roleName) => roleName !== "Leder",
+		);
+
 		async function getOrCreateUser(
 			key: string,
 			fieldOfStudyId: number,
-			mockLastName: string,
 		): Promise<number> {
-			const personalEmail = `${key}@example.invalid`;
+			const mockUserNumber = mockUserNumbers.get(key);
+			if (!mockUserNumber) {
+				throw new Error(`Could not find a mock user number for ${key}`);
+			}
+			const { firstName, lastName } = getMockUserName(key);
+			const emailName = `${firstName}.${lastName}`
+				.toLowerCase()
+				.replaceAll("ø", "o")
+				.replaceAll("æ", "ae")
+				.replaceAll("å", "aa");
+			const personalEmail = `${emailName}.${mockUserNumber}@example.com`;
+			const phoneNumber = `+47 000 00 ${mockUserNumber}`;
+			const legacyEmail = `${key}@example.invalid`;
 			const [existingUser] = await tx
 				.select({ id: usersTable.id })
 				.from(usersTable)
-				.where(eq(usersTable.personalEmail, personalEmail))
+				.where(eq(usersTable.personalEmail, legacyEmail))
 				.limit(1);
-			if (existingUser) return existingUser.id;
+			const [currentUser] = existingUser
+				? []
+				: await tx
+						.select({ id: usersTable.id })
+						.from(usersTable)
+						.where(eq(usersTable.personalEmail, personalEmail))
+						.limit(1);
+			const user = existingUser ?? currentUser;
+			if (user) {
+				await tx
+					.update(usersTable)
+					.set({
+						firstName,
+						lastName,
+						fieldOfStudyId,
+						personalEmail,
+						phoneNumber,
+					})
+					.where(eq(usersTable.id, user.id));
+				return user.id;
+			}
 
 			const [newUser] = await tx
 				.insert(usersTable)
 				.values({
-					firstName: "Mock",
-					lastName: mockLastName,
+					firstName,
+					lastName,
 					fieldOfStudyId,
 					personalEmail,
-					phoneNumber: `MOCK-PHONE-${key}`,
+					phoneNumber,
 				})
 				.returning({ id: usersTable.id });
 			if (!newUser)
@@ -294,7 +455,8 @@ async function seedMockData(): Promise<void> {
 			semesterIds.set(location.city, semesterId);
 		}
 
-		for (const team of teams) {
+		for (const team of teamsInSeedOrder) {
+			const teamIndex = teams.indexOf(team);
 			const departmentId = departmentIds.get(team.city);
 			const fieldOfStudyId = fieldOfStudyIds.get(team.city);
 			const semesterId = semesterIds.get(team.city);
@@ -339,25 +501,49 @@ async function seedMockData(): Promise<void> {
 				memberIndex <= mockMembersPerTeam;
 				memberIndex++
 			) {
+				const isTeamLeader = memberIndex === 1;
+				const roleName = isTeamLeader
+					? "Leder"
+					: nonLeaderRoleNames[
+							(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
+								nonLeaderRoleNames.length
+						];
+				const teamUserRoleId = teamUserRoleIds.get(roleName);
+				if (teamUserRoleId === undefined) {
+					throw new Error(`Missing team user role ${roleName}`);
+				}
 				const memberNumber = String(memberIndex).padStart(2, "0");
 				const userId = await getOrCreateUser(
 					`mock-${team.key}-member-${memberNumber}`,
 					fieldOfStudyId,
-					`Member ${memberNumber} - ${team.city} ${team.name}`,
 				);
 				const [existingTeamUser] = await tx
-					.select({ id: teamUsersTable.id, teamId: teamUsersTable.teamId })
+					.select({ userId: teamUsersTable.userId })
 					.from(teamUsersTable)
-					.where(eq(teamUsersTable.id, userId))
+					.where(
+						and(
+							eq(teamUsersTable.userId, userId),
+							eq(teamUsersTable.teamId, teamId),
+						),
+					)
 					.limit(1);
-				if (existingTeamUser && existingTeamUser.teamId !== teamId) {
-					throw new Error(`Mock member ${userId} belongs to a different team`);
-				}
-				if (!existingTeamUser) {
+				if (existingTeamUser) {
+					await tx
+						.update(teamUsersTable)
+						.set({ teamUserRoleId, isTeamLeader })
+						.where(
+							and(
+								eq(teamUsersTable.userId, userId),
+								eq(teamUsersTable.teamId, teamId),
+							),
+						);
+				} else {
 					await tx.insert(teamUsersTable).values({
-						id: userId,
+						userId,
 						teamId,
 						username: `mock-${team.key}-${memberNumber}`,
+						teamUserRoleId,
+						isTeamLeader,
 					});
 				}
 
@@ -400,7 +586,6 @@ async function seedMockData(): Promise<void> {
 				const userId = await getOrCreateUser(
 					`mock-assistant-${location.key}-${assistantNumber}`,
 					fieldOfStudyId,
-					`Assistant ${assistantNumber} - ${location.city}`,
 				);
 
 				const [existingAssistant] = await tx
