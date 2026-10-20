@@ -45,7 +45,7 @@ export const teamRoleTable = mainSchema.table("teamRole", {
 export const teamUsersTable = mainSchema.table(
 	"teamUsers",
 	{
-		id: integer("id").references(() => usersTable.id),
+		id: integer("id").notNull().references(() => usersTable.id),
 		teamId: integer("teamId")
 			.notNull()
 			.references(() => teamsTable.id),
