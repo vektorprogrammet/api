@@ -19,6 +19,7 @@ export const usersTable = mainSchema.table("users", {
 	personalEmail: text("personalEmail").notNull().unique(),
 	phoneNumber: text("phoneNumber").notNull().unique(),
 	profilePictureUrl: text("profilePictureUrl"),
+	companyEmail: text("companyEmail").unique(),
 });
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
 	fieldOfStudy: one(fieldsOfStudyTable, {

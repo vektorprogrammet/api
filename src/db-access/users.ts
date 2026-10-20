@@ -58,6 +58,7 @@ export async function selectTeamUsersById(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
 					teamRoleId: teamUsersTable.teamRoleId,
@@ -94,6 +95,7 @@ export async function selectAssistantUsersById(
 					personalEmail: usersTable.personalEmail,
 					bankAccountNumber: usersTable.bankAccountNumber,
 					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 				})
 				.from(assistantUsersTable)
 				.where(inArray(assistantUsersTable.id, userIds))
@@ -137,6 +139,7 @@ export async function selectTeamUsers(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
 					teamRoleId: teamUsersTable.teamRoleId,
@@ -173,6 +176,7 @@ export async function selectTeamUsersByTeamid(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
 					teamRoleId: teamUsersTable.teamRoleId,
@@ -209,6 +213,7 @@ export async function selectAssistantUsers(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 				})
 				.from(assistantUsersTable)
 				.innerJoin(usersTable, eq(assistantUsersTable.id, usersTable.id))
