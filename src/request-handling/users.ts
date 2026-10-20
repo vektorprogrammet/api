@@ -22,7 +22,7 @@ export const userRequestParser = z
 
 export const teamUserRequestParser = z
 	.object({
-		id: serialIdParser,
+		userId: serialIdParser,
 		teamId: serialIdParser,
 		teamUserRoleId: serialIdParser,
 		isTeamLeader: z.boolean().optional(),
