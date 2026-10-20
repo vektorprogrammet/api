@@ -51,6 +51,7 @@ export async function selectTeamUsersById(
 			const users = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
@@ -66,13 +67,15 @@ export async function selectTeamUsersById(
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
 				.innerJoin(
 					teamUserRolesTable,
 					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
 				)
-				.where(inArray(teamUsersTable.id, userIds));
-			if (users.length !== userIds.length) {
+				.where(inArray(teamUsersTable.userId, userIds));
+			if (
+				new Set(users.map((user) => user.id)).size !== new Set(userIds).size
+			) {
 				throw ormError("Couln't find all entries");
 			}
 			return users;
@@ -132,6 +135,7 @@ export async function selectTeamUsers(
 			const users = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
@@ -147,7 +151,7 @@ export async function selectTeamUsers(
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
 				.innerJoin(
 					teamUserRolesTable,
 					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
@@ -169,6 +173,7 @@ export async function selectTeamUsersByTeamid(
 			const selectResult = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
@@ -184,7 +189,7 @@ export async function selectTeamUsersByTeamid(
 					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
 				.innerJoin(
 					teamUserRolesTable,
 					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
@@ -242,7 +247,7 @@ export async function insertTeamUsers(
 				.insert(teamUsersTable)
 				.values(teamUser)
 				.returning();
-			const newTeamUserIds = newTeamUserTables.map((user) => user.id);
+			const newTeamUserIds = newTeamUserTables.map((user) => user.userId);
 			const newTeamUsersResult = await selectTeamUsersById(newTeamUserIds);
 			if (!newTeamUsersResult.success) {
 				throw ormError(
