@@ -1,10 +1,11 @@
 import { assistantApplicationsTable } from "@/db/tables/applications";
 import { interviewSchemasTable } from "@/db/tables/interview-schemas";
 import { mainSchema } from "@/db/tables/schema";
+import { teamsTable } from "@/db/tables/teams";
 import { teamUsersTable } from "@/db/tables/users";
 import type { Json } from "@/lib/json-schema";
 import { relations } from "drizzle-orm";
-import { primaryKey } from "drizzle-orm/pg-core";
+import { foreignKey, primaryKey } from "drizzle-orm/pg-core";
 import { boolean, integer, json, serial, timestamp } from "drizzle-orm/pg-core";
 
 export const interviewsTable = mainSchema.table("interviews", {
@@ -38,13 +39,18 @@ export const interviewHoldersTable = mainSchema.table(
 		interviewId: integer("integerId")
 			.notNull()
 			.references(() => interviewsTable.id),
-		interviewHolderId: integer("interviewHolderId")
+		interviewHolderId: integer("interviewHolderId").notNull(),
+		teamId: integer("teamId")
 			.notNull()
-			.references(() => teamUsersTable.id),
+			.references(() => teamsTable.id),
 	},
 	(table) => ({
 		compositePrimaryKey: primaryKey({
 			columns: [table.interviewId, table.interviewHolderId],
+		}),
+		teamUserForeignKey: foreignKey({
+			columns: [table.interviewHolderId, table.teamId],
+			foreignColumns: [teamUsersTable.id, teamUsersTable.teamId],
 		}),
 	}),
 );
@@ -57,8 +63,11 @@ export const interviewHoldersRelations = relations(
 			references: [interviewsTable.id],
 		}),
 		interviewHolder: one(teamUsersTable, {
-			fields: [interviewHoldersTable.interviewHolderId],
-			references: [teamUsersTable.id],
+			fields: [
+				interviewHoldersTable.interviewHolderId,
+				interviewHoldersTable.teamId,
+			],
+			references: [teamUsersTable.id, teamUsersTable.teamId],
 		}),
 	}),
 );
