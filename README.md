@@ -246,11 +246,16 @@ Open the database in the drizzle studio interface:
 pnpm db:studio
 ```
 
-Seed the database with random, but deterministic values:
+Reset the application and Drizzle migration schemas, rerun migrations, and seed
+the public team structure with synthetic team members and assistants:
 
 ```sh
 pnpm db:seed
 ```
+
+This clears all data in those schemas, so use it only with a disposable development
+database. User records it creates use synthetic names and `example.com` email
+addresses.
 
 ## Info
 

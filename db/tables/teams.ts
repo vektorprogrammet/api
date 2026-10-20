@@ -2,8 +2,14 @@ import { teamApplicationsTable } from "@/db/tables/applications";
 import { departmentsTable } from "@/db/tables/departments";
 import { mainSchema } from "@/db/tables/schema";
 import { relations } from "drizzle-orm";
-import { boolean, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
-import { integer } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	integer,
+	serial,
+	text,
+	timestamp,
+	unique,
+} from "drizzle-orm/pg-core";
 import { teamSemesterUsersTable } from "./team-semester-user";
 
 export const teamsTable = mainSchema.table(
