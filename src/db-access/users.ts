@@ -1,4 +1,5 @@
 import { database } from "@/db/setup/query-postgres";
+import { teamUserRolesTable } from "@/db/tables/team-roles";
 import {
 	assistantUsersTable,
 	teamUsersTable,
@@ -50,19 +51,31 @@ export async function selectTeamUsersById(
 			const users = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamUserRoleId: teamUsersTable.teamUserRoleId,
+					teamUserRoleName: teamUserRolesTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.where(inArray(assistantUsersTable.id, userIds))
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id));
-			if (users.length !== userIds.length) {
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
+				.innerJoin(
+					teamUserRolesTable,
+					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
+				)
+				.where(inArray(teamUsersTable.userId, userIds));
+			if (
+				new Set(users.map((user) => user.id)).size !== new Set(userIds).size
+			) {
 				throw ormError("Couln't find all entries");
 			}
 			return users;
@@ -84,6 +97,8 @@ export async function selectAssistantUsersById(
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
 					bankAccountNumber: usersTable.bankAccountNumber,
+					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 				})
 				.from(assistantUsersTable)
 				.where(inArray(assistantUsersTable.id, userIds))
@@ -120,17 +135,27 @@ export async function selectTeamUsers(
 			const users = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamUserRoleId: teamUsersTable.teamUserRoleId,
+					teamUserRoleName: teamUserRolesTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
+				.innerJoin(
+					teamUserRolesTable,
+					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
+				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset);
 
@@ -148,17 +173,27 @@ export async function selectTeamUsersByTeamid(
 			const selectResult = await tx
 				.select({
 					id: usersTable.id,
+					userId: teamUsersTable.userId,
 					firstName: usersTable.firstName,
 					lastName: usersTable.lastName,
 					fieldOfStudyId: usersTable.fieldOfStudyId,
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 					teamId: teamUsersTable.teamId,
 					username: teamUsersTable.username,
+					teamUserRoleId: teamUsersTable.teamUserRoleId,
+					teamUserRoleName: teamUserRolesTable.name,
+					isTeamLeader: teamUsersTable.isTeamLeader,
 				})
 				.from(teamUsersTable)
-				.innerJoin(usersTable, eq(teamUsersTable.id, usersTable.id))
+				.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
+				.innerJoin(
+					teamUserRolesTable,
+					eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
+				)
 				.limit(queryParameters.limit)
 				.offset(queryParameters.offset)
 				.where(inArray(teamUsersTable.teamId, teamIds));
@@ -182,6 +217,8 @@ export async function selectAssistantUsers(
 					bankAccountNumber: usersTable.bankAccountNumber,
 					phoneNumber: usersTable.phoneNumber,
 					personalEmail: usersTable.personalEmail,
+					profilePictureUrl: usersTable.profilePictureUrl,
+					companyEmail: usersTable.companyEmail,
 				})
 				.from(assistantUsersTable)
 				.innerJoin(usersTable, eq(assistantUsersTable.id, usersTable.id))
@@ -210,7 +247,7 @@ export async function insertTeamUsers(
 				.insert(teamUsersTable)
 				.values(teamUser)
 				.returning();
-			const newTeamUserIds = newTeamUserTables.map((user) => user.id);
+			const newTeamUserIds = newTeamUserTables.map((user) => user.userId);
 			const newTeamUsersResult = await selectTeamUsersById(newTeamUserIds);
 			if (!newTeamUsersResult.success) {
 				throw ormError(

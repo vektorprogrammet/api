@@ -1,5 +1,5 @@
 import { createSelectSchema } from "drizzle-zod";
-import type { z } from "zod";
+import { z } from "zod";
 
 import {
 	assistantUsersTable,
@@ -16,6 +16,7 @@ export type UserKey = User["id"];
 
 export const teamUserSelectSchema = createSelectSchema(teamUsersTable)
 	.merge(createSelectSchema(usersTable))
+	.extend({ teamUserRoleName: z.string() })
 	.strict()
 	.readonly();
 export type TeamUser = z.infer<typeof teamUserSelectSchema>;

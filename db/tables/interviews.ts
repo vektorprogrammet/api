@@ -4,7 +4,7 @@ import { mainSchema } from "@/db/tables/schema";
 import { teamUsersTable } from "@/db/tables/users";
 import type { Json } from "@/lib/json-schema";
 import { relations } from "drizzle-orm";
-import { primaryKey } from "drizzle-orm/pg-core";
+import { foreignKey, primaryKey } from "drizzle-orm/pg-core";
 import { boolean, integer, json, serial, timestamp } from "drizzle-orm/pg-core";
 
 export const interviewsTable = mainSchema.table("interviews", {
@@ -38,13 +38,16 @@ export const interviewHoldersTable = mainSchema.table(
 		interviewId: integer("integerId")
 			.notNull()
 			.references(() => interviewsTable.id),
-		interviewHolderId: integer("interviewHolderId")
-			.notNull()
-			.references(() => teamUsersTable.id),
+		interviewHolderId: integer("interviewHolderId").notNull(),
+		teamId: integer("teamId").notNull(),
 	},
 	(table) => ({
 		compositePrimaryKey: primaryKey({
-			columns: [table.interviewId, table.interviewHolderId],
+			columns: [table.interviewId, table.interviewHolderId, table.teamId],
+		}),
+		interviewHolderForeignKey: foreignKey({
+			columns: [table.interviewHolderId, table.teamId],
+			foreignColumns: [teamUsersTable.userId, teamUsersTable.teamId],
 		}),
 	}),
 );
@@ -57,8 +60,11 @@ export const interviewHoldersRelations = relations(
 			references: [interviewsTable.id],
 		}),
 		interviewHolder: one(teamUsersTable, {
-			fields: [interviewHoldersTable.interviewHolderId],
-			references: [teamUsersTable.id],
+			fields: [
+				interviewHoldersTable.interviewHolderId,
+				interviewHoldersTable.teamId,
+			],
+			references: [teamUsersTable.userId, teamUsersTable.teamId],
 		}),
 	}),
 );

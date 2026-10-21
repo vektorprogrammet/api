@@ -1,10 +1,18 @@
 import { database } from "@/db/setup/query-postgres";
+import { departmentsTable } from "@/db/tables/departments";
 import { teamsTable } from "@/db/tables/teams";
+import { teamUsersTable } from "@/db/tables/users";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type { Team, TeamKey } from "@/src/response-handling/teams";
-import { eq, inArray } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import type { QueryParameters } from "../request-handling/common";
 import { newDatabaseTransaction } from "./common";
+
+type TeamOverview = {
+	team: Team;
+	departmentCity: string;
+	memberCount: number;
+};
 
 export async function selectTeamsById(
 	teamIds: TeamKey[],
@@ -35,6 +43,7 @@ export const selectActiveTeams = async (
 		return teams;
 	});
 };
+
 export const selectInActiveTeams = async (
 	parameters: QueryParameters,
 ): Promise<OrmResult<Team[]>> => {
@@ -45,6 +54,30 @@ export const selectInActiveTeams = async (
 			.where(eq(teamsTable.active, false))
 			.limit(parameters.limit)
 			.offset(parameters.offset);
+
+		return teams;
+	});
+};
+
+export const selectActiveTeamsOverview = async (): Promise<
+	OrmResult<TeamOverview[]>
+> => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const teams = await tx
+			.select({
+				team: teamsTable,
+				departmentCity: departmentsTable.city,
+				memberCount: count(teamUsersTable.userId),
+			})
+			.from(teamsTable)
+			.innerJoin(
+				departmentsTable,
+				eq(teamsTable.departmentId, departmentsTable.id),
+			)
+			.leftJoin(teamUsersTable, eq(teamUsersTable.teamId, teamsTable.id))
+			.where(eq(teamsTable.active, true))
+			.groupBy(teamsTable.id, departmentsTable.id)
+			.orderBy(teamsTable.id);
 
 		return teams;
 	});

@@ -25,13 +25,16 @@ export const userRequestParser = z
 		bankAccountNumber: z.string().length(11),
 		personalEmail: z.string().email(),
 		phoneNumber: z.string().min(8),
+		profilePictureUrl: z.string().nullable().optional(),
 	})
 	.strict();
 
 export const teamUserRequestParser = z
 	.object({
-		id: serialIdParser,
+		userId: serialIdParser,
 		teamId: serialIdParser,
+		teamUserRoleId: serialIdParser,
+		isTeamLeader: z.boolean().optional(),
 		username: z.string().nonempty(),
 	})
 	.strict();
