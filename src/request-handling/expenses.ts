@@ -4,9 +4,14 @@ import {
 	norwegianBankAccountNumberParser,
 } from "@/lib/finance-parsers";
 import { timeStringParser } from "@/lib/time-parsers";
+import { parseWithSchema } from "@/lib/zod";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+const expenseInsertSchema = createInsertSchema(expensesTable)
+	.strict()
+	.readonly();
 
 export const expenseRequestParser = z
 	.object({
@@ -25,13 +30,17 @@ export const expenseRequestToInsertParser = expenseRequestParser
 	.extend({
 		title: expenseRequestParser.shape.title.trim(),
 		description: expenseRequestParser.shape.description.trim(),
-		bankAccountNumber: expenseRequestParser.shape.bankAccountNumber.pipe(
-			norwegianBankAccountNumberParser,
+		bankAccountNumber: expenseRequestParser.shape.bankAccountNumber.transform(
+			parseWithSchema(norwegianBankAccountNumberParser),
 		),
-		purchaseTime: expenseRequestParser.shape.purchaseTime.pipe(
-			z.coerce.date().max(new Date()),
+		purchaseTime: expenseRequestParser.shape.purchaseTime.transform(
+			parseWithSchema(z.coerce.date().max(new Date())),
 		),
 	})
-	.pipe(createInsertSchema(expensesTable).strict().readonly());
+	.transform(({ bankAccountNumber, ...expense }) => ({
+		...expense,
+		accountNumber: bankAccountNumber,
+	}))
+	.transform(parseWithSchema(expenseInsertSchema));
 
 export type NewExpense = z.infer<typeof expenseRequestToInsertParser>;

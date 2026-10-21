@@ -16,51 +16,63 @@ const parametersResult = z
 		DATABASE_PASSWORD: z.string().nonempty(),
 		DATABASE_PORT: toPortParser,
 		DATABASE_SSL_OPTION: z
-			.union([
-				z.literal("prod").transform(() => {
-					return {
-						requestCert: true,
-						rejectUnauthorized: true,
-					} as ConnectionOptions;
-				}),
-				z.literal("prod-provide_ca_cert").transform((_, ctx) => {
-					const caCert = getCaCert();
-					if (caCert === undefined) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Could not find ca certificate",
-						});
-						return z.NEVER;
-					}
-					return {
-						requestCert: true,
-						rejectUnauthorized: true,
-						ca: caCert,
-					} as ConnectionOptions;
-				}),
-				z.literal("dev").transform(() => {
-					return {
-						requestCert: true,
-						rejectUnauthorized: false,
-					} as ConnectionOptions;
-				}),
-				z.literal("true").transform(() => {
-					return true;
-				}),
-				z.literal("false").transform(() => {
-					return false;
-				}),
-			])
+			.enum(["prod", "prod-provide_ca_cert", "dev", "true", "false"])
 			.default("prod"),
 	})
-	.transform((schema) => {
+	.transform((schema, ctx) => {
+		let ssl: boolean | ConnectionOptions;
+		switch (schema.DATABASE_SSL_OPTION) {
+			case "prod":
+				ssl = {
+					requestCert: true,
+					rejectUnauthorized: true,
+				};
+				break;
+			case "prod-provide_ca_cert": {
+				const caCert = getCaCert();
+				if (caCert === undefined) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "Could not find ca certificate",
+						path: ["DATABASE_SSL_OPTION"],
+					});
+					return z.NEVER;
+				}
+				ssl = {
+					requestCert: true,
+					rejectUnauthorized: true,
+					ca: caCert,
+				};
+				break;
+			}
+			case "dev":
+				ssl = {
+					requestCert: true,
+					rejectUnauthorized: false,
+				};
+				break;
+			case "true":
+				ssl = true;
+				break;
+			case "false":
+				ssl = false;
+				break;
+			default: {
+				ctx.addIssue({
+					code: "custom",
+					message: "No valid ssl option",
+					path: ["DATABASE_SSL_OPTION"],
+				});
+				return z.NEVER;
+			}
+		}
 		return {
 			host: schema.DATABASE_HOST.trim(),
 			database: schema.DATABASE_NAME.trim(),
 			user: schema.DATABASE_USER.trim(),
 			password: schema.DATABASE_PASSWORD.trim(),
 			port: schema.DATABASE_PORT,
-			ssl: schema.DATABASE_SSL_OPTION,
+			ssl,
 		};
 	})
 	.safeParse(env);

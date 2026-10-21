@@ -1,8 +1,11 @@
-import { expensesTable } from "@/db/tables/expenses";
+import { teamsTable } from "@/db/tables/teams";
 import { timeStringParser } from "@/lib/time-parsers";
+import { parseWithSchema } from "@/lib/zod";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+const teamInsertSchema = createInsertSchema(teamsTable).strict().readonly();
 
 export const teamsRequestParser = z
 	.object({
@@ -26,6 +29,6 @@ export const teamsRequestToInsertParser = teamsRequestParser
 		description: teamsRequestParser.shape.description.trim(),
 		shortDescription: teamsRequestParser.shape.shortDescription.trim(),
 	})
-	.pipe(createInsertSchema(expensesTable).strict().readonly());
+	.transform(parseWithSchema(teamInsertSchema));
 
 export type NewTeam = z.infer<typeof teamsRequestToInsertParser>;

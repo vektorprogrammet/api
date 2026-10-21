@@ -5,11 +5,18 @@ import {
 	postgresSeverityParser,
 	publicPostgresErrorClassParser,
 } from "@/db/errors/postgres-error-constants-parsers";
+import { parseWithSchema } from "@/lib/zod";
 import { z } from "zod";
 
 // Inspiration from
 // https://www.postgresql.org/docs/9.3/protocol-error-fields.html and
 // https://github.com/brianc/node-postgres/blob/master/packages/pg-protocol/src/messages.ts
+
+const nonnegativeIntFromStringParser = z
+	.string()
+	.transform(
+		parseWithSchema(z.coerce.number().finite().safe().int().nonnegative()),
+	);
 
 export const postgresErrorParser = z
 	.object({
@@ -19,14 +26,8 @@ export const postgresErrorParser = z
 		severity: postgresSeverityParser,
 		detail: z.string().optional(),
 		hint: z.string().optional(),
-		position: z
-			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
-			.optional(),
-		internalPosition: z
-			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
-			.optional(),
+		position: nonnegativeIntFromStringParser.optional(),
+		internalPosition: nonnegativeIntFromStringParser.optional(),
 		internalQuery: z.string().optional(),
 		where: z.string().optional(),
 		schema: z.string().optional(),
@@ -35,10 +36,7 @@ export const postgresErrorParser = z
 		dataType: z.string().optional(),
 		constaint: z.string().optional(),
 		file: z.string().optional(),
-		line: z
-			.string()
-			.pipe(z.coerce.number().finite().safe().int().nonnegative())
-			.optional(),
+		line: nonnegativeIntFromStringParser.optional(),
 		routine: z.string().optional(),
 	})
 	.readonly()
