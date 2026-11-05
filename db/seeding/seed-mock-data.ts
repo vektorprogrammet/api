@@ -1,3 +1,4 @@
+import { teamDescriptions } from "@/db/seeding/team-descriptions";
 import { database, postgresClient } from "@/db/setup/query-postgres";
 import { assistantSemestersTable } from "@/db/tables/assistant-semesters";
 import { departmentsTable } from "@/db/tables/departments";
@@ -6,6 +7,7 @@ import { semestersTable } from "@/db/tables/semesters";
 import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamSemesterUsersTable } from "@/db/tables/team-semester-user";
 import { teamsTable } from "@/db/tables/teams";
+import type { TeamDescription } from "@/src/lib/team-description";
 import {
 	assistantUsersTable,
 	teamUsersTable,
@@ -23,22 +25,22 @@ const locations: { city: City; key: string }[] = [
 ];
 
 const teamUserRoleNames = [
-	"Medlem",
-	"Utvikler",
 	"Leder",
 	"Nestleder",
-	"Mentor",
-	"Sekretær",
-	"IT-Ansvarlig",
-	"Sponsoransvarlig",
-	"Økonomiansvarlig",
 	"Ekspansjonsansvarlig",
 	"Evaluering",
+	"IT-Ansvarlig",
+	"Medlem",
+	"Mentor",
 	"Profilering",
 	"Rekruttering",
+	"Sekretær",
 	"Skolekoordinering",
-	"Sponsor",
 	"Sosialansvarlig",
+	"Sponsor",
+	"Sponsoransvarlig",
+	"Utvikler",
+	"Økonomiansvarlig",
 ] as const;
 
 // Team names, public summaries, and role-based contact addresses are from
@@ -206,6 +208,56 @@ const teamsInSeedOrder = [
 	...teams.filter((team) => team.key !== "hovedstyret"),
 ];
 
+const teamDescriptionKeys = {
+	"trondheim-styret": "trondheim/styret",
+	"trondheim-evaluering": "trondheim/evaluering",
+	"trondheim-rekruttering": "trondheim/rekruttering",
+	"trondheim-skolekoordinering": "trondheim/skolekoordinering",
+	"trondheim-sponsor": "trondheim/sponsor",
+	"trondheim-okonomi": "trondheim/okonomi",
+	"trondheim-it": "trondheim/it",
+	"trondheim-profilering": "trondheim/profilering",
+	"aas-styret": "aas/styret",
+	"aas-sponsor": "aas/sponsor-okonomi",
+	"aas-skolekoordinering": "aas/skolekoordinering",
+	"aas-rekruttering": "aas/evaluering-rekruttering-profilering",
+	"aas-sosialt": "aas/sosialt",
+	"bergen-styret": "bergen/styret",
+	"bergen-skolekoordinering": "bergen/skolekoordinering",
+	"bergen-rekruttering": "bergen/rekruttering",
+	"bergen-sponsor": undefined,
+	"bergen-profilering": undefined,
+	"trondheim-ekspansjon": undefined,
+	hovedstyret: "hovedstyret",
+} satisfies Record<
+	(typeof teams)[number]["key"],
+	keyof typeof teamDescriptions | undefined
+>;
+
+function getTeamDescription(
+	teamKey: (typeof teams)[number]["key"],
+	shortDescription: string,
+): TeamDescription {
+	const descriptionKey = teamDescriptionKeys[teamKey];
+	if (descriptionKey) {
+		return teamDescriptions[descriptionKey];
+	}
+
+	return [
+		{
+			type: "section",
+			id: `${teamKey}-intro`,
+			content: [
+				{
+					type: "markdown",
+					id: `${teamKey}-summary`,
+					markdown: shortDescription,
+				},
+			],
+		},
+	];
+}
+
 const mockMembersPerTeam = 5;
 const mockAssistantsPerCity = 2;
 const mockUserKeys = [
@@ -287,6 +339,18 @@ function makeDate(year: number, month: number, day: number): string {
 	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function slugifyTeamName(name: string): string {
+	return name
+		.toLowerCase()
+		.replaceAll("æ", "ae")
+		.replaceAll("ø", "o")
+		.replaceAll("å", "a")
+		.normalize("NFD")
+		.replace(/\p{M}/gu, "")
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
 async function seedMockData(): Promise<void> {
 	const year = new Date().getUTCFullYear();
 	const semesterName = `Mock Autumn ${year}`;
@@ -295,18 +359,16 @@ async function seedMockData(): Promise<void> {
 	const semesterIds = new Map<City, number>();
 
 	await database.transaction(async (tx) => {
-		const existingRoles = await tx
-			.select({ name: teamUserRolesTable.name })
-			.from(teamUserRolesTable);
-		const existingRoleNames = new Set(existingRoles.map((role) => role.name));
-		const missingRoleNames = teamUserRoleNames.filter(
-			(name) => !existingRoleNames.has(name),
+		await tx.delete(teamUserRolesTable);
+		await tx.insert(teamUserRolesTable).values(
+			teamUserRoleNames.map((name, index) => ({
+				id: index + 1,
+				name,
+			})),
 		);
-		if (missingRoleNames.length > 0) {
-			await tx
-				.insert(teamUserRolesTable)
-				.values(missingRoleNames.map((name) => ({ name })));
-		}
+		await tx.execute(
+			sql`SELECT setval(pg_get_serial_sequence('"mainSchema"."teamUserRoles"', 'id'), ${teamUserRoleNames.length}, true)`,
+		);
 
 		const seededRoles = await tx
 			.select({
@@ -395,7 +457,7 @@ async function seedMockData(): Promise<void> {
 				? []
 				: await tx
 						.insert(departmentsTable)
-						.values({ city: location.city })
+						.values({ city: location.city, slug: location.key })
 						.returning({ id: departmentsTable.id });
 			const departmentId = existingDepartment?.id ?? newDepartment?.id;
 			if (departmentId === undefined) {
@@ -485,8 +547,9 @@ async function seedMockData(): Promise<void> {
 						.values({
 							departmentId,
 							name: team.name,
+							slug: slugifyTeamName(team.name),
 							email: team.email,
-							description: team.description,
+							description: getTeamDescription(team.key, team.description),
 							shortDescription: team.description,
 							acceptApplication: false,
 							active: true,

@@ -1,4 +1,5 @@
 import {
+	selectActiveTeamAndMembersByDepartmentAndTeam,
 	selectActiveTeams,
 	selectActiveTeamsOverview,
 	selectInActiveTeams,
@@ -11,6 +12,7 @@ import {
 	toSerialIdParser,
 } from "@/src/request-handling/common";
 import { Router, json } from "express";
+import { z } from "zod";
 
 export const teamsRouter = Router();
 teamsRouter.use(json());
@@ -148,6 +150,61 @@ teamsRouter.get("/:teamId/", async (req, res, next) => {
 		);
 	}
 	const databaseResult = await selectTeamsById([teamIdResult.data]);
+	if (!databaseResult.success) {
+		return next(
+			clientError(
+				400,
+				"Failed to execute the database command",
+				databaseResult.error,
+			),
+		);
+	}
+	res.json(databaseResult.data);
+});
+
+
+
+/**
+ * @openapi
+ * /teams/{teamId}/:
+ *  get:
+ *   tags: [teams]
+ *   summary: Get team with id
+ *   description: Get team with id
+ *   parameters:
+ *    - $ref: "#/components/parameters/offset"
+ *    - $ref: "#/components/parameters/limit"
+ *   responses:
+ *    200:
+ *     description: Successfull response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        $ref: "#/components/schemas/teamApplication"
+ */
+teamsRouter.get("/active/full/", async (req, res, next) => {
+	const queryResult = z
+        .object({
+            department: z.string().min(1),
+            team: z.string().min(1),
+        })
+        .safeParse(req.query);
+
+	if (!queryResult.success) {
+        return next(
+            clientError(400, "Invalid request format", queryResult.error),
+        );
+    }
+
+	const { department, team } = queryResult.data;
+
+	const queryParametersResult = listQueryParser.safeParse(req.query);
+	if (!queryParametersResult.success) {
+		return next(
+			clientError(400, "Invalid request format", queryParametersResult.error),
+		);
+	}
+	const databaseResult = await selectActiveTeamAndMembersByDepartmentAndTeam(department, team);
 	if (!databaseResult.success) {
 		return next(
 			clientError(

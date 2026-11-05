@@ -1,10 +1,12 @@
 import { teamApplicationsTable } from "@/db/tables/applications";
 import { departmentsTable } from "@/db/tables/departments";
 import { mainSchema } from "@/db/tables/schema";
+import type { TeamDescription } from "@/src/lib/team-description";
 import { relations } from "drizzle-orm";
 import {
 	boolean,
 	integer,
+	jsonb,
 	serial,
 	text,
 	timestamp,
@@ -20,8 +22,9 @@ export const teamsTable = mainSchema.table(
 			.notNull()
 			.references(() => departmentsTable.id),
 		name: text("name").notNull(),
+		slug: text("slug").notNull(),
 		email: text("email").notNull().unique(),
-		description: text("description").notNull(),
+		description: jsonb("description").$type<TeamDescription>().notNull(),
 		shortDescription: text("shortDescription").notNull(),
 		acceptApplication: boolean("acceptApplication").notNull(),
 		active: boolean("active").notNull(),
