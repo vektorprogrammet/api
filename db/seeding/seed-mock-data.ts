@@ -330,7 +330,7 @@ function getMockUserName(key: string): { firstName: string; lastName: string } {
 		firstName: mockFirstNames[hash % mockFirstNames.length],
 		lastName:
 			mockLastNames[
-				Math.floor(hash / mockFirstNames.length) % mockLastNames.length
+			Math.floor(hash / mockFirstNames.length) % mockLastNames.length
 			],
 	};
 }
@@ -417,10 +417,10 @@ async function seedMockData(): Promise<void> {
 			const [currentUser] = existingUser
 				? []
 				: await tx
-						.select({ id: usersTable.id })
-						.from(usersTable)
-						.where(eq(usersTable.personalEmail, personalEmail))
-						.limit(1);
+					.select({ id: usersTable.id })
+					.from(usersTable)
+					.where(eq(usersTable.personalEmail, personalEmail))
+					.limit(1);
 			const user = existingUser ?? currentUser;
 			if (user) {
 				await tx
@@ -463,9 +463,9 @@ async function seedMockData(): Promise<void> {
 			const [newDepartment] = existingDepartment
 				? []
 				: await tx
-						.insert(departmentsTable)
-						.values({ city: location.city, slug: location.key })
-						.returning({ id: departmentsTable.id });
+					.insert(departmentsTable)
+					.values({ city: location.city, slug: location.key })
+					.returning({ id: departmentsTable.id });
 			const departmentId = existingDepartment?.id ?? newDepartment?.id;
 			if (departmentId === undefined) {
 				throw new Error(`Could not create ${location.city} department`);
@@ -486,13 +486,13 @@ async function seedMockData(): Promise<void> {
 			const [newStudy] = existingStudy
 				? []
 				: await tx
-						.insert(fieldsOfStudyTable)
-						.values({
-							studyCode,
-							name: `Mock STEM Studies - ${location.city}`,
-							departmentId,
-						})
-						.returning({ id: fieldsOfStudyTable.id });
+					.insert(fieldsOfStudyTable)
+					.values({
+						studyCode,
+						name: `Mock STEM Studies - ${location.city}`,
+						departmentId,
+					})
+					.returning({ id: fieldsOfStudyTable.id });
 			const fieldOfStudyId = existingStudy?.id ?? newStudy?.id;
 			if (fieldOfStudyId === undefined) {
 				throw new Error(`Could not create mock study for ${location.city}`);
@@ -517,16 +517,16 @@ async function seedMockData(): Promise<void> {
 			const [newSemester] = existingSemester
 				? []
 				: await tx
-						.insert(semestersTable)
-						.values({
-							name: semesterName,
-							departmentId,
-							semesterStartDate: makeDate(year, 8, 15),
-							semesterEndDate: makeDate(year, 12, 20),
-							recruitmentStartDate: makeDate(year, 7, 15),
-							recruitmentEndDate: makeDate(year, 8, 31),
-						})
-						.returning({ id: semestersTable.id });
+					.insert(semestersTable)
+					.values({
+						name: semesterName,
+						departmentId,
+						semesterStartDate: makeDate(year, 8, 15),
+						semesterEndDate: makeDate(year, 12, 20),
+						recruitmentStartDate: makeDate(year, 7, 15),
+						recruitmentEndDate: makeDate(year, 8, 31),
+					})
+					.returning({ id: semestersTable.id });
 			const semesterId = existingSemester?.id ?? newSemester?.id;
 			if (semesterId === undefined) {
 				throw new Error(`Could not create mock semester for ${location.city}`);
@@ -566,9 +566,9 @@ async function seedMockData(): Promise<void> {
 			const roleName = isTeamLeader
 				? "Leder"
 				: nonLeaderRoleNames[
-						(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
-							nonLeaderRoleNames.length
-					];
+				(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
+				nonLeaderRoleNames.length
+				];
 			const teamUserRoleId = teamUserRoleIds.get(roleName);
 			if (teamUserRoleId === undefined) {
 				throw new Error(`Missing team user role ${roleName}`);
@@ -645,19 +645,19 @@ async function seedMockData(): Promise<void> {
 			const [newTeam] = existingTeam
 				? []
 				: await tx
-						.insert(teamsTable)
-						.values({
-							departmentId,
-							name: team.name,
-							slug: slugifyTeamName(team.name),
-							email: team.email,
-							description: getTeamDescription(team.key, team.description),
-							shortDescription: team.description,
-							acceptApplication: false,
-							active: true,
-							deadline: null,
-						})
-						.returning({ id: teamsTable.id });
+					.insert(teamsTable)
+					.values({
+						departmentId,
+						name: team.name,
+						slug: slugifyTeamName(team.name),
+						email: team.email,
+						description: getTeamDescription(team.key, team.description),
+						shortDescription: team.description,
+						acceptApplication: false,
+						active: true,
+						deadline: null,
+					})
+					.returning({ id: teamsTable.id });
 			const teamId = existingTeam?.id ?? newTeam?.id;
 			if (teamId === undefined) {
 				throw new Error(`Could not create ${team.key}`);

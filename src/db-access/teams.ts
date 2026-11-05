@@ -1,6 +1,5 @@
 import { database } from "@/db/setup/query-postgres";
 import { departmentsTable } from "@/db/tables/departments";
-import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamsTable } from "@/db/tables/teams";
 import { teamUsersTable, usersTable } from "@/db/tables/users";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
@@ -8,6 +7,7 @@ import type { Team, TeamKey } from "@/src/response-handling/teams";
 import { and, count, eq, inArray, or, sql } from "drizzle-orm";
 import type { QueryParameters } from "../request-handling/common";
 import { newDatabaseTransaction } from "./common";
+import { teamUserRolesTable } from "@/db/tables/team-roles";
 
 type TeamOverview = {
 	team: Team;
@@ -147,12 +147,49 @@ export const selectActiveTeamAndMembersByDepartmentAndTeam = async (
 			})
 			.from(teamUsersTable)
 			.innerJoin(usersTable, eq(teamUsersTable.userId, usersTable.id))
+			.innerJoin(teamUserRolesTable, eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id))
+			.where(eq(teamUsersTable.teamId, teamDetails.team.id));
+
+		return { ...teamDetails, members };
+	});
+};
+
+export const selectHovedstyretContacts = async () => {
+	return await newDatabaseTransaction(database, async (tx) => {
+		return await tx
+			.select({
+				firstName: usersTable.firstName,
+				lastName: usersTable.lastName,
+				mail: usersTable.companyEmail,
+				title: teamUserRolesTable.name,
+			})
+			.from(teamUsersTable)
+			.innerJoin(
+				usersTable,
+				eq(teamUsersTable.userId, usersTable.id),
+			)
+			.innerJoin(
+				teamsTable,
+				eq(teamUsersTable.teamId, teamsTable.id),
+			)
 			.innerJoin(
 				teamUserRolesTable,
 				eq(teamUsersTable.teamUserRoleId, teamUserRolesTable.id),
 			)
-			.where(eq(teamUsersTable.teamId, teamDetails.team.id));
-
-		return { ...teamDetails, members };
+			.where(
+				and(
+					eq(teamsTable.name, "Hovedstyret"),
+					eq(teamsTable.active, true),
+				),
+			)
+			.orderBy(
+				sql`CASE
+          WHEN lower(${teamUserRolesTable.name}) = 'leder' THEN 0
+          WHEN lower(${teamUserRolesTable.name}) = 'nestleder' THEN 1
+          ELSE 2
+        END`,
+				usersTable.firstName,
+				usersTable.lastName,
+			);
 	});
 };
