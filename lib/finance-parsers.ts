@@ -1,3 +1,4 @@
+import { parseWithSchema } from "@/lib/zod";
 import validator from "validator";
 import { z } from "zod";
 
@@ -27,4 +28,4 @@ export const norwegianBankAccountNumberParser = z
 	.string()
 	.length(11)
 	.transform((string) => `NO93${string}`)
-	.pipe(norwegianIbanParser);
+	.transform(parseWithSchema(norwegianIbanParser));
