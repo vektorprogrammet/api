@@ -2,6 +2,7 @@ import { teamsTable } from "@/db/tables/teams";
 import { timeStringParser } from "@/lib/time-parsers";
 import { teamDescriptionParser } from "@/src/lib/team-description";
 import { parseWithSchema } from "@/lib/zod";
+import { teamDescriptionParser } from "@/src/lib/team-description";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";

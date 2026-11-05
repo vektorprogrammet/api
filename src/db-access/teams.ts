@@ -1,5 +1,6 @@
 import { database } from "@/db/setup/query-postgres";
 import { departmentsTable } from "@/db/tables/departments";
+import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamsTable } from "@/db/tables/teams";
 import { teamUsersTable, usersTable } from "@/db/tables/users";
 import { type OrmResult, ormError } from "@/src/error/orm-error";
