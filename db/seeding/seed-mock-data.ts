@@ -7,7 +7,6 @@ import { semestersTable } from "@/db/tables/semesters";
 import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamSemesterUsersTable } from "@/db/tables/team-semester-user";
 import { teamsTable } from "@/db/tables/teams";
-import type { TeamDescription } from "@/src/lib/team-description";
 import {
 	assistantUsersTable,
 	teamUsersTable,
@@ -33,19 +32,11 @@ const teamUserRoleNames = [
 	"IT-Ansvarlig",
 	"Medlem",
 	"Mentor",
-	"IT-Ansvarlig",
-	"Medlem",
-	"Mentor",
 	"Profilering",
 	"Rekruttering",
 	"Sekretær",
-	"Sekretær",
 	"Skolekoordinering",
 	"Sosialansvarlig",
-	"Sponsor",
-	"Sponsoransvarlig",
-	"Utvikler",
-	"Økonomiansvarlig",
 	"Sponsor",
 	"Sponsoransvarlig",
 	"Utvikler",
@@ -267,56 +258,6 @@ function getTeamDescription(
 	];
 }
 
-const teamDescriptionKeys = {
-	"trondheim-styret": "trondheim/styret",
-	"trondheim-evaluering": "trondheim/evaluering",
-	"trondheim-rekruttering": "trondheim/rekruttering",
-	"trondheim-skolekoordinering": "trondheim/skolekoordinering",
-	"trondheim-sponsor": "trondheim/sponsor",
-	"trondheim-okonomi": "trondheim/okonomi",
-	"trondheim-it": "trondheim/it",
-	"trondheim-profilering": "trondheim/profilering",
-	"aas-styret": "aas/styret",
-	"aas-sponsor": "aas/sponsor-okonomi",
-	"aas-skolekoordinering": "aas/skolekoordinering",
-	"aas-rekruttering": "aas/evaluering-rekruttering-profilering",
-	"aas-sosialt": "aas/sosialt",
-	"bergen-styret": "bergen/styret",
-	"bergen-skolekoordinering": "bergen/skolekoordinering",
-	"bergen-rekruttering": "bergen/rekruttering",
-	"bergen-sponsor": undefined,
-	"bergen-profilering": undefined,
-	"trondheim-ekspansjon": undefined,
-	hovedstyret: "hovedstyret",
-} satisfies Record<
-	(typeof teams)[number]["key"],
-	keyof typeof teamDescriptions | undefined
->;
-
-function getTeamDescription(
-	teamKey: (typeof teams)[number]["key"],
-	shortDescription: string,
-): TeamDescription {
-	const descriptionKey = teamDescriptionKeys[teamKey];
-	if (descriptionKey) {
-		return teamDescriptions[descriptionKey];
-	}
-
-	return [
-		{
-			type: "section",
-			id: `${teamKey}-intro`,
-			content: [
-				{
-					type: "markdown",
-					id: `${teamKey}-summary`,
-					markdown: shortDescription,
-				},
-			],
-		},
-	];
-}
-
 const mockMembersPerTeam = 5;
 const mockAssistantsPerCity = 2;
 const mockUserKeys = [
@@ -389,25 +330,13 @@ function getMockUserName(key: string): { firstName: string; lastName: string } {
 		firstName: mockFirstNames[hash % mockFirstNames.length],
 		lastName:
 			mockLastNames[
-				Math.floor(hash / mockFirstNames.length) % mockLastNames.length
+			Math.floor(hash / mockFirstNames.length) % mockLastNames.length
 			],
 	};
 }
 
 function makeDate(year: number, month: number, day: number): string {
 	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
-function slugifyTeamName(name: string): string {
-	return name
-		.toLowerCase()
-		.replaceAll("æ", "ae")
-		.replaceAll("ø", "o")
-		.replaceAll("å", "a")
-		.normalize("NFD")
-		.replace(/\p{M}/gu, "")
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-|-$/g, "");
 }
 
 function slugifyTeamName(name: string): string {
@@ -488,10 +417,10 @@ async function seedMockData(): Promise<void> {
 			const [currentUser] = existingUser
 				? []
 				: await tx
-						.select({ id: usersTable.id })
-						.from(usersTable)
-						.where(eq(usersTable.personalEmail, personalEmail))
-						.limit(1);
+					.select({ id: usersTable.id })
+					.from(usersTable)
+					.where(eq(usersTable.personalEmail, personalEmail))
+					.limit(1);
 			const user = existingUser ?? currentUser;
 			if (user) {
 				await tx
@@ -534,9 +463,9 @@ async function seedMockData(): Promise<void> {
 			const [newDepartment] = existingDepartment
 				? []
 				: await tx
-						.insert(departmentsTable)
-						.values({ city: location.city, slug: location.key })
-						.returning({ id: departmentsTable.id });
+					.insert(departmentsTable)
+					.values({ city: location.city, slug: location.key })
+					.returning({ id: departmentsTable.id });
 			const departmentId = existingDepartment?.id ?? newDepartment?.id;
 			if (departmentId === undefined) {
 				throw new Error(`Could not create ${location.city} department`);
@@ -557,13 +486,13 @@ async function seedMockData(): Promise<void> {
 			const [newStudy] = existingStudy
 				? []
 				: await tx
-						.insert(fieldsOfStudyTable)
-						.values({
-							studyCode,
-							name: `Mock STEM Studies - ${location.city}`,
-							departmentId,
-						})
-						.returning({ id: fieldsOfStudyTable.id });
+					.insert(fieldsOfStudyTable)
+					.values({
+						studyCode,
+						name: `Mock STEM Studies - ${location.city}`,
+						departmentId,
+					})
+					.returning({ id: fieldsOfStudyTable.id });
 			const fieldOfStudyId = existingStudy?.id ?? newStudy?.id;
 			if (fieldOfStudyId === undefined) {
 				throw new Error(`Could not create mock study for ${location.city}`);
@@ -588,16 +517,16 @@ async function seedMockData(): Promise<void> {
 			const [newSemester] = existingSemester
 				? []
 				: await tx
-						.insert(semestersTable)
-						.values({
-							name: semesterName,
-							departmentId,
-							semesterStartDate: makeDate(year, 8, 15),
-							semesterEndDate: makeDate(year, 12, 20),
-							recruitmentStartDate: makeDate(year, 7, 15),
-							recruitmentEndDate: makeDate(year, 8, 31),
-						})
-						.returning({ id: semestersTable.id });
+					.insert(semestersTable)
+					.values({
+						name: semesterName,
+						departmentId,
+						semesterStartDate: makeDate(year, 8, 15),
+						semesterEndDate: makeDate(year, 12, 20),
+						recruitmentStartDate: makeDate(year, 7, 15),
+						recruitmentEndDate: makeDate(year, 8, 31),
+					})
+					.returning({ id: semestersTable.id });
 			const semesterId = existingSemester?.id ?? newSemester?.id;
 			if (semesterId === undefined) {
 				throw new Error(`Could not create mock semester for ${location.city}`);
@@ -637,9 +566,9 @@ async function seedMockData(): Promise<void> {
 			const roleName = isTeamLeader
 				? "Leder"
 				: nonLeaderRoleNames[
-						(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
-							nonLeaderRoleNames.length
-					];
+				(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
+				nonLeaderRoleNames.length
+				];
 			const teamUserRoleId = teamUserRoleIds.get(roleName);
 			if (teamUserRoleId === undefined) {
 				throw new Error(`Missing team user role ${roleName}`);
@@ -716,19 +645,19 @@ async function seedMockData(): Promise<void> {
 			const [newTeam] = existingTeam
 				? []
 				: await tx
-						.insert(teamsTable)
-						.values({
-							departmentId,
-							name: team.name,
-							slug: slugifyTeamName(team.name),
-							email: team.email,
-							description: getTeamDescription(team.key, team.description),
-							shortDescription: team.description,
-							acceptApplication: false,
-							active: true,
-							deadline: null,
-						})
-						.returning({ id: teamsTable.id });
+					.insert(teamsTable)
+					.values({
+						departmentId,
+						name: team.name,
+						slug: slugifyTeamName(team.name),
+						email: team.email,
+						description: getTeamDescription(team.key, team.description),
+						shortDescription: team.description,
+						acceptApplication: false,
+						active: true,
+						deadline: null,
+					})
+					.returning({ id: teamsTable.id });
 			const teamId = existingTeam?.id ?? newTeam?.id;
 			if (teamId === undefined) {
 				throw new Error(`Could not create ${team.key}`);
