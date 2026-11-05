@@ -2,6 +2,7 @@ import {
 	selectActiveTeamAndMembersByDepartmentAndTeam,
 	selectActiveTeams,
 	selectActiveTeamsOverview,
+	selectHovedstyretContacts,
 	selectInActiveTeams,
 	selectTeamsById,
 } from "@/src/db-access/teams";
@@ -122,6 +123,49 @@ teamsRouter.get("/active/overview", async (_req, res, next) => {
 
 /**
  * @openapi
+ * /teams/hovedstyret/contacts:
+ *  get:
+ *   tags: [teams]
+ *   summary: Get contact information for Hovedstyret members
+ *   description: Return first name, last name, company email and role title for all active Hovedstyret members
+ *   responses:
+ *    200:
+ *     description: Successful response
+ *     content:
+ *      application/json:
+ *       schema:
+ *        type: array
+ *        items:
+ *         type: object
+ *         properties:
+ *          firstName:
+ *           type: string
+ *          lastName:
+ *           type: string
+ *          mail:
+ *           type: string
+ *           nullable: true
+ *          title:
+ *           type: string
+ */
+teamsRouter.get("/hovedstyret/contacts", async (_req, res, next) => {
+	const result = await selectHovedstyretContacts();
+
+	if (!result.success) {
+		return next(
+			clientError(
+				400,
+				"Failed to retrieve data from the database",
+				result.error,
+			),
+		);
+	}
+
+	res.json(result.data);
+});
+
+/**
+ * @openapi
  * /teams/{teamId}/:
  *  get:
  *   tags: [teams]
@@ -184,17 +228,17 @@ teamsRouter.get("/:teamId/", async (req, res, next) => {
  */
 teamsRouter.get("/active/full/", async (req, res, next) => {
 	const queryResult = z
-        .object({
-            department: z.string().min(1),
-            team: z.string().min(1),
-        })
-        .safeParse(req.query);
+		.object({
+			department: z.string().min(1),
+			team: z.string().min(1),
+		})
+		.safeParse(req.query);
 
 	if (!queryResult.success) {
-        return next(
-            clientError(400, "Invalid request format", queryResult.error),
-        );
-    }
+		return next(
+			clientError(400, "Invalid request format", queryResult.error),
+		);
+	}
 
 	const { department, team } = queryResult.data;
 
