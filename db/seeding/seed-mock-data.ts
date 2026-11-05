@@ -1,3 +1,4 @@
+import { teamDescriptions } from "@/db/seeding/team-descriptions";
 import { database, postgresClient } from "@/db/setup/query-postgres";
 import { assistantSemestersTable } from "@/db/tables/assistant-semesters";
 import { departmentsTable } from "@/db/tables/departments";
@@ -11,6 +12,7 @@ import {
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
+import type { TeamDescription } from "@/src/lib/team-description";
 import { and, eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 
@@ -23,22 +25,22 @@ const locations: { city: City; key: string }[] = [
 ];
 
 const teamUserRoleNames = [
-	"Medlem",
-	"Utvikler",
 	"Leder",
 	"Nestleder",
-	"Mentor",
-	"Sekretær",
-	"IT-Ansvarlig",
-	"Sponsoransvarlig",
-	"Økonomiansvarlig",
 	"Ekspansjonsansvarlig",
 	"Evaluering",
+	"IT-Ansvarlig",
+	"Medlem",
+	"Mentor",
 	"Profilering",
 	"Rekruttering",
+	"Sekretær",
 	"Skolekoordinering",
-	"Sponsor",
 	"Sosialansvarlig",
+	"Sponsor",
+	"Sponsoransvarlig",
+	"Utvikler",
+	"Økonomiansvarlig",
 ] as const;
 
 // Team names, public summaries, and role-based contact addresses are from
@@ -206,6 +208,56 @@ const teamsInSeedOrder = [
 	...teams.filter((team) => team.key !== "hovedstyret"),
 ];
 
+const teamDescriptionKeys = {
+	"trondheim-styret": "trondheim/styret",
+	"trondheim-evaluering": "trondheim/evaluering",
+	"trondheim-rekruttering": "trondheim/rekruttering",
+	"trondheim-skolekoordinering": "trondheim/skolekoordinering",
+	"trondheim-sponsor": "trondheim/sponsor",
+	"trondheim-okonomi": "trondheim/okonomi",
+	"trondheim-it": "trondheim/it",
+	"trondheim-profilering": "trondheim/profilering",
+	"aas-styret": "aas/styret",
+	"aas-sponsor": "aas/sponsor-okonomi",
+	"aas-skolekoordinering": "aas/skolekoordinering",
+	"aas-rekruttering": "aas/evaluering-rekruttering-profilering",
+	"aas-sosialt": "aas/sosialt",
+	"bergen-styret": "bergen/styret",
+	"bergen-skolekoordinering": "bergen/skolekoordinering",
+	"bergen-rekruttering": "bergen/rekruttering",
+	"bergen-sponsor": undefined,
+	"bergen-profilering": undefined,
+	"trondheim-ekspansjon": undefined,
+	hovedstyret: "hovedstyret",
+} satisfies Record<
+	(typeof teams)[number]["key"],
+	keyof typeof teamDescriptions | undefined
+>;
+
+function getTeamDescription(
+	teamKey: (typeof teams)[number]["key"],
+	shortDescription: string,
+): TeamDescription {
+	const descriptionKey = teamDescriptionKeys[teamKey];
+	if (descriptionKey) {
+		return teamDescriptions[descriptionKey];
+	}
+
+	return [
+		{
+			type: "section",
+			id: `${teamKey}-intro`,
+			content: [
+				{
+					type: "markdown",
+					id: `${teamKey}-summary`,
+					markdown: shortDescription,
+				},
+			],
+		},
+	];
+}
+
 const mockMembersPerTeam = 5;
 const mockAssistantsPerCity = 2;
 const mockUserKeys = [
@@ -287,6 +339,18 @@ function makeDate(year: number, month: number, day: number): string {
 	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function slugifyTeamName(name: string): string {
+	return name
+		.toLowerCase()
+		.replaceAll("æ", "ae")
+		.replaceAll("ø", "o")
+		.replaceAll("å", "a")
+		.normalize("NFD")
+		.replace(/\p{M}/gu, "")
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
 async function seedMockData(): Promise<void> {
 	const year = new Date().getUTCFullYear();
 	const semesterName = `Mock Autumn ${year}`;
@@ -295,36 +359,38 @@ async function seedMockData(): Promise<void> {
 	const semesterIds = new Map<City, number>();
 
 	await database.transaction(async (tx) => {
-		const existingRoles = await tx
-			.select({ name: teamUserRolesTable.name })
-			.from(teamUserRolesTable);
-		const existingRoleNames = new Set(existingRoles.map((role) => role.name));
-		const missingRoleNames = teamUserRoleNames.filter(
-			(name) => !existingRoleNames.has(name),
-		);
-		if (missingRoleNames.length > 0) {
-			await tx
-				.insert(teamUserRolesTable)
-				.values(missingRoleNames.map((name) => ({ name })));
-		}
-
-		const seededRoles = await tx
-			.select({
-				id: teamUserRolesTable.id,
-				name: teamUserRolesTable.name,
-			})
-			.from(teamUserRolesTable);
-		const teamUserRoleIds = new Map(
-			seededRoles.map((role) => [role.name, role.id]),
-		);
-		for (const roleName of teamUserRoleNames) {
-			if (!teamUserRoleIds.has(roleName)) {
-				throw new Error(`Could not create team user role ${roleName}`);
-			}
-		}
+		const teamUserRoleIds = new Map<string, number>();
 		const nonLeaderRoleNames = teamUserRoleNames.filter(
 			(roleName) => roleName !== "Leder",
 		);
+
+		async function seedTeamUserRoles(): Promise<void> {
+			await tx.delete(teamUserRolesTable);
+			await tx.insert(teamUserRolesTable).values(
+				teamUserRoleNames.map((name, index) => ({
+					id: index + 1,
+					name,
+				})),
+			);
+			await tx.execute(
+				sql`SELECT setval(pg_get_serial_sequence('"mainSchema"."teamUserRoles"', 'id'), ${teamUserRoleNames.length}, true)`,
+			);
+
+			const seededRoles = await tx
+				.select({
+					id: teamUserRolesTable.id,
+					name: teamUserRolesTable.name,
+				})
+				.from(teamUserRolesTable);
+			for (const role of seededRoles) {
+				teamUserRoleIds.set(role.name, role.id);
+			}
+			for (const roleName of teamUserRoleNames) {
+				if (!teamUserRoleIds.has(roleName)) {
+					throw new Error(`Could not create team user role ${roleName}`);
+				}
+			}
+		}
 
 		async function getOrCreateUser(
 			key: string,
@@ -380,12 +446,15 @@ async function seedMockData(): Promise<void> {
 					phoneNumber,
 				})
 				.returning({ id: usersTable.id });
-			if (!newUser)
+			if (!newUser) {
 				throw new Error(`Could not create mock user ${personalEmail}`);
+			}
 			return newUser.id;
 		}
 
-		for (const location of locations) {
+		async function getOrCreateDepartment(
+			location: (typeof locations)[number],
+		): Promise<number> {
 			const [existingDepartment] = await tx
 				.select({ id: departmentsTable.id })
 				.from(departmentsTable)
@@ -395,14 +464,19 @@ async function seedMockData(): Promise<void> {
 				? []
 				: await tx
 						.insert(departmentsTable)
-						.values({ city: location.city })
+						.values({ city: location.city, slug: location.key })
 						.returning({ id: departmentsTable.id });
 			const departmentId = existingDepartment?.id ?? newDepartment?.id;
 			if (departmentId === undefined) {
 				throw new Error(`Could not create ${location.city} department`);
 			}
-			departmentIds.set(location.city, departmentId);
+			return departmentId;
+		}
 
+		async function getOrCreateFieldOfStudy(
+			location: (typeof locations)[number],
+			departmentId: number,
+		): Promise<number> {
 			const studyCode = `MOCK-${location.key.toUpperCase()}-STUDY`;
 			const [existingStudy] = await tx
 				.select({ id: fieldsOfStudyTable.id })
@@ -423,8 +497,13 @@ async function seedMockData(): Promise<void> {
 			if (fieldOfStudyId === undefined) {
 				throw new Error(`Could not create mock study for ${location.city}`);
 			}
-			fieldOfStudyIds.set(location.city, fieldOfStudyId);
+			return fieldOfStudyId;
+		}
 
+		async function getOrCreateSemester(
+			location: (typeof locations)[number],
+			departmentId: number,
+		): Promise<number> {
 			const [existingSemester] = await tx
 				.select({ id: semestersTable.id })
 				.from(semestersTable)
@@ -452,22 +531,107 @@ async function seedMockData(): Promise<void> {
 			if (semesterId === undefined) {
 				throw new Error(`Could not create mock semester for ${location.city}`);
 			}
+			return semesterId;
+		}
+
+		async function seedLocation(
+			location: (typeof locations)[number],
+		): Promise<void> {
+			const departmentId = await getOrCreateDepartment(location);
+			const fieldOfStudyId = await getOrCreateFieldOfStudy(
+				location,
+				departmentId,
+			);
+			const semesterId = await getOrCreateSemester(location, departmentId);
+			departmentIds.set(location.city, departmentId);
+			fieldOfStudyIds.set(location.city, fieldOfStudyId);
 			semesterIds.set(location.city, semesterId);
 		}
 
-		for (const team of teamsInSeedOrder) {
-			const teamIndex = teams.indexOf(team);
-			const departmentId = departmentIds.get(team.city);
-			const fieldOfStudyId = fieldOfStudyIds.get(team.city);
-			const semesterId = semesterIds.get(team.city);
-			if (
-				departmentId === undefined ||
-				fieldOfStudyId === undefined ||
-				semesterId === undefined
-			) {
-				throw new Error(`Missing seed references for ${team.key}`);
+		async function seedLocations(): Promise<void> {
+			for (const location of locations) {
+				await seedLocation(location);
+			}
+		}
+
+		async function seedTeamMember(
+			team: (typeof teams)[number],
+			teamIndex: number,
+			memberIndex: number,
+			teamId: number,
+			fieldOfStudyId: number,
+			semesterId: number,
+		): Promise<void> {
+			const isTeamLeader = memberIndex === 1;
+			const roleName = isTeamLeader
+				? "Leder"
+				: nonLeaderRoleNames[
+						(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
+							nonLeaderRoleNames.length
+					];
+			const teamUserRoleId = teamUserRoleIds.get(roleName);
+			if (teamUserRoleId === undefined) {
+				throw new Error(`Missing team user role ${roleName}`);
+			}
+			const memberNumber = String(memberIndex).padStart(2, "0");
+			const userId = await getOrCreateUser(
+				`mock-${team.key}-member-${memberNumber}`,
+				fieldOfStudyId,
+			);
+			const [existingTeamUser] = await tx
+				.select({ userId: teamUsersTable.userId })
+				.from(teamUsersTable)
+				.where(
+					and(
+						eq(teamUsersTable.userId, userId),
+						eq(teamUsersTable.teamId, teamId),
+					),
+				)
+				.limit(1);
+			if (existingTeamUser) {
+				await tx
+					.update(teamUsersTable)
+					.set({ teamUserRoleId, isTeamLeader })
+					.where(
+						and(
+							eq(teamUsersTable.userId, userId),
+							eq(teamUsersTable.teamId, teamId),
+						),
+					);
+			} else {
+				await tx.insert(teamUsersTable).values({
+					userId,
+					teamId,
+					username: `mock-${team.key}-${memberNumber}`,
+					teamUserRoleId,
+					isTeamLeader,
+				});
 			}
 
+			const [existingMembership] = await tx
+				.select({ teamUserId: teamSemesterUsersTable.teamUserId })
+				.from(teamSemesterUsersTable)
+				.where(
+					and(
+						eq(teamSemesterUsersTable.teamId, teamId),
+						eq(teamSemesterUsersTable.semesterId, semesterId),
+						eq(teamSemesterUsersTable.teamUserId, userId),
+					),
+				)
+				.limit(1);
+			if (!existingMembership) {
+				await tx.insert(teamSemesterUsersTable).values({
+					teamId,
+					semesterId,
+					teamUserId: userId,
+				});
+			}
+		}
+
+		async function getOrCreateTeam(
+			team: (typeof teamsInSeedOrder)[number],
+			departmentId: number,
+		): Promise<number> {
 			const [existingTeam] = await tx
 				.select({ id: teamsTable.id, departmentId: teamsTable.departmentId })
 				.from(teamsTable)
@@ -485,8 +649,9 @@ async function seedMockData(): Promise<void> {
 						.values({
 							departmentId,
 							name: team.name,
+							slug: slugifyTeamName(team.name),
 							email: team.email,
-							description: team.description,
+							description: getTeamDescription(team.key, team.description),
 							shortDescription: team.description,
 							acceptApplication: false,
 							active: true,
@@ -494,128 +659,119 @@ async function seedMockData(): Promise<void> {
 						})
 						.returning({ id: teamsTable.id });
 			const teamId = existingTeam?.id ?? newTeam?.id;
-			if (teamId === undefined) throw new Error(`Could not create ${team.key}`);
+			if (teamId === undefined) {
+				throw new Error(`Could not create ${team.key}`);
+			}
+			return teamId;
+		}
+
+		async function seedTeam(
+			team: (typeof teamsInSeedOrder)[number],
+			teamIndex: number,
+		): Promise<void> {
+			const departmentId = departmentIds.get(team.city);
+			const fieldOfStudyId = fieldOfStudyIds.get(team.city);
+			const semesterId = semesterIds.get(team.city);
+			if (
+				departmentId === undefined ||
+				fieldOfStudyId === undefined ||
+				semesterId === undefined
+			) {
+				throw new Error(`Missing seed references for ${team.key}`);
+			}
+			const teamId = await getOrCreateTeam(team, departmentId);
 
 			for (
 				let memberIndex = 1;
 				memberIndex <= mockMembersPerTeam;
 				memberIndex++
 			) {
-				const isTeamLeader = memberIndex === 1;
-				const roleName = isTeamLeader
-					? "Leder"
-					: nonLeaderRoleNames[
-							(teamIndex * (mockMembersPerTeam - 1) + memberIndex - 2) %
-								nonLeaderRoleNames.length
-						];
-				const teamUserRoleId = teamUserRoleIds.get(roleName);
-				if (teamUserRoleId === undefined) {
-					throw new Error(`Missing team user role ${roleName}`);
-				}
-				const memberNumber = String(memberIndex).padStart(2, "0");
-				const userId = await getOrCreateUser(
-					`mock-${team.key}-member-${memberNumber}`,
+				await seedTeamMember(
+					team,
+					teamIndex,
+					memberIndex,
+					teamId,
 					fieldOfStudyId,
+					semesterId,
 				);
-				const [existingTeamUser] = await tx
-					.select({ userId: teamUsersTable.userId })
-					.from(teamUsersTable)
-					.where(
-						and(
-							eq(teamUsersTable.userId, userId),
-							eq(teamUsersTable.teamId, teamId),
-						),
-					)
-					.limit(1);
-				if (existingTeamUser) {
-					await tx
-						.update(teamUsersTable)
-						.set({ teamUserRoleId, isTeamLeader })
-						.where(
-							and(
-								eq(teamUsersTable.userId, userId),
-								eq(teamUsersTable.teamId, teamId),
-							),
-						);
-				} else {
-					await tx.insert(teamUsersTable).values({
-						userId,
-						teamId,
-						username: `mock-${team.key}-${memberNumber}`,
-						teamUserRoleId,
-						isTeamLeader,
-					});
+			}
+		}
+
+		async function seedTeams(): Promise<void> {
+			for (const team of teamsInSeedOrder) {
+				await seedTeam(team, teams.indexOf(team));
+			}
+		}
+
+		async function seedAssistant(
+			location: (typeof locations)[number],
+			assistantIndex: number,
+			fieldOfStudyId: number,
+			semesterId: number,
+		): Promise<void> {
+			const assistantNumber = String(assistantIndex).padStart(2, "0");
+			const userId = await getOrCreateUser(
+				`mock-assistant-${location.key}-${assistantNumber}`,
+				fieldOfStudyId,
+			);
+
+			const [existingAssistant] = await tx
+				.select({ id: assistantUsersTable.id })
+				.from(assistantUsersTable)
+				.where(eq(assistantUsersTable.id, userId))
+				.limit(1);
+			if (!existingAssistant) {
+				await tx.insert(assistantUsersTable).values({ id: userId });
+			}
+
+			const [existingAssistantSemester] = await tx
+				.select({ assistantId: assistantSemestersTable.assistantId })
+				.from(assistantSemestersTable)
+				.where(
+					and(
+						eq(assistantSemestersTable.assistantId, userId),
+						eq(assistantSemestersTable.semesterId, semesterId),
+					),
+				)
+				.limit(1);
+			if (!existingAssistantSemester) {
+				await tx.insert(assistantSemestersTable).values({
+					assistantId: userId,
+					semesterId,
+					isSubstitute: false,
+				});
+			}
+		}
+
+		async function seedAssistants(): Promise<void> {
+			for (const location of locations) {
+				const fieldOfStudyId = fieldOfStudyIds.get(location.city);
+				const semesterId = semesterIds.get(location.city);
+				if (fieldOfStudyId === undefined || semesterId === undefined) {
+					throw new Error(
+						`Missing assistant seed references for ${location.city}`,
+					);
 				}
 
-				const [existingMembership] = await tx
-					.select({ teamUserId: teamSemesterUsersTable.teamUserId })
-					.from(teamSemesterUsersTable)
-					.where(
-						and(
-							eq(teamSemesterUsersTable.teamId, teamId),
-							eq(teamSemesterUsersTable.semesterId, semesterId),
-							eq(teamSemesterUsersTable.teamUserId, userId),
-						),
-					)
-					.limit(1);
-				if (!existingMembership) {
-					await tx.insert(teamSemesterUsersTable).values({
-						teamId,
+				for (
+					let assistantIndex = 1;
+					assistantIndex <= mockAssistantsPerCity;
+					assistantIndex++
+				) {
+					await seedAssistant(
+						location,
+						assistantIndex,
+						fieldOfStudyId,
 						semesterId,
-						teamUserId: userId,
-					});
+					);
 				}
 			}
 		}
 
-		for (const location of locations) {
-			const fieldOfStudyId = fieldOfStudyIds.get(location.city);
-			const semesterId = semesterIds.get(location.city);
-			if (fieldOfStudyId === undefined || semesterId === undefined) {
-				throw new Error(
-					`Missing assistant seed references for ${location.city}`,
-				);
-			}
-
-			for (
-				let assistantIndex = 1;
-				assistantIndex <= mockAssistantsPerCity;
-				assistantIndex++
-			) {
-				const assistantNumber = String(assistantIndex).padStart(2, "0");
-				const userId = await getOrCreateUser(
-					`mock-assistant-${location.key}-${assistantNumber}`,
-					fieldOfStudyId,
-				);
-
-				const [existingAssistant] = await tx
-					.select({ id: assistantUsersTable.id })
-					.from(assistantUsersTable)
-					.where(eq(assistantUsersTable.id, userId))
-					.limit(1);
-				if (!existingAssistant) {
-					await tx.insert(assistantUsersTable).values({ id: userId });
-				}
-
-				const [existingAssistantSemester] = await tx
-					.select({ assistantId: assistantSemestersTable.assistantId })
-					.from(assistantSemestersTable)
-					.where(
-						and(
-							eq(assistantSemestersTable.assistantId, userId),
-							eq(assistantSemestersTable.semesterId, semesterId),
-						),
-					)
-					.limit(1);
-				if (!existingAssistantSemester) {
-					await tx.insert(assistantSemestersTable).values({
-						assistantId: userId,
-						semesterId,
-						isSubstitute: false,
-					});
-				}
-			}
-		}
+		await seedTeamUserRoles();
+		await seedLocations();
+		await seedTeams();
+		await seedAssistants();
 	});
 
 	console.info(
