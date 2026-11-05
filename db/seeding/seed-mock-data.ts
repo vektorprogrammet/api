@@ -7,12 +7,12 @@ import { semestersTable } from "@/db/tables/semesters";
 import { teamUserRolesTable } from "@/db/tables/team-roles";
 import { teamSemesterUsersTable } from "@/db/tables/team-semester-user";
 import { teamsTable } from "@/db/tables/teams";
-import type { TeamDescription } from "@/src/lib/team-description";
 import {
 	assistantUsersTable,
 	teamUsersTable,
 	usersTable,
 } from "@/db/tables/users";
+import type { TeamDescription } from "@/src/lib/team-description";
 import { and, eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 
@@ -442,8 +442,9 @@ async function seedMockData(): Promise<void> {
 					phoneNumber,
 				})
 				.returning({ id: usersTable.id });
-			if (!newUser)
+			if (!newUser) {
 				throw new Error(`Could not create mock user ${personalEmail}`);
+			}
 			return newUser.id;
 		}
 
@@ -557,7 +558,9 @@ async function seedMockData(): Promise<void> {
 						})
 						.returning({ id: teamsTable.id });
 			const teamId = existingTeam?.id ?? newTeam?.id;
-			if (teamId === undefined) throw new Error(`Could not create ${team.key}`);
+			if (teamId === undefined) {
+				throw new Error(`Could not create ${team.key}`);
+			}
 
 			for (
 				let memberIndex = 1;

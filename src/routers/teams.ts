@@ -162,8 +162,6 @@ teamsRouter.get("/:teamId/", async (req, res, next) => {
 	res.json(databaseResult.data);
 });
 
-
-
 /**
  * @openapi
  * /teams/{teamId}/:
@@ -184,17 +182,15 @@ teamsRouter.get("/:teamId/", async (req, res, next) => {
  */
 teamsRouter.get("/active/full/", async (req, res, next) => {
 	const queryResult = z
-        .object({
-            department: z.string().min(1),
-            team: z.string().min(1),
-        })
-        .safeParse(req.query);
+		.object({
+			department: z.string().min(1),
+			team: z.string().min(1),
+		})
+		.safeParse(req.query);
 
 	if (!queryResult.success) {
-        return next(
-            clientError(400, "Invalid request format", queryResult.error),
-        );
-    }
+		return next(clientError(400, "Invalid request format", queryResult.error));
+	}
 
 	const { department, team } = queryResult.data;
 
@@ -204,7 +200,10 @@ teamsRouter.get("/active/full/", async (req, res, next) => {
 			clientError(400, "Invalid request format", queryParametersResult.error),
 		);
 	}
-	const databaseResult = await selectActiveTeamAndMembersByDepartmentAndTeam(department, team);
+	const databaseResult = await selectActiveTeamAndMembersByDepartmentAndTeam(
+		department,
+		team,
+	);
 	if (!databaseResult.success) {
 		return next(
 			clientError(
