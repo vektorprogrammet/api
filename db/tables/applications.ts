@@ -14,8 +14,10 @@ import { fieldsOfStudyTable } from "./fields-of-study";
 import { interviewsTable } from "./interviews";
 import { semestersTable } from "./semesters";
 
-const genders = ["female", "male", "other"] as const;
+export const genders = ["female", "male", "other", "withheld"] as const;
+export const yearsOfStudy = ["1", "2", "3", "4", "5", "6<="] as const;
 
+export const yearsOfStudyEnum = mainSchema.enum("yearOfStudy", yearsOfStudy);
 export const gendersEnum = mainSchema.enum("gender", genders);
 export type Gender = (typeof genders)[number];
 
@@ -28,7 +30,7 @@ export const applicationsTable = mainSchema.table("applications", {
 	fieldOfStudyId: integer("fieldOfStudyId")
 		.notNull()
 		.references(() => fieldsOfStudyTable.id),
-	yearOfStudy: integer("yearOfStudy").notNull(),
+	yearOfStudy: yearsOfStudyEnum("yearOfStudy").notNull(),
 	phonenumber: text("phonenumber").notNull(),
 	semester: integer("semester")
 		.notNull()

@@ -2,7 +2,9 @@ import {
 	type Gender,
 	applicationsTable,
 	assistantApplicationsTable,
+	genders,
 	teamApplicationsTable,
+	yearsOfStudy,
 } from "@/db/tables/applications";
 import { MAX_TEXT_LENGTH } from "@/lib/global-variables";
 import { parseWithSchema } from "@/lib/zod";
@@ -32,18 +34,13 @@ export const applicationParser = z
 			.describe("Last name of user applying for a team"),
 		email: z.string().email().describe("Email of user applying for a team"),
 		gender: z
-			.enum(["Female", "Male", "Other"])
+			.enum(genders)
 			.describe("The gender of the user applying for a team"),
 		fieldOfStudyId: serialIdParser.describe(
 			"Studyfield of user applying for a team",
 		),
 		yearOfStudy: z
-			.number()
-			.finite()
-			.safe()
-			.positive()
-			.int()
-			.max(7)
+			.enum(yearsOfStudy)
 			.describe("The year of study the user applying for a team is in"),
 		phonenumber: z
 			.string()

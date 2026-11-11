@@ -11,13 +11,8 @@ export const portParser = z
 
 export const toPortParser = z.coerce.number().pipe(portParser);
 
-export const hostingStringParser = z.union(
-	[
-		z.literal("localhost"),
-		z.string().url(),
-		z.string().refine((value) => isIP(value) !== 0, "not a valid IP address"),
-	],
-	{
-		error: "not a valid host string, must be localhost, a url or an IP-adress",
-	},
-);
+export const hostingStringParser = z.union([
+	z.literal("localhost"),
+	z.string().url(),
+	z.string().refine((value) => isIP(value) !== 0, "not a valid IP address"),
+]);

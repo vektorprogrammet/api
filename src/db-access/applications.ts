@@ -7,6 +7,7 @@ import {
 import { type OrmResult, ormError } from "@/src/error/orm-error";
 import type {
 	NewApplication,
+	NewAssistantApplication,
 	NewTeamApplication,
 	NewTeamInterestApplication,
 } from "@/src/request-handling/applications";
@@ -196,6 +197,36 @@ export const selectAssistantApplicationsBySemester = async (
 		return selectResult;
 	});
 };
+
+export async function insertAssistantApplication(
+	assistantApplication: NewAssistantApplication & NewApplication,
+): Promise<OrmResult<AssistantApplication>> {
+	return await newDatabaseTransaction(database, async (tx) => {
+		const newApplication = await tx
+			.insert(applicationsTable)
+			.values({
+				firstName: assistantApplication.firstName,
+				lastName: assistantApplication.lastName,
+				gender: assistantApplication.gender,
+				email: assistantApplication.email,
+				fieldOfStudyId: assistantApplication.fieldOfStudyId,
+				yearOfStudy: assistantApplication.yearOfStudy,
+				phonenumber: assistantApplication.phonenumber,
+				semester: assistantApplication.semester,
+			})
+			.returning();
+		const newApplicationId = newApplication[0].id;
+		const newAssistantApplication = await tx
+			.insert(assistantApplicationsTable)
+			.values({ id: newApplicationId })
+			.returning();
+
+		return {
+			...newApplication[0],
+			...newAssistantApplication[0],
+		};
+	});
+}
 
 export async function insertTeamApplication(
 	teamApplication: NewTeamApplication & NewApplication,

@@ -1,5 +1,6 @@
 import {
 	createTeamApplicationFromAssistantApplication,
+	insertAssistantApplication,
 	insertTeamApplication,
 	selectAssistantApplicationsBySemester,
 	selectTeamApplications,
@@ -8,6 +9,7 @@ import {
 } from "@/src/db-access/applications";
 import { clientError } from "@/src/error/http-errors";
 import {
+	applicationParser,
 	teamApplicationToInsertParser,
 	teamInterestParser,
 } from "@/src/request-handling/applications";
@@ -204,6 +206,23 @@ assistantApplicationRouter.get(
 		res.json(databaseResult.data);
 	},
 );
+
+assistantApplicationRouter.post("/", async (req, res, next) => {
+	const bodyResult = applicationParser.safeParse(req.body);
+	if (!bodyResult.success) {
+		return next(clientError(400, "Invalid request format", bodyResult.error));
+	}
+
+	const databaseResult = await insertAssistantApplication(bodyResult.data);
+
+	if (!databaseResult.success) {
+		return next(
+			clientError(400, "Database transaction failed", databaseResult.error),
+		);
+	}
+
+	res.status(201).json(databaseResult.data);
+});
 
 /**
  * @openapi
