@@ -1,10 +1,10 @@
 import { departmentsTable } from "@/db/tables/departments";
 import { createSelectSchema } from "drizzle-zod";
-import z from "zod";
+import type z from "zod";
 
 export const departmentsSelectSchema = createSelectSchema(departmentsTable)
 	.strict()
-	.readonly()
+	.readonly();
 
 export type Department = z.infer<typeof departmentsSelectSchema>;
 export type DepartmentKey = Department["id"];

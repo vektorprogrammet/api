@@ -1,7 +1,7 @@
-import { json, Router } from "express";
-import { toListQueryParser } from "../request-handling/common";
-import { clientError } from "../error/http-errors";
+import { Router, json } from "express";
 import { selectAllDepartments } from "../db-access/departments";
+import { clientError } from "../error/http-errors";
+import { toListQueryParser } from "../request-handling/common";
 
 export const departmentsRouter = Router();
 departmentsRouter.use(json());

@@ -1,9 +1,11 @@
-import { createInsertSchema } from "drizzle-zod";
 import { departmentsTable } from "@/db/tables/departments";
-import z from "zod";
 import { parseWithSchema } from "@/lib/zod";
+import { createInsertSchema } from "drizzle-zod";
+import z from "zod";
 
-const departmentInsertSchema = createInsertSchema(departmentsTable).strict().readonly();
+const departmentInsertSchema = createInsertSchema(departmentsTable)
+	.strict()
+	.readonly();
 
 export const departmentsRequestParser = z
 	.object({
