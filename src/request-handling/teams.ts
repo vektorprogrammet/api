@@ -1,6 +1,7 @@
 import { teamsTable } from "@/db/tables/teams";
 import { timeStringParser } from "@/lib/time-parsers";
 import { parseWithSchema } from "@/lib/zod";
+import { teamDescriptionParser } from "@/src/lib/team-description";
 import { serialIdParser } from "@/src/request-handling/common";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -12,7 +13,7 @@ export const teamsRequestParser = z
 		departmentId: serialIdParser.describe("Id of corresponding department"),
 		name: z.string().min(1).describe("Name of team"),
 		email: z.string().email().describe("Email of team"),
-		description: z.string().min(1).describe("Description of team"),
+		description: teamDescriptionParser.describe("Description of team"),
 		shortDescription: z.string().min(1).describe("Short description of team"),
 		acceptApplication: z
 			.boolean()
@@ -26,7 +27,6 @@ export const teamsRequestToInsertParser = teamsRequestParser
 	.extend({
 		name: teamsRequestParser.shape.name.trim(),
 		email: teamsRequestParser.shape.email.trim().toLowerCase(),
-		description: teamsRequestParser.shape.description.trim(),
 		shortDescription: teamsRequestParser.shape.shortDescription.trim(),
 	})
 	.transform(parseWithSchema(teamInsertSchema));
