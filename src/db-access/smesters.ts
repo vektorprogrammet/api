@@ -16,7 +16,7 @@ export const selectCurrentSemesterByDepartmentId = async (
 			.where(
 				and(
 					eq(semestersTable.departmentId, departmentId),
-					gte(semestersTable.recruitmentEndDate, sql`CURRENT_DATE`),
+					gte(semestersTable.recruitmentEndDate, sql`CURRENT_DATE`), // Is there a better solution to this?
 				),
 			)
 			.orderBy(asc(semestersTable.recruitmentStartDate))
