@@ -24,7 +24,7 @@ semestersRouter.use(json());
  */
 semestersRouter.get("/current/:departmentId/", async (req, res, next) => {
 	const departmentIdResult = toSerialIdParser.safeParse(
-		req.params.departmentId,
+		Number(req.params.departmentId),
 	);
 	if (!departmentIdResult.success) {
 		return next(
