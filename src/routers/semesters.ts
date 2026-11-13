@@ -1,5 +1,5 @@
 import { Router, json } from "express";
-import { selectCurrentSemesterByDepartmentId } from "../db-access/smesters";
+import { selectCurrentSemesterByDepartmentId } from "../db-access/semesters";
 import { clientError } from "../error/http-errors";
 import { toSerialIdParser } from "../request-handling/common";
 
