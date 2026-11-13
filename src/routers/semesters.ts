@@ -11,16 +11,24 @@ semestersRouter.use(json());
  * /semesters/current/{departmentId}:
  *  get:
  *   tags: [semesters]
- *   summary: Get current semester in department
- *   description: Return current semester in department
+ *   summary: Get the recruiting or current semester for a department
+ *   description: Prefer a semester with open recruitment, otherwise return the ongoing semester. Return null if neither exists.
  *   parameters:
+ *    - in: path
+ *      name: departmentId
+ *      required: true
+ *      schema:
+ *       type: integer
+ *       minimum: 1
  *   responses:
  *    200:
  *     description: Successfull response
  *     content:
  *      application/json:
  *       schema:
- *        $ref: "#/components/schemas/semesters"
+ *        oneOf:
+ *         - $ref: "#/components/schemas/semester"
+ *         - type: "null"
  */
 semestersRouter.get("/current/:departmentId/", async (req, res, next) => {
 	const departmentIdResult = toSerialIdParser.safeParse(

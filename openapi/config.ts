@@ -7,6 +7,7 @@ import {
 	serialIdParser,
 	sortParser,
 } from "@/src/request-handling/common";
+import { semestersSelectSchema } from "@/src/response-handling/semesters";
 
 import { expenseRequestParser } from "@/src/request-handling/expenses";
 import { sponsorRequestParser } from "@/src/request-handling/sponsors";
@@ -71,6 +72,7 @@ const openapiDocument = createDocument({
 	paths: {},
 	components: {
 		schemas: {
+			semester: semestersSelectSchema,
 			expenseRequest: expenseRequestParser,
 			expense: expensesSelectSchema,
 			sponsorRequest: sponsorRequestParser,
