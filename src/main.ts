@@ -20,6 +20,7 @@ import { usersRouter } from "@/src/routers/users";
 import { customCors, customHelmetSecurity } from "@/src/security";
 import express from "express";
 import { departmentsRouter } from "./routers/departments";
+import { semestersRouter } from "./routers/semesters";
 
 export const api = express();
 
@@ -50,6 +51,8 @@ api.use("/teams", teamsRouter);
 api.use("/contact", contactRouter);
 
 api.use("/departments", departmentsRouter);
+
+api.use("/semesters", semestersRouter);
 
 // Error handling
 api.use(
